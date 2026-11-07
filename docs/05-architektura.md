@@ -1,6 +1,6 @@
 # 05 — Architektura
 
-Stav k 2026-11-07. Autor: architekt. Zdroj pravdy: `00-zadani.md` (vč. D15 iOS 26, D16 en-GB, D17 předpoklad). Vstupy: `01`, `02`, `04`, `08`, `09`. Tvrzení o platformě přebírám z `08`/`09` se stejným značením (**ověřeno** / **domněnka**); nová tvrzení, která jsem neověřil, jsou **domněnka → sonda** (seznam v kap. 11).
+Stav k 2026-11-07. Autor: architekt. Zdroj pravdy: `00-zadani.md` (vč. D5 Ad Hoc, D15 iOS 26, D16 en-GB, D17 potvrzeno, R6). Vstupy: `01`, `02`, `04`, `08`, `09`, `10`. **Revize 2026-11-07:** distribuce se mění z TestFlightu na Ad Hoc (TestFlight dětský účet nespustí), viz A11, kap. 10 a ADR-14. Tvrzení o platformě přebírám z `08`/`09` se stejným značením (**ověřeno** / **domněnka**); nová tvrzení, která jsem neověřil, jsou **domněnka → sonda** (seznam v kap. 11).
 
 > **Sladěno s `07-opakovani-algoritmus.md`** (FSRS-6, karta = slovo × směr, sloveso = jedna karta, fáze se počítá a neukládá, log musí mít `mode`, `outcome`, `hintLevel`, `rating`, `responseMs`, `typedText`, fazety a výsledky po tvarech). Zdrojem pravdy je historie pokusů. Stav FSRS je z ní kdykoli přepočitatelný (ADR-03). Kdyby se FSRS nahradilo Leitnerem (`07` kap. 1), mění se jen doménová funkce a lokální cache, ne synchronizované schéma.
 
@@ -11,8 +11,8 @@ Stav k 2026-11-07. Autor: architekt. Zdroj pravdy: `00-zadani.md` (vč. D15 iOS 
 3. **Model je CloudKit-kompatibilní (R4):** žádné `unique`, všechno s defaultem nebo volitelné, žádné SwiftData relace, jen UUID reference. V každé entitě je `schemaVersion`, enumy se ukládají jako String, mazání je měkké (tombstone), duplicity se slučují aliasem (`mergedIntoID`), ne přepisem historie.
 4. **Import:** fotka zůstává jen dočasně v zařízení. OCR běží v zařízení (`RecognizeDocumentsRequest`, iOS 26, D15). Párování řádků je čistá doménová logika testovatelná na nahraných výstupech OCR. Na konci je vždy kontrolní obrazovka, uloží se jedna dávka (`ImportBatch`) a celou dávku jde vrátit.
 5. **Soukromí:** žádná síť kromě systémové synchronizace CloudKit do **soukromé** databáze synova iCloudu, žádná SDK třetích stran, žádná analytika. Smazat jde slovo, sadu (koš 30 dní) i všechna data najednou.
-6. **Testy bez zařízení:** doména (vyhodnocení, plánovač, přestavba z logu, slučování konfliktů, párování OCR, CSV) jde přes `swift test` i mimo simulátor. Kvalitu OCR, hlasy, CloudKit mezi dvěma zařízeními a TestFlight s dětským účtem jde ověřit **jen na zařízení** (T1–T8).
-7. **Brány před vývojem:** R1 (T1, T2) a R2 (T6) jsou **sondy, ne fakta**. Architektura je navržená tak, aby výsledek R2 změnil jen OCR adaptér a výsledek R1 nezměnil nic v kódu (jen distribuci). Pokud R1 dopadne úplně špatně, mění se D5. To rozhoduje zadavatel.
+6. **Testy bez zařízení:** doména (vyhodnocení, plánovač, přestavba z logu, slučování konfliktů, párování OCR, CSV) jde přes `swift test` i mimo simulátor. Kvalitu OCR, hlasy, CloudKit mezi dvěma zařízeními a Ad Hoc instalaci pod dětským iCloudem jde ověřit **jen na zařízení** (T3–T8, U1–U3).
+7. **Brány před vývojem:** R1 je **uzavřeno** (TestFlight dětský účet nespustí, ověřeno na zařízení). Distribuce je Ad Hoc (D5) a její provoz ověří sondy U1–U3 (`10`). R2 (T6) je dál **sonda, ne fakt**: výsledek změní jen OCR adaptér. **R6 (prostředí CloudKit Development vs. Production)** je nové a plyne z distribuce: data se mezi prostředími nekopírují, takže prostředí se musí zvolit a držet (ADR-14). Doménový kód, model ani moduly se kvůli změně distribuce nemění.
 
 ---
 
@@ -30,7 +30,7 @@ Stav k 2026-11-07. Autor: architekt. Zdroj pravdy: `00-zadani.md` (vč. D15 iOS 
 | A8 | Výslovnost en-GB / de-DE, kvalita hlasu závisí na zařízení | D9, D16, R3 | Adaptér řeči s dotazem na dostupnost |
 | A9 | Dítě: žádné odesílání ven, smazání dat | R5, US-20 | Žádné síťové moduly, cesta „smazat vše" přes obě úložiště |
 | A10 | Rodičovský pohled se nesmí vyloučit | D11, US-23 | Data jako log pokusů a hranice `Persistence`, za kterou jde později vyměnit mechanismus sdílení |
-| A11 | Distribuce jen TestFlight, build vyprší za 90 dní | D5, `08` a | Provozní proces (kap. 10), schéma v Production před prvním buildem |
+| A11 | Distribuce Ad Hoc přes Mac a Xcode (UDID, Developer Mode), ruční obnova podpisu | D5, `10` | Provozní proces (kap. 10), volba a držení prostředí CloudKit (ADR-14, R6) |
 | A12 | Minimum iOS 26 | D15 | `RecognizeDocumentsRequest` je k dispozici, odpadá starší větev OCR |
 
 ---
@@ -213,7 +213,7 @@ SwiftData synchronizuje přes `NSPersistentCloudKitContainer` do soukromé datab
 | Smazání na A, úprava na B | Tombstone `deletedAt` vyhrává nad úpravou, protože to doména tak vykládá: smazané slovo se nikde nezobrazí. B uvidí slovo v koši s poznámkou „smazáno na jiném zařízení", obnovení je ruční (US-12 „neoživit bez upozornění"). Tvrdé mazání až po vysypání koše. Zda tvrdě smazaný záznam může upravující zařízení znovu vytvořit, ověří **sonda N4**. Proto se tvrdě maže až po 30 dnech, kdy se obě zařízení nejspíš srovnala. | Domain |
 | Přidání do sady na obou zařízeních | Dva `SetMembership` záznamy, sjednocení. Shodná dvojice (setID, wordID) se ignoruje. | Domain |
 | Vrácení importu na A, procvičování na B | Vrácení = měkké smazání slov dávky. Pokud už mají pokusy, potvrzení „slovo už má N pokusů". Pokusy z B dorazí a zůstanou v koši spolu se slovem. | Domain |
-| Novější verze aplikace na jednom zařízení (TestFlight se aktualizuje nesouběžně) | Staré zařízení: neznámé enumy jako `.unknown`, záznamy s vyšším `schemaVersion`, než zná, zobrazí, ale needituje. Nová pole ignoruje. | Persistence |
+| Novější verze aplikace na jednom zařízení (Ad Hoc buildy se instalují ručně a nesouběžně) | Staré zařízení: neznámé enumy jako `.unknown`, záznamy s vyšším `schemaVersion`, než zná, zobrazí, ale needituje. Nová pole ignoruje. | Persistence |
 | Záznam dorazí před záznamem, na který odkazuje (pokus před slovem) | UUID reference bez relace: pokus „visí" a do rebuildu se započte, až slovo dorazí. Nic se nezahazuje. | Domain |
 
 ---
@@ -275,7 +275,7 @@ SwiftData synchronizuje přes `NSPersistentCloudKitContainer` do soukromé datab
 | UI toky (import → kontrola → uložení, test, souhrn, přerušení) | simulátor, XCUITest | composition root s fake `TextRecognizer` (vrací fixture) a fake `SpeechOutput`; launch argument | kameru, skutečné OCR |
 | Přežití pádu | simulátor | ukončit proces po N odpovědích, ověřit log a rebuild | — |
 | Vision v simulátoru | simulátor | jen „potrubí" (že adaptér vrací DTO). Kvalitu ne (**domněnka**, že výsledky v simulátoru odpovídají zařízení, nespoléhat). | R2 |
-| **Jen na zařízení** | iPhone + iPad syna | **T1, T2** (TestFlight, dětský účet), **T3, T4** (sync, dedup, letadlo), **T5** (hlasy en-GB/de-DE offline), **T6** (OCR jazyky, kvalita, žádná síť), **T7** (TestFlight App Review), T8 (jen P2) + nové sondy N1–N7 | — |
+| **Jen na zařízení** | iPhone + iPad syna | **U1–U3** (Ad Hoc/Xcode pod dětským iCloudem, prostředí CloudKit, `10`), **T3, T4** (sync, dedup, letadlo), **T5** (hlasy en-GB/de-DE offline), **T6** (OCR jazyky, kvalita, žádná síť), T8 (jen P2) + nové sondy N1–N7. T1, T2 a T7 z `08` odpadají (TestFlight se nepoužívá) | — |
 
 Pravidlo: každá chyba nalezená na zařízení se, pokud to jde, převede na doménový test s nahranými daty.
 
@@ -292,7 +292,7 @@ Platí pro všechny entity: **žádná síť kromě systémového CloudKit syncu
 | Slovíčka, sady, slovesa | nízká | lokální store + soukromá CloudKit DB syna + záloha zařízení | dokud je syn nesmaže. Koš 30 dní (předpoklad). | syn (jeho Apple ID). Vývojář obsah soukromé DB nevidí (**domněnka**, `08` e). | jednotlivě / sada / „Smazat vše" |
 | `Attempt` (vč. `typedText`, `responseMs`), `StudySession` | **ano** (profil učení dítěte, časy používání) | jako výše | dokud existuje slovo; při vysypání koše se smažou se slovem | jako výše | se slovem, „Smazat vše". Zadavatel může rozhodnout, že `typedText` se neukládá (pak nejde zpětně kalibrovat hodnocení překlepů, `07`). |
 | `ReviewState` | odvozené | jen lokálně | přepočitatelné | aplikace | „Smazat vše". Smaže se i odinstalací. |
-| TestFlight telemetrie (instalace, relace, pády) | ano | Apple / App Store Connect vývojáře | dle Apple | otec jako vývojář | mimo aplikaci. Co přesně se sdílí a zda to tester vypne, je **domněnka → T7** |
+| Telemetrie distribuce | ne | — | — | — | Při Ad Hoc distribuci není TestFlight, tedy ani jeho telemetrie. Pády se čtou ze zařízení přes Xcode (**domněnka**) |
 
 **„Smazat všechna data" (US-20):** dvoustupňové potvrzení → smazat všechny záznamy obou konfigurací, uložit, nechat smazání odejít do CloudKit. Pokud jsou zařízení offline, smazání se dokončí po připojení (druhé zařízení to dostane syncem). Alternativa „smazat celou CloudKit zónu" je **domněnka → sonda N5**. Odinstalace iCloud data nemaže (**domněnka**, `02` US-20). Kudy je jde smazat ze systému, ověří N5. Export před smazáním (Q12) čeká na rozhodnutí.
 
@@ -340,10 +340,10 @@ Platí pro všechny entity: **žádná síť kromě systémového CloudKit syncu
 - **Přehodnotit, když:** N4 ukáže, že mirroring tvrdé smazání spolehlivě nikdy neoživí, a zadavatel nechce koš. Pak lze tombstony zkrátit.
 
 ### ADR-06 Evoluce schématu: `schemaVersion`, enumy jako String, jen aditivní změny
-- **Kontext:** po nasazení do Production nejde nic mazat ani měnit (**ověřeno**, `08` b). TestFlight se na dvou zařízeních aktualizuje nesouběžně.
+- **Kontext:** po nasazení do Production nejde nic mazat ani měnit (**ověřeno**, `08` b). Zařízení se aktualizují nesouběžně (Ad Hoc je ruční).
 - **Varianty:** (a) `VersionedSchema` + migrace; (b) aditivní pole + `schemaVersion` + tolerantní čtení; (c) nový kontejner při velké změně.
 - **Volba:** (b) jako pravidlo, (c) jako nouzová cesta. Lokální `local` store smí migrovat volně.
-- **Důsledky:** pole se nepřejmenovávají (staré se „zapomene", přidá se nové). Starší klient needituje záznamy s vyšší verzí. Schéma se před **prvním** TestFlight buildem nasadí do Production (T3).
+- **Důsledky:** pole se nepřejmenovávají (staré se „zapomene", přidá se nové). Starší klient needituje záznamy s vyšší verzí. Během vývoje se používá Development prostředí (lze resetovat, **ověřeno**, `10` kap. 6). **Aditivní pravidlo je závazné od okamžiku, kdy se schéma nasadí do Production** (ADR-14), ne dřív.
 - **Přehodnotit, když:** nutná změna významu pole. Pak (c) s migrací dat v aplikaci.
 
 ### ADR-07 OCR adaptér na Vision v zařízení, neutrální `RecognizedPage`, párování v doméně
@@ -384,7 +384,7 @@ Platí pro všechny entity: **žádná síť kromě systémového CloudKit syncu
 ### ADR-12 Žádná síť a žádná SDK třetích stran
 - **Kontext:** R5, dítě, `01` M7.
 - **Volba:** jediný síťový kanál je systémový CloudKit. Žádné analytické, crash ani reklamní SDK. Diagnostika jen lokální (export logu na vyžádání, bez osobních dat; předpoklad).
-- **Důsledky:** méně informací o chybách z terénu. Spoléháme na TestFlight pády a zpětnou vazbu otce.
+- **Důsledky:** méně informací o chybách z terénu. Spoléháme na zpětnou vazbu otce a lokální log. Bez TestFlightu nejsou k dispozici ani jeho hlášení pádů.
 - **Přehodnotit, když:** výslovně rozhodne zadavatel.
 
 ### ADR-13 Minimální iOS 26 (D15)
@@ -392,20 +392,29 @@ Platí pro všechny entity: **žádná síť kromě systémového CloudKit syncu
 - **Důsledky:** k dispozici je `RecognizeDocumentsRequest` a aktuální SwiftData. Není potřeba větev pro starší systém. Riziko: méně zkušeností komunity s novými API, proto sondy N1–N3 cílí právě na iOS 26.
 - **Přehodnotit, když:** přibude zařízení se starším iOS (rozhodne zadavatel).
 
+### ADR-14 Distribuce Ad Hoc a prostředí CloudKit (D5, R6)
+- **Kontext:** TestFlight se v dětském účtu 13letého stáhne, ale nespustí (ověřeno uživatelem na zařízení, 2026-11-07). Zadavatel zvolil Ad Hoc přes Mac a Xcode. TestFlight a App Store používají jen Production, Ad Hoc export a Xcode Run umožňují Development i Production. Development a Production jsou oddělená úložiště, schéma se kopíruje, data ne (**ověřeno**, `10` kap. 6).
+- **Varianty:** (a) vývoj i provoz ve Production; (b) vývoj ve Development, provoz ve Production po jednorázovém přechodu; (c) vše ve Development.
+- **Volba:** (b) jako pravidlo. Vývoj a testy v Development (lze resetovat). Skutečná data syna se do aplikace dávají **až po přechodu na Production build**, a od té doby se Development build na tomtéž zařízení nepoužívá. (c) se nedoporučuje: provoz v Development je mimo běžnou cestu a hrozí ztráta dat při pozdějším přechodu na App Store.
+- **Důsledky:** přechod Development → Production je studený start cloudu. Před ním se schéma nasadí do Production (ruční krok v CloudKit Console). Co se stane s lokálním SwiftData při změně prostředí na témže zařízení, je **domněnka → sonda U3** (příbuzná N6). Pokud lokální data nepřežijí, nabídne aplikace jednorázový export → import (kap. 5, Q12).
+- **Přehodnotit, když:** U2 ukáže, že dětský iCloud nesmí používat Development, nebo se rozhodne distribuovat přes App Store (varianta C v `10`, Production beztak).
+
 ---
 
-## 10. TestFlight a provoz
+## 10. Distribuce a provoz (Ad Hoc)
 
-- **Brána 0 (před vývojem kromě domény):** T1 (dětský účet přijme veřejný odkaz externí skupiny a nainstaluje build), T2 (Média a nákupy ≠ iCloud účet, plán B). Výsledek nemění kód, jen distribuci. Pokud neprojde ani plán B, je potřeba rozhodnutí zadavatele o D5 (`08` a).
-- **Před 1. externím buildem:** `initializeCloudKitSchema()` v DEBUG, kontrola v Console, **Deploy do Production** (T3; nasazení nutné i pro TestFlight je **domněnka**). Entitlements: iCloud/CloudKit kontejner, Background Modes → Remote notifications (**ověřeno**, `08` b). URL zásad ochrany soukromí a odpovědi App Privacy („nesbíráme") připravit (T7). V metadatech nepoužívat označení „pro děti" (**ověřeno**, `08` e).
-- **Build 1 bez syncu** (`04`): `synced` konfigurace bude už v buildu 1 se stejným schématem, jen s `cloudKitDatabase: .none`. V buildu 2 se přepne na `.private`. Zda data z buildu 1 při přepnutí odejdou do CloudKit, ověří **sonda N6**. Pokud ne, build 2 nabídne jednorázový export → import.
-- **90 dní:** build vyprší (**ověřeno**). Připomínka v kalendáři otce, nový build nejpozději v den 80. Data jsou v lokálním store a iCloudu, vypršení je neztratí (**domněnka**, ověřit při první obnově buildu).
+- **Brána 0 (před vývojem kromě domény):** zařízení syna (iPhone, iPad, iOS 26) se zapojí k Macu s Xcode a zapne se Developer Mode. **U1:** Hello CloudKit (iCloud capability) z Xcode pod dětským iCloudem. **U2:** sync iPhone ↔ iPad v Development i v Production (Ad Hoc export), hlášky a případné chyby účtu se zapíšou. **U3:** co se stane s lokálními daty a cloudem při změně prostředí (Development → Production) na témže zařízení. Výsledek nemění doménový kód, jen provozní postup. Zdroj sond: `10` kap. 10.
+- **Registrace a instalace:** UDID synových zařízení do vývojářského účtu (limit 100 zařízení na kategorii a rok, **ověřeno**, `10`), instalace z Macu (Xcode / Apple Configurator, ne OTA). Platnost podpisu Apple na ověřených stránkách neuvádí, běžně se udává 1 rok (**domněnka**), proto se obnova podpisu a přeinstalace plánují do kalendáře otce, nejpozději měsíc před koncem.
+- **Prostředí CloudKit (ADR-14):** vývoj v Development. Před předáním skutečné aplikace synovi: `initializeCloudKitSchema()` v DEBUG, kontrola v Console, **Deploy do Production**, Ad Hoc export s Production. Entitlements: iCloud/CloudKit kontejner, Background Modes → Remote notifications (**ověřeno**, `08` b). Od předání se na tomtéž zařízení nepoužívají Development buildy.
+- **Build 1 bez syncu** (`04`): už nemusí platit. Pokud se vývoj dělá přes Xcode v Development a U2 projde, bude sync fungovat od začátku. Konfigurace `synced` stále existuje i s `cloudKitDatabase: .none` pro případ, že U2 neprojde. Sonda **N6** (přepnutí `.none` → `.private`) zůstává pro tento případ.
+- **Záložní cesty z `10`:** varianta A (TestFlight s dospělým účtem v Média a nákupy, test T-A0, oslabuje rodičovskou kontrolu) a varianta C (nevypsaná aplikace v App Storu, vyžaduje App Review). Zapojí se jen pokud Ad Hoc selže v U1/U2. Obě používají Production, takže ADR-14 platí beze změny.
+- **Nové buildy:** aktualizace se do synových zařízení dostanou jen ručně přes Mac. Pro rodinu je to provozní náklad, ne změna architektury.
 
 ---
 
 ## 11. Předpoklady k ověření sondou (pro `verifier`)
 
-Převzaté z `08`: **T1–T8** (R1: T1, T2; R4: T3, T4; R3: T5, T8; R2+R5: T6; R5/D5: T7). R1 a R2 jsou v tomto návrhu **jen předpoklady**, nic na nich nestaví jako na faktu.
+Převzaté z `08`: **T3–T6, T8** (R4: T3, T4; R3: T5, T8; R2+R5: T6). **T1, T2 a T7 odpadají** (TestFlight se nepoužívá, R1 uzavřeno). Nahrazují je sondy **U1–U3** z `10`. R2 je v tomto návrhu **jen předpoklad**, nic na něm nestaví jako na faktu.
 
 Nové sondy z tohoto návrhu:
 
@@ -418,6 +427,9 @@ Nové sondy z tohoto návrhu:
 | N5 | „Smazat vše" spolehlivě odstraní data z CloudKit a lze je smazat i ze systémového Nastavení po odinstalaci | dvě zařízení, CloudKit Console, Nastavení → iCloud → Spravovat úložiště | přidat mazání zóny přes CloudKit API, upravit text v Nastavení |
 | N6 | Přepnutí konfigurace z `.none` na `.private` mezi buildy nahraje existující lokální data | build 1 → build 2 na zařízení | jednorázová migrace exportem |
 | N7 | Plný `rebuild` pro 50 000 pokusů a UUID dotazy jsou na iPhonu syna pod 1 s | syntetická data na zařízení | inkrementální cache statistik, indexy |
+| U1 | Xcode Run s iCloud capability proběhne na synově iPhonu a iPadu pod dětským iCloudem (Developer Mode) | Hello CloudKit, `10` kap. 10 | záložní cesta A nebo C |
+| U2 | Dětský iCloud smí používat Development i Production prostředí, sync iPhone ↔ iPad funguje | dvě zařízení, CloudKit Console | záložní cesta A nebo C (Production), jinak změna D6 |
+| U3 | Při změně prostředí Development → Production na témže zařízení lokální SwiftData data přežijí (a jak se chová cloud) | zařízení, příbuzné N6 | jednorázový export → import (Q12) |
 
 ---
 
@@ -426,5 +438,6 @@ Nové sondy z tohoto návrhu:
 - **Ukládat `typedText`** (co syn napsal)? `07` ho chce pro kalibraci, ale je to osobní údaj (kap. 8).
 - **Koš 30 dní** a **draft max. 7 dní**: přijatelné lhůty?
 - **Vracet při vrácení importu i doplněné překlady** k existujícím slovům (kap. 5)?
-- **Q12 export** před smazáním dat.
+- **Q12 export** před smazáním dat. Teď i před přechodem Development → Production (ADR-14).
+- **Údržba Ad Hoc:** kdo a jak často obnovuje podpis a přeinstaluje build na synových zařízeních (Mac, kabel, Developer Mode). Doporučení: kalendářní připomínka otce.
 - Z `07`: má-li zůstat „první pokus karty v relaci" pravidlem i při souběžných relacích na dvou zařízeních (kap. 4).
