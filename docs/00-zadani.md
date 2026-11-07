@@ -12,7 +12,7 @@ Syn (7. třída ZŠ, češtinou mluvící) se učí angličtinu a němčinu. Šp
 | D2 | Testování **oběma směry** (cizí → čeština i čeština → cizí). |
 | D3 | Způsob odpovídání: **mix podle znalosti** — nová slova výběrem z možností, známá psaním. |
 | D4 | Po každém pokusu **souhrn**; dlouhodobě **historie pokroku** (zlepšuje se / nezlepšuje se, kde jsou slabiny). |
-| D5 | Platforma iOS (iPhone **i iPad**), distribuce **jen přes TestFlight**. Vývojářský účet je k dispozici. |
+| D5 | Platforma iOS (iPhone **i iPad**). Distribuce **Ad Hoc přes Mac a Xcode** (UDID synových zařízení). ~~Původně jen TestFlight~~ — změněno 2026-11-07, protože TestFlight 13letý dětský účet nespustí (ověřeno uživatelem na zařízení). Vývojářský účet je k dispozici. Podrobnosti `docs/10-distribuce-bez-testflightu.md`. |
 | D6 | Výsledky se **synchronizují přes iCloud** mezi zařízeními. |
 | D7 | Slovíčka se do aplikace dostávají **fotkou stránky ze sešitu/učebnice** (OCR, kontrola a oprava). Doplňkově import (např. CSV). Hotové sady jsou volitelné a jen pokud je licence v pořádku. |
 | D8 | Nepravidelná slovesa: samostatný způsob procvičování, zadávají se **ručně**. |
@@ -32,7 +32,7 @@ Syn (7. třída ZŠ, češtinou mluvící) se učí angličtinu a němčinu. Šp
 - **P2:** hotové sady, gamifikace, kontrola výslovnosti hlasem, rodičovský pohled, připomenutí.
 
 ## Otevřené otázky a rizika k ověření
-- **R1:** Lze dítě v dětském účtu Family Sharing přidat do TestFlightu a spustit z něj aplikaci? Věková hranice testerů, způsob pozvánky, a zda TestFlight účet (Media & Purchases) může být jiný než iCloud účet (CloudKit). Ověřit u Apple dokumentace, nehádat.
+- **R1 (uzavřeno 2026-11-07):** TestFlight se v dětském účtu 13letého stáhne, ale nespustí (ověřeno uživatelem). Řešení: Ad Hoc distribuce (D5). Nový rizikový bod **R6**: Ad Hoc a Xcode buildy mohou používat jiné prostředí CloudKit (Development) než TestFlight a App Store (Production); data se mezi prostředími nekopírují. Přepnutí způsobu distribuce proto může znamenat ztrátu dat v cloudu — prostředí se musí zvolit hned na začátku a držet. Ověřit sondami U1–U3 z `docs/10`.
 - **R2:** Jak spolehlivě Apple Vision / VisionKit přečtí češtinu, němčinu a angličtinu z fotky tabulky slovíček (diakritika, ä ö ü ß, dvojsloupcové tabulky, ručně psané)?
 - **R3:** Kvalita a dostupnost hlasů (AVSpeechSynthesizer) pro de-DE a en-GB/en-US, offline.
 - **R4:** Sync SwiftData přes CloudKit (omezení: žádné unikátní atributy, všechny vlastnosti volitelné nebo s defaultem, relace volitelné).
