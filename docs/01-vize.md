@@ -3,7 +3,7 @@
 Stav k 2026-11-07. Zdroj pravdy: `00-zadani.md`. Čísla v měřítkách úspěchu jsou **návrh k odsouhlasení**, zadání je nestanovuje.
 
 ## Závěr
-Word-memo je malá iOS aplikace (iPhone i iPad, TestFlight) pro jednoho uživatele, syna v 7. třídě. Přebírá slovíčka z jeho sešitu fotkou, zjišťuje, jak dobře se mu každé vybavilo, a podle toho plánuje opakování. Nejdůležitější vlastnost není chytrý algoritmus, ale to, že se k ní syn vrací dobrovolně. Proto platí: neúspěch nesmí demotivovat, relace jsou krátké a bez tlaku.
+Word-memo je malá iOS aplikace (iPhone i iPad, instalace Ad Hoc přes Mac) pro jednoho uživatele, syna v 7. třídě. Přebírá slovíčka z jeho sešitu fotkou, zjišťuje, jak dobře se mu každé vybavilo, a podle toho plánuje opakování. Nejdůležitější vlastnost není chytrý algoritmus, ale to, že se k ní syn vrací dobrovolně. Proto platí: neúspěch nesmí demotivovat, relace jsou krátké a bez tlaku.
 
 ## Problém
 Syn se učí angličtinu a němčinu (překlady vždy do češtiny, D1) a špatně si pamatuje slovíčka. Nemá nástroj, který by změřil, jak dobře se mu slovo vybavilo, a podle toho řídil opakování. Co se vybaví hned, se má připomínat později, co ne, častěji.
@@ -43,7 +43,7 @@ Měří se lokálně z uložených pokusů, bez analytiky (princip 6). Hodnocen�
 - Není to školní známkování ani hodnocení syna. Neodesílá výsledky učiteli.
 - Není to hra. Gamifikace je přání, ne priorita (D13), nesmí zhoršit principy 1–3.
 - Zatím to není rodičovský dashboard (D11), kontrola výslovnosti syna hlasem (D9) ani připomenutí.
-- Není to veřejná aplikace: jen TestFlight, bez App Store (D5), bez Androidu a webu, bez účtů a přihlašování mimo Apple ID.
+- Není to veřejná aplikace: distribuce Ad Hoc přes Mac a Xcode, bez App Store a bez TestFlightu (D5), bez Androidu a webu, bez účtů a přihlašování mimo Apple ID.
 - Nesbírá analytiku, neobsahuje reklamy a nenabízí nákupy.
 - Nenahrazuje jazykové kurzy a nenabízí hotové sady, dokud není jasná licence (D7).
 

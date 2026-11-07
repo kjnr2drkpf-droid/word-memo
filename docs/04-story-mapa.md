@@ -3,7 +3,7 @@
 Stav k 2026-11-07. Vychází z `00-zadani.md` a `02-user-stories.md`. Rozdělení do vln a návrh první verze jsou **návrh k odsouhlasení**; rozsah mění jen zadavatel.
 
 ## Závěr
-Tři vlny podle priorit ze zadání: **vlna 1 = P0** (13 stories), **vlna 2 = P1** (7), **vlna 3 = P2** (5). Nejmenší smysluplná první verze pro TestFlight je **jádro učební smyčky bez iCloud syncu**: první spuštění, import fotkou s opravou, správa sad, test (mix, oba směry), vyhodnocení, plán, souhrn, uložení a offline (US-01 až US-10, US-13). iCloud sync (US-11, US-12) je P0 a následuje jako druhý TestFlight build; datový model se ale od začátku navrhuje pro CloudKit (R4). Před prvním buildem je nutné ověřit R1 (dítě v TestFlightu) a R2 (kvalita OCR), protože oba mohou změnit plán.
+Tři vlny podle priorit ze zadání: **vlna 1 = P0** (13 stories), **vlna 2 = P1** (7), **vlna 3 = P2** (5). Nejmenší smysluplná první verze pro instalaci Ad Hoc je **jádro učební smyčky bez iCloud syncu**: první spuštění, import fotkou s opravou, správa sad, test (mix, oba směry), vyhodnocení, plán, souhrn, uložení a offline (US-01 až US-10, US-13). iCloud sync (US-11, US-12) je P0 a následuje jako druhý build (pokud sondy U1–U3 ukážou, že funguje hned, může být už v prvním, viz `05` kap. 10); datový model se ale od začátku navrhuje pro CloudKit (R4). Před prvním buildem je nutné ověřit sondy U1–U3 (Ad Hoc pod dětským iCloudem a prostředí CloudKit, R6; R1 je uzavřeno, TestFlight dětský účet nespustí) a R2 (kvalita OCR), protože oba mohou změnit plán.
 
 ## Mapa po vlnách
 
@@ -59,11 +59,11 @@ US-10 ─ US-11 ─ US-12 ;  US-11 ─ US-20 ;  US-14 ─ US-23, US-24 ;  US-08 
 
 Kritická cesta pro první smysluplnou verzi: US-04 → US-10 → US-07 → US-08 → US-05 → US-06 → US-09, paralelně US-02 → US-03.
 
-## Návrh nejmenší smysluplné první verze pro TestFlight
+## Návrh nejmenší smysluplné první verze (instalace Ad Hoc)
 
 **Cíl verze:** syn si nafotí stránku, zkontroluje slova, projde krátký test v obou směrech a dostane souhrn; příště mu aplikace nabídne slova podle plánu. Tím se ověří hlavní hypotéza: *syn se k aplikaci vrací a vybavuje si díky ní slova.*
 
-**Obsahuje (TestFlight build 1):**
+**Obsahuje (build 1):**
 - US-01 První spuštění (nejmenší verze: jedna obrazovka a nabídka „Vyfotit slovíčka").
 - US-02 + US-03 Import fotkou s kontrolou a opravou, i z knihovny fotek.
 - US-04 Správa sad a slov (vytvořit, upravit, smazat, jazyk EN/DE).
@@ -77,10 +77,10 @@ Kritická cesta pro první smysluplnou verzi: US-04 → US-10 → US-07 → US-0
 
 **Neobsahuje:** iCloud sync a konflikty (build 2), historii a slabá místa, slovesa, výslovnost, CSV, smazání všech dat, hotové sady, gamifikaci, rodičovský pohled, připomenutí.
 
-**Proč bez syncu v buildu 1:** sync je nejrizikovější část (R1, R4) a první verze potřebuje hlavně ověřit samotný učební cyklus. Pokud syn používá jedno zařízení, sync mu v prvních týdnech nechybí. Je to návrh k odsouhlasení: zadání řadí sync do P0, takže „P0 hotovo" nastane až s buildem 2.
+**Proč bez syncu v buildu 1:** sync je nejrizikovější část (U1–U3, R4, R6) a první verze potřebuje hlavně ověřit samotný učební cyklus. Pokud syn používá jedno zařízení, sync mu v prvních týdnech nechybí. Je to návrh k odsouhlasení: zadání řadí sync do P0, takže „P0 hotovo" nastane až s buildem 2.
 
 **Podmínky před buildem 1:**
-1. R1: ověřit u Apple dokumentace, že dítě v dětském účtu Family Sharing lze přidat do TestFlightu a spustit z něj aplikaci (věk, pozvánka, vztah Media & Purchases účtu a iCloud účtu). Nehádat. Stav: **neověřeno**.
+1. U1–U3 (`10` kap. 10): Ad Hoc instalace na synův iPhone a iPad pod dětským iCloudem (Developer Mode), sync v Development i Production a co se stane s daty při změně prostředí. R1 je uzavřeno: TestFlight dětský účet nespustí (ověřeno na zařízení, 2026-11-07). Stav U1–U3: **neověřeno**.
 2. R2: vyzkoušet OCR (Vision/VisionKit) na reálných stránkách z jeho sešitu a učebnice (diakritika, ä ö ü ß, dvousloupcové tabulky, ručně psané). Stav: **neověřeno**. Výsledek rozhodne, jak důležitá je oprava (US-03) a zda je ruční zadání nutné jako záloha.
 3. Odsouhlasit Q1 (algoritmus a definice stavů slova) a Q2 (přísnost vyhodnocení).
 

@@ -2,6 +2,8 @@
 
 Stav k 2026-11-07. Autor: ověřovatel platformy iOS. Zdroj zadání: `docs/00-zadani.md`.
 
+> **Aktualizace 2026-11-07:** R1 je uzavřeno. TestFlight se v dětském účtu 13letého stáhne, ale nespustí (ověřeno uživatelem na zařízení). Distribuce je Ad Hoc (D5), viz `10-distribuce-bez-testflightu.md`. Testy T1, T2 a T7 z tohoto dokumentu jsou tím překonané, ostatní (T3–T6, T8) platí. Zbytek dokumentu je ponechán jako historický záznam ověření.
+
 ## Závěr
 
 1. **R1 (TestFlight + dětský účet) je největší riziko a z dokumentace nejde rozhodnout.** Oficiální dokumentace Apple nikde neuvádí minimální věk testera ani pravidla pro dětský účet Family Sharing. Neoficiální hlášení z vývojářského fóra mluví o věkové hranici 13 let, ve společném příspěvku i o 16 letech v DE/AT/ES. Syn je v 7. třídě (zhruba 12–13 let) a v Česku je dětský účet do 15 let. Zda ho TestFlight pustí, se **musí vyzkoušet na jeho zařízení dřív, než se začne vyvíjet cokoli dalšího** (test T1 níže).

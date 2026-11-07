@@ -136,7 +136,7 @@ Jako syn chci mít stejné sady a výsledky na iPhonu i iPadu, abych mohl pokra�
 - Sync běží na pozadí, bez ručního spuštění. Stav (synchronizováno / čeká / chyba) je k nalezení v nastavení, ne vnucený.
 - Nepřihlášený iCloud nebo vypnutý iCloud Drive/CloudKit: aplikace funguje lokálně a jednou srozumitelně řekne proč; po zapnutí se data synchronizují.
 - Do iCloudu nejdou fotky, jen strukturovaná data (sady, slova, pokusy).
-- Platnost závisí na R1 (účet dítěte, TestFlight vs. iCloud) a R4; neověřeno.
+- Platnost závisí na sondách U1–U3 (dětský iCloud a prostředí CloudKit při Ad Hoc, R6, `10`) a na R4; neověřeno.
 
 ### US-12 Konflikty při syncu — P0 (předpoklad)
 Jako syn chci, aby se při procvičování na dvou zařízeních nic neztratilo ani nezdvojilo, abych si nemusel dávat pozor, kde zrovna učím.

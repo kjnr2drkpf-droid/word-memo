@@ -104,7 +104,7 @@ Pět položek, ikona + krátký popisek (popisky se nesmí zkrátit na „…“
 - Výchozí tab po spuštění: **Procvičit**. Při prázdné knihovně S10 sám nabídne „Vyfotit slovíčka“.
 - Test (S12–S16) se otevírá jako celoobrazovkový režim bez tab baru, aby se nedalo omylem odejít a aby nic neubíralo místo nad klávesnicí.
 - Import (S31–S36) je modální průvodce s vlastním „Zrušit“ vlevo nahoře, ne push do tab baru.
-- Které z tabů jsou v konkrétním TestFlight buildu vidět (Slovesa, Pokrok jsou P1), je rozhodnutí o rozsahu releasu, ne moje. Návrh počítá s tím, že tab, jehož funkce v buildu není, se prostě nezobrazí.
+- Které z tabů jsou v konkrétním buildu vidět (Slovesa, Pokrok jsou P1), je rozhodnutí o rozsahu releasu, ne moje. Návrh počítá s tím, že tab, jehož funkce v buildu není, se prostě nezobrazí.
 
 ### 2.3 iPad (regular width): sidebar a split view
 

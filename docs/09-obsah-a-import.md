@@ -350,7 +350,7 @@ Právní stránku považujte za **domněnku**, není to právní poradenství. R
 1. P0/P1: žádný bundlovaný obsah. Syn si slovíčka přináší sám (foto, CSV, ručně).
 2. P2 „hotové sady“: jen (a) vlastní, (b) s otevřenou licencí s atribucí na obrazovce „O aplikaci“, (c) s písemným souhlasem nakladatele. Každá sada nese metadata `licence`, `zdroj`, `atribuce`. U nejistých se neuvolňuje do buildu.
 3. Fixtures a testovací fotky: **vymyšlený obsah**, ne scany učebnic (test-author, ux-verifier).
-4. Distribuce jen přes TestFlight (D5) licenční riziko nesnižuje: bundlovaný obsah by se šířil dál.
+4. Distribuce Ad Hoc mimo App Store (D5) licenční riziko nesnižuje: bundlovaný obsah by se šířil dál.
 
 ---
 
