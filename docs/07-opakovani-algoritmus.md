@@ -1,7 +1,7 @@
 # 07 — Algoritmus opakování, hodnocení a metriky pokroku
 
 Stav k 2026-11-07. Zdroj pravdy: `00-zadani.md` (D2, D3, D4, D8, D12, D18, D20). Rozsah produktu tento dokument nemění; parametry jsou **návrh k odsouhlasení**.
-**Revize 2026-11-08 (D18, D20):** vše v tomto dokumentu platí **pro jeden jazyk**. Plánovač, fronta, slovesa, metriky, prahy a kalibrace se počítají zvlášť pro angličtinu a zvlášť pro němčinu, souhrn přes oba jazyky neexistuje (kap. 9, `05` ADR-15).
+**Revize 2026-11-08 (D18, D20, D21):** vše v tomto dokumentu platí **pro jeden jazyk**. Možnosti ve výběru se doplňují z jiných sad téhož jazyka (D21). Plánovač, fronta, slovesa, metriky, prahy a kalibrace se počítají zvlášť pro angličtinu a zvlášť pro němčinu, souhrn přes oba jazyky neexistuje (kap. 9, `05` ADR-15).
 Označení: **simulace** = ověřeno v syntetickém modelu žáka (viz „Simulační model“), **ověřeno (zdroj)**, **domněnka** = nedoloženo.
 
 ## Závěr
@@ -12,7 +12,7 @@ Označení: **simulace** = ověřeno v syntetickém modelu žáka (viz „Simula
 5. **Překlep = Hard, ne Again.** Rozdíl ve výsledku je malý (0,59 vs. 0,62), ale Again stojí +0,5 pokusu na kartu a trestá správné vybavení.
 6. **Nepravidelná slovesa:** jedna karta na sloveso, všechny tvary se zadávají najednou, samostatná fronta/relace, 3 nová slovesa na relaci seskupená podle vzoru. Frekvence relací rozhoduje víc než počet nových: 5 relací týdně → ~43 dní k 80 % zvládnutých, 3 týdně → ~86 dní, 2 týdně → téměř nikdy (simulace, 60 sloves).
 7. **Trend:** okno 14 dnů s 25–60 pokusy je šum (falešný poplach při pravidle „±5 pp“ 57–65 %). Trend se hlásí až při ≥ 100 pokusech v každém z 28denních oken a z ≥ 1,64, jinak „málo dat“ (falešný poplach 10 %, záchyt zlepšení o 15 pp 74 %). Slabé kategorie: ≥ 30 pokusů a chybovost ≥ celková + 10 pp, vždy jako „podezření“ (záchyt 61 %, falešné označení 5 % kategorií).
-8. **Jazyky odděleně (D18, D20):** fronta, plánovač, slovesa, metriky a jejich prahy (trend ≥ 100 pokusů v každém 28denním okně, slabá kategorie ≥ 30 pokusů za 60 dní, hlídač kalibrace 100 opakování) i `desired_retention` platí **na jazyk**. Pokusy druhého jazyka se nepřičítají a souhrn přes oba jazyky se nepočítá. Prahy zůstávají, protože simulace trendu a kategorií je binomiální nad n pokusy jednoho proudu a na jazyce nezávisí. Cena: stav „málo dat“ potrvá u každého jazyka déle. Výběr ze 4 bere možnosti jen ze stejné sady a jazyka.
+8. **Jazyky odděleně (D18, D20):** fronta, plánovač, slovesa, metriky a jejich prahy (trend ≥ 100 pokusů v každém 28denním okně, slabá kategorie ≥ 30 pokusů za 60 dní, hlídač kalibrace 100 opakování) i `desired_retention` platí **na jazyk**. Pokusy druhého jazyka se nepřičítají a souhrn přes oba jazyky se nepočítá. Prahy zůstávají, protože simulace trendu a kategorií je binomiální nad n pokusy jednoho proudu a na jazyce nezávisí. Cena: stav „málo dat“ potrvá u každého jazyka déle. Výběr ze 4 bere možnosti ze stejné sady, a když nestačí, z jiných sad **téhož** jazyka (D21). Méně možností jen tehdy, když nestačí celý jazyk. Pod 3 možnostmi se netestuje výběrem, ale psaním s nápovědou (návrh, kap. 3).
 
 ## 1. Volba algoritmu
 
@@ -79,7 +79,21 @@ Stav se vede **na kartu = slovo × směr** (D2: cizí → čeština a čeština 
 
 - Fáze se **počítá ze stavu při každém výběru testu**, nepamatuje se zvlášť. Chyba u psaní proto automaticky vrací kartu do Učí se a k výběru (S po Again klesne pod 4 d).
 - Úspěch v řadě = hodnocení ≠ Again; Hard se počítá jako úspěch.
-- Distraktory ve výběru: **jen ze stejného jazyka a ze stejné sady** (D18, `05` kap. 13.3), přednostně stejný slovní druh, u německých podstatných jmen se stejným členem nebo odlišné (návrh pro content/UX). Napříč jazyky nikdy, ani jako záloha (en „Hand“ není distraktor pro de „Hand“). Má-li sada méně než 3 použitelné distraktory, nabídne se méně možností a pokus nese `choiceCount` = k. Míra hádání je pak 1/k a správná odpověď zůstává Hard (**domněnka**: při k = 2 je hádání 50 %, hodnocení nebylo simulováno). Zda místo toho doplnit distraktory z jiných sad téhož jazyka, rozhodne zadavatel (`05` kap. 12).
+- Distraktory ve výběru (D21, `05` kap. 13.3): nejdřív **ze stejné sady**. Má-li sada méně než 3 použitelné chybné možnosti, **doplní se z jiných sad téhož jazyka**, nikdy z druhého jazyka (en „Hand“ není distraktor pro de „Hand“). V obou úrovních má přednost stejný slovní druh, u německých podstatných jmen se stejným členem nebo odlišné (návrh pro content/UX).
+- **Okrajový případ: celý jazyk nemá 3 chybné možnosti** (typicky první dny němčiny). Návrh (**domněnka**, nesimulováno na modelu žáka, jen výpočet níže):
+  - **k = 4** (≥ 3 distraktory v jazyce): běžné pravidlo.
+  - **k = 3** (jazyk má právě 3 platná slova): výběr ze 3 je **minimum**. Pokus nese `choiceCount = 3` a správně = Hard jako u k = 4.
+  - **k < 3** (jazyk má 1–2 slova): výběr se nenabízí, protože 50 % uhodnutí z něj dělá skoro hod mincí. Karta se po ukázce testuje **psaním s nápovědou 1. úrovně** (první písmeno + délka), zobrazenou rovnou. Hodnocení podle tabulky v kap. 2: správně = Hard, stejně jako výběr. Plánovač tedy dostane stejný signál a dítě neuhaduje. Zapíše se `mode = typed`, `hintLevel = 1`. Takových pokusů je jen pár na začátku jazyka. Proto se v metrikách psaní od nápovědy dítěte neodlišují a nové pole se kvůli nim nepřidává (návrh).
+  - Jakmile jazyk dosáhne 4 slov, vrací se běžné pravidlo. Nic se nepřepočítává.
+  - **Výpočet dopadu hádání** (model kap. 8: rozpoznání s pravděpodobností r, jinak náhodná volba 1/k). Podíl uhodnutých mezi správnými odpověďmi = ((1 − r)/k) / (r + (1 − r)/k):
+
+    | r | k = 4 | k = 3 | k = 2 |
+    |---|---|---|---|
+    | 0,3 | 37 % | 44 % | 54 % |
+    | 0,5 | 20 % | 25 % | 33 % |
+    | 0,7 | 10 % | 13 % | 18 % |
+
+    U nového slova (r nízké) je při k = 2 víc než polovina „správných“ odpovědí uhodnutá, k = 3 je proti k = 4 horší asi o 5–7 pb. Proto minimum 3. Případ trvá jen do 4. slova jazyka, na plánování má proto zanedbatelný vliv (**domněnka**).
 - **Prahový S pro psaní** (simulace, MC → Hard, slabá paměť): 2 d → chyby u psaní 15 %, čas 99 s/kartu; **4 d → 16 %, 85 s**; 7 d → 18 %, 71 s; vybavení p@d56 0,79 / 0,79 / 0,78. Vybraných 4 d je kompromis; 7 d je nejkratší čas při stejném výsledku. Rozdíly jsou malé, volba není kritická.
 - Délka relace (domněnka, nesimulováno čas): 30 karet ≈ 6–8 minut při odhadu 6 s na výběr a 15 s na psaní.
 
@@ -166,7 +180,7 @@ Simulace detekce (5 kategorií, jedna s chybovostí o 15 pp vyšší, celková 3
 | Překlep | Hard (2); prahy: Damerau–Levenshtein 1, délka ≥ 4 | simulace (volba), práh domněnka |
 | Nápověda | 1. úroveň → Hard, 2. úroveň → Again | domněnka |
 | Čas v hodnocení | vypnuto, jen log | domněnka |
-| Počet voleb v MC | 4, jen ze stejné sady a jazyka; méně (`choiceCount`), když sada nemá dost slov | domněnka (hádání 25 %, použito v simulaci); menší k nesimulováno |
+| Počet voleb v MC | 4: stejná sada, doplnění z jiných sad téhož jazyka (D21); 3, jen když celý jazyk má 3 slova; pod 3 psaní s nápovědou 1. úrovně | D21 rozhodnuto; k = 4 domněnka (hádání 25 %, použito v simulaci); minimum 3 a psaní pod ním návrh, nesimulováno (jen výpočet, kap. 3) |
 | Max. kontrol v relaci | 30 karet; sloves 25 (relace má jeden jazyk) | domněnka (čas), simulace (verb) |
 | Nových karet na relaci | 8 (0, pokud po termínu > 40 karet v aktivním jazyce) | simulace (8) |
 | Nová slovesa na relaci | 3, seskupená dle vzoru | simulace |
@@ -194,7 +208,7 @@ Pokus (`ReviewLog`): `cardId`, `language` (kopie jazyka položky, D18), `timesta
 | Fronta „k procvičení“, plánovač, nová slova | aktivní jazyk | strop 30, 8 nových, práh 40 po termínu na jazyk (kap. 3) |
 | Relace a souhrn po relaci | jeden jazyk | jazyk se zafixuje při startu, uprostřed se nemění (D18) |
 | Nepravidelná slovesa | fronta na jazyk | 3 nová, strop 25, ≥ 3 relace týdně v každém jazyce (kap. 4) |
-| Distraktory | stejná sada a jazyk | méně voleb místo míchání (kap. 3) |
+| Distraktory | stejná sada, pak jiné sady téhož jazyka (D21) | nikdy z druhého jazyka; méně voleb jen při nedostatku slov v celém jazyce (kap. 3) |
 | Metriky, trend, slabá slova a kategorie | na jazyk | prahy beze změny, n se počítá v jazyce (kap. 5) |
 | `desired_retention`, hlídač kalibrace, personalizace | na jazyk | výchozí hodnoty stejné (kap. 1, 6) |
 | Souhrn přes oba jazyky | neexistuje | D20, platí i pro rodičovský pohled |
@@ -204,4 +218,4 @@ Test v doméně: smíšený log 60 pokusů `en` + 60 `de` na okno musí dát „
 ## Otevřené otázky pro zadavatele
 - Má se pro slovíčka přidat možnost, aby syn sám zvolil „chci psát“ i u nových slov (mimo D3)?
 - Zobrazovat u výběru „nad náhodou“, nebo jen úspěšnost u psaní? (UX; metrika je definována, zobrazení rozhodne UX.)
-- Sada s méně než 4 slovy (D18: možnosti jen ze stejné sady a jazyka): nabídnout méně voleb (návrh), nebo doplnit distraktory z jiných sad téhož jazyka?
+- ~~Sada s méně než 4 slovy~~ **Rozhodnuto (D21):** doplnit z jiných sad téhož jazyka. K odsouhlasení zůstává jen návrh pro okrajový případ (kap. 3): minimum 3 možnosti, pod ním psaní s nápovědou 1. úrovně.

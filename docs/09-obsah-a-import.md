@@ -1,7 +1,7 @@
 # 09 – Obsah a import slovíček
 
 Autor: content-curator, stav k 2026-11-07. Navrhuje, nerozhoduje (viz `00-zadani.md`). Značení tvrzení o platformě: **ověřeno (zdroj)** / **domněnka**.
-**Revize 2026-11-08 (architekt, D18, D19):** jazyk je vlastnost sady, neměnný po založení. Slovo a sloveso ho převezmou ze sady, import má jazyk pevně daný před skenem, OCR, slovník kontroly, dedup a hlas se jím řídí. Model a invariant viz `05` ADR-15 a kap. 13.
+**Revize 2026-11-08 (architekt, D18, D19, D22):** jazyk je vlastnost sady, neměnný po založení. Slovo a sloveso ho převezmou ze sady, import má jazyk pevně daný před skenem, OCR, slovník kontroly, dedup a hlas se jím řídí. Model a invariant viz `05` ADR-15 a kap. 13.
 
 ## Závěr
 
@@ -79,7 +79,7 @@ Word{ language: en, kind: phrase, lemma: "look forward to",
 
 | # | Krok | Co se děje | Poznámka |
 |---|---|---|---|
-| 0 | Volba sady (a tím jazyka) | Syn vybere (nebo založí) sadu **před** snímkem. Jazyk importu = jazyk sady (D18). Nabízejí se sady aktivního jazyka, nová sada má výchozí aktivní jazyk a její jazyk se po založení nemění (D19). Během importu se jazyk nemění. | Jazyk je kontext pro OCR, směr sloupců, slovník kontroly a dedup. Zda se v importu nabízejí i sady druhého jazyka, viz O7. |
+| 0 | Volba sady (a tím jazyka) | Syn vybere (nebo založí) sadu **před** snímkem. Jazyk importu = jazyk sady (D18). Nabízejí se **jen sady aktivního jazyka** (D22, rozhodnuto). Jiný jazyk znamená přepnout aktivní jazyk mimo import. Nová sada má aktivní jazyk a její jazyk se po založení nemění (D19). Během importu se jazyk nemění. | Jazyk je kontext pro OCR, směr sloupců, slovník kontroly a dedup. Sady druhého jazyka se nenabízejí (D22, O7). |
 | 1 | Snímek | `VNDocumentCameraViewController` (skener stránky po jedné, vrací obrázky stránek; iOS 13+; ověřeno). Alternativně výběr fotky z galerie (otec vkládá fotky, D10). | `DataScannerViewController` (živé OCR, iOS 16+, ověřeno) pro tento účel nepotřebujeme: potřebujeme celou stránku a řádky v kontextu. Může přijít později. |
 | 2 | Rozpoznání | Celé na zařízení (R5). iOS 26+: `RecognizeDocumentsRequest` → `document.tables` (řádky × buňky). Starší/bez tabulky: `VNRecognizeTextRequest` (`.accurate`) → řádky s `boundingBox`. **Jazykový kontext podle sady:** `de` → [němčina, čeština], `en` → [angličtina, čeština], cizí jazyk první (pořadí = priorita, **ověřeno** u `VNRecognizeTextRequest`, kap. 3.1). Konkrétní kódy (`de-DE`, `en-US`/`en-GB`, `cs-CZ`) se vyberou ze `supportedRecognitionLanguages` za běhu. | Že je cizí jazyk první lepší pořadí, je **domněnka** (T6 porovná obě). `automaticallyDetectsLanguage` (iOS 16+, ověřeno) zkusit vypnuté, aby Vision neodhadoval třetí jazyk (**domněnka**). Viz kap. 3. |
 | 3 | Spárování | **Tabulka:** řádek = dvojice, sloupec 1 = cizí, poslední = česky (třetí sloupec s `[...]` = výslovnost → do `ipa`). **Bez tabulky:** shlukování řádků podle x-souřadnice do sloupců; případně dělení řádku oddělovači ` – `, ` - `, ` = `, tabulátorem. Jazyk sloupce se ověří heuristikou: znaky `ěščřžýůďťň` → čeština; `äöüß` → němčina; navíc `NLLanguageRecognizer` (**domněnka**, že spolehlivě dělí cs/de/en na krátkých slovech – ověřit v testu). Očekávaný cizí jazyk je jazyk sady. Když heuristika najde jiný (`äöüß` v anglické sadě), stránka dostane banner „Vypadá to na němčinu, sada je anglická“. Nic se nepřepne ani nepřesune (D19), uživatel import zruší a začne v sadě správného jazyka. | Přepínač „prohodit sloupce“ pro celou stránku jedním tapem. |
@@ -387,6 +387,6 @@ Právní stránku považujte za **domněnku**, není to právní poradenství. R
 | O4 | Zda aplikace vnitřně drží malou kontrolní tabulku nepravidelných sloves (varování o překlepu), nebo vše ručně (D8). | Pavel |
 | O5 | Výchozí varianta angličtiny pro hlas: `en-GB` (předpoklad). | Pavel / syn |
 | O6 | Výsledek testu z kap. 3.4 rozhodne o: `usesLanguageCorrection`, podpoře češtiny v OCR, prahu „ověřit“, pořadí jazyků a o tom, zda jde u `RecognizeDocumentsRequest` jazyk nastavit. | prototyper |
-| O7 | Výběr sady v toku importu: jen sady aktivního jazyka (návrh), nebo i sady druhého jazyka s viditelným označením jazyka? | Pavel + ux-designer |
+| O7 | ~~Výběr sady v toku importu~~ **Rozhodnuto (D22, 2026-11-08):** import nabízí jen sady aktivního jazyka. Jazyk se mění jen přepnutím aktivního jazyka. | Pavel (rozhodl) |
 
 **Co v této session nešlo ověřit:** weby `tatoeba.org`, `en.wiktionary.org` a `www.apple.com` jsou mimo povolenou síť session, proto licence těchto zdrojů a stránka Apple „feature availability“ (jazyky Live Text) nejsou ověřeny. Zdrojem pro Vision je `developer.apple.com`.
