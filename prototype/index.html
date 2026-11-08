@@ -777,7 +777,7 @@ function planItems(L){
 function due(L){return planItems(L).length}
 function emptyLang(what){
  var o=OTHER(AL()),n=due(o);
- return '<div class="empty hero"><h2>V jazyce '+NAME[AL()]+' zatím nemáš žádné '+what+'.</h2><p>Přidej první sadu, nebo se přepni na druhý jazyk. Jazyky se nemíchají, vždy se procvičuje jen jeden.</p><div class="stack" style="margin-top:8px"><button class="btn primary" data-act="set-add">'+icon('plus')+'Přidat sadu</button><button class="btn sec" data-act="lang-set" data-v="'+o+'">Přepnout na '+NAME[o]+(n?' · k procvičení: '+n:'')+'</button></div></div>';
+ return '<div class="empty hero"><h2>V jazyce '+NAME[AL()]+' zatím nemáš žádné '+what+'.</h2><p>Přidej první sadu, nebo se přepni na druhý jazyk. Jazyky se nemíchají, vždy se procvičuje jen jeden.</p><div class="stack" style="margin-top:8px"><button class="btn primary" data-act="set-add">'+icon('plus')+'Přidat sadu</button><button class="btn sec" data-act="lang-set" data-v="'+o+'"><span style="display:flex;flex-direction:column;align-items:center;line-height:1.25">Přepnout na '+NAME[o]+(n?'<small style="font-size:12.5px;font-weight:600;color:var(--ink-3)">k procvičení: '+n+'</small>':'')+'</span></button></div></div>';
 }
 function vPractice(){
  var h=head('Procvičit');
@@ -971,26 +971,26 @@ function vSettings(){
  var sp=S.sp;
  if(sp==='icloud'){
   var st=ICL[S.icloud];
-  return '<button class="back" data-act="sp" data-v="">'+icon('back')+'Nastavení</button>'+head('iCloud')+
+  return '<button class="back" data-act="sp" data-v="">'+icon('back')+'Nastavení</button>'+head('iCloud',null,1)+
    '<div class="card dcard"><div class="stat '+st[3]+'">'+icon(st[2])+st[0]+'</div><p>'+st[1]+'</p>'+(S.icloud==='off'||S.icloud==='full'?'<button class="btn sec sm" data-act="noop">Otevřít Nastavení</button>':'')+(S.icloud==='err'?'<button class="btn sec sm" data-act="icloud" data-v="run">Zkusit teď</button>':'')+
    '<p class="help" style="margin:0">Fotky se nikdy neodesílají. Do iCloudu jdou jen slova, sady a výsledky.</p></div>'+
    '<h2 class="sec">Jen pro prototyp: zobrazit stav</h2><div class="seg" style="flex-wrap:wrap">'+Object.keys(ICL).map(function(k){return '<button class="'+(S.icloud===k?'on':'')+'" data-act="icloud" data-v="'+k+'">'+ICL[k][0].replace('…','')+'</button>'}).join('')+'</div>';
  }
  if(sp==='dups'){
-  return '<button class="back" data-act="sp" data-v="">'+icon('back')+'Nastavení</button>'+head('Duplicity')+
+  return '<button class="back" data-act="sp" data-v="">'+icon('back')+'Nastavení</button>'+head('Duplicity',null,1)+
    (S.dups.length?'<p class="sub" style="margin-bottom:12px">Stejné slovo je v knihovně víckrát. Duplicity se hledají jen uvnitř jednoho jazyka. Sloučením zůstane jedno a nic z historie se neztratí.</p><div class="stack">'+S.dups.map(function(d){return '<div class="card dcard"><div>'+lgtag(d.lang)+'</div><b>'+esc(d.f)+' · '+esc(d.cz)+' <span class="pill">×2</span></b><div class="rowbtns"><button class="btn soft sm" data-act="dup" data-id="'+d.id+'" data-v="merge" style="flex:1">Sloučit</button><button class="btn sec sm" data-act="dup" data-id="'+d.id+'" data-v="keep" style="flex:1">Nechat obě</button></div></div>'}).join('')+'</div>':'<p class="sub">Žádné duplicity.</p>')+
    '<p class="help" style="margin-top:12px">Simulace: nic se ve skutečnosti nesloučí.</p>';
  }
  if(sp==='over'){
-  return '<button class="back" data-act="sp" data-v="">'+icon('back')+'Nastavení</button>'+head('Přepsané změny')+
+  return '<button class="back" data-act="sp" data-v="">'+icon('back')+'Nastavení</button>'+head('Přepsané změny',null,1)+
    (S.over.length?'<p class="sub" style="margin-bottom:12px">Tohle slovo jsi upravil na dvou zařízeních. Platí pozdější úprava.</p><div class="stack">'+S.over.map(function(o){return '<div class="card dcard"><div>'+lgtag(o.lang)+'</div><b>'+esc(o.f)+'</b><div class="kv"><span>Platí</span><div>'+esc(o.now)+'</div><span>Přepsáno</span><div>'+esc(o.old)+'</div></div><div class="rowbtns"><button class="btn soft sm" data-act="over" data-id="'+o.id+'" style="flex:1">Vrátit přepsané</button><button class="btn sec sm" data-act="over" data-id="'+o.id+'" style="flex:1">Nechat</button></div></div>'}).join('')+'</div>':'<p class="sub">Nic nebylo přepsáno.</p>')+
    '<p class="help" style="margin-top:12px">Simulace: v prototypu jde jen o ukázku obrazovky.</p>';
  }
  if(sp==='delete'){
   var nS=S.sets.length,nW=S.words.length,nV=S.verbs.length;
   var cnt=function(l){var a=S.sets.filter(function(x){return x.lang===l}).length,b=S.words.filter(function(x){return x.lang===l}).length,c=S.verbs.filter(function(x){return x.lang===l}).length;return NAME[l]+': '+a+' '+pl(a,'sada','sady','sad')+', '+b+' '+pl(b,'slovo','slova','slov')+', '+c+' '+pl(c,'sloveso','slovesa','sloves')};
-  if(!nS&&!nW&&!nV&&!S.attempts.length)return '<button class="back" data-act="sp" data-v="">'+icon('back')+'Nastavení</button>'+head('Smazat všechna data')+'<div class="card dcard"><b>Není co mazat.</b><p>Aplikace je prázdná.</p></div>';
-  return '<button class="back" data-act="sp" data-v="">'+icon('back')+'Nastavení</button>'+head('Smazat všechna data?')+
+  if(!nS&&!nW&&!nV&&!S.attempts.length)return '<button class="back" data-act="sp" data-v="">'+icon('back')+'Nastavení</button>'+head('Smazat všechna data',null,1)+'<div class="card dcard"><b>Není co mazat.</b><p>Aplikace je prázdná.</p></div>';
+  return '<button class="back" data-act="sp" data-v="">'+icon('back')+'Nastavení</button>'+head('Smazat všechna data?',null,1)+
    '<div class="card dcard"><p>Smaže se všechno v obou jazycích a celá historie procvičování. '+cnt('en')+'. '+cnt('de')+'. Smaže se v tomhle zařízení i v iCloudu, takže zmizí i na ostatních zařízeních. Tohle nejde vrátit.</p>'+
    '<p class="help" style="margin:0">Když aplikaci jen odinstaluješ, data v iCloudu zůstanou.</p>'+
    '<div class="stack"><button class="btn dangerline" data-act="sheet" data-t="delall">Pokračovat</button><button class="btn primary" data-act="sp" data-v="">Zrušit</button></div></div>';
@@ -1000,7 +1000,7 @@ function vSettings(){
  rows+='<button type="button" class="lrow" data-act="sp" data-v="icloud"><span class="lt"><b>iCloud a synchronizace</b></span><span class="muted" style="font-size:15px">'+ICL[S.icloud][0].replace('…','')+'</span>'+icon('chev','chev')+'</button>';
  if(nd)rows+='<button type="button" class="lrow" data-act="sp" data-v="dups"><span class="lt"><b>Duplicity</b><small>'+langCounts(S.dups)+'</small></span>'+icon('chev','chev')+'</button>';
  if(no)rows+='<button type="button" class="lrow" data-act="sp" data-v="over"><span class="lt"><b>Přepsané změny</b><small>'+langCounts(S.over)+'</small></span>'+icon('chev','chev')+'</button>';
- return head('Nastavení')+'<div class="list">'+rows+'</div>'+
+ return head('Nastavení',null,1)+'<div class="list">'+rows+'</div>'+
   '<div class="list" style="margin-top:20px"><button type="button" class="lrow" data-act="sp" data-v="delete"><span class="lt"><b class="danger-t">Smazat všechna data</b></span>'+icon('chev','chev')+'</button></div>'+
   '<h2 class="sec">Jen pro prototyp</h2><div class="list"><button type="button" class="check'+(S.sim.noVoice?' on':'')+'" style="padding:6px 16px" data-act="simvoice" role="checkbox" aria-checked="'+S.sim.noVoice+'"><span class="box">'+icon('tick')+'</span><span class="tx">Simulovat chybějící hlas<small>Ukáže hlášku u tlačítka výslovnosti.</small></span></button>'+
   '<button type="button" class="lrow" data-act="restore"><span class="lt"><b>Obnovit ukázková data</b><small>Vrátí ukázkové sady, slovesa a historii.</small></span></button>'+
