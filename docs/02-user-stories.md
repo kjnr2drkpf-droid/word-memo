@@ -293,8 +293,8 @@ Jako syn chci být zdvořile upozorněn, když mám slova k opakování, abych n
 ---
 
 ## Otevřené otázky (co zadání neurčuje)
-- **Q1 Algoritmus plánování a definice „nové/známé/naučené/slabé slovo".** Jaké intervaly, kolik úspěchů je „známé", jak se váží výběr vs. psaní a směr. Doporučení: zvolit osvědčené schéma (např. krabicový/Leitnerův nebo SM-2 odvozený) a rozhodnout s Pavlem.
-- **Q2 Přísnost vyhodnocení.** Prahy překlepu, zacházení s diakritikou v češtině i němčině, s velkými písmeny a s chybějícím členem.
+- **ROZHODNUTO (zadavatel, 2026-11-08, D24: stavy slova a plánování schváleny, naučené = zvládnuté)** — **Q1 Algoritmus plánování a definice „nové/známé/naučené/slabé slovo".** Jaké intervaly, kolik úspěchů je „známé", jak se váží výběr vs. psaní a směr. Doporučení: zvolit osvědčené schéma (např. krabicový/Leitnerův nebo SM-2 odvozený) a rozhodnout s Pavlem.
+- **ROZHODNUTO (zadavatel, 2026-11-08, D25: přísnost vyhodnocení schválena)** — **Q2 Přísnost vyhodnocení.** Prahy překlepu, zacházení s diakritikou v češtině i němčině, s velkými písmeny a s chybějícím členem.
 - **Q3 Vložení fotek otcem.** Vloží je na zařízení syna, nebo ze svého? Pokud ze svého, jak se data dostanou do iCloudu syna (jiné Apple ID)? Souvisí s R1.
 - **Q4 Více významů a synonym u jednoho slova.** Jak se zadávají a co se uznává.
 - **Q5 Počet možností u výběru** a odkud se berou chybné možnosti.
