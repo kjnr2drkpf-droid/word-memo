@@ -4,7 +4,7 @@ Aplikace na učení slovíček (angličtina en-GB a němčina → čeština) pro
 
 ## Jak číst repo
 - `docs/00-zadani.md` je zdroj pravdy (rozhodnutí D1–D17, rizika R1–R6). Neměň ho bez pokynu zadavatele.
-- `docs/01` vize, `02` user stories, `04` story mapa, `05` architektura (13+1 ADR), `06` UX, `07` algoritmus opakování, `08` ověření platformy, `09` obsah a import, `10` distribuce, `11` plán stavby.
+- `docs/01` vize, `02` user stories, `04` story mapa, `05` architektura (13+1 ADR), `06` UX, `07` algoritmus opakování, `08` ověření platformy, `09` obsah a import, `10` distribuce, `11` plán stavby, `12` postup iterace 0.
 - `prototype/index.html` je schválený klikací prototyp (simulace, ne produkční kód).
 
 ## Pravidla
