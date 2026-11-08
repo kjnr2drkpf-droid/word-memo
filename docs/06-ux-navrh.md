@@ -1,16 +1,16 @@
 # 06 — UX návrh
 
-Autor: ux-designer, stav k 2026-11-08 (zapracováno rozhodnutí D18 až D22 a US-26). Zdroj pravdy: `00-zadani.md`; stories: `02-user-stories.md`; obsah a import: `09-obsah-a-import.md`. Navrhuji, nerozhoduji o prioritě ani rozsahu (`00-zadani.md`). Tvrzení o platformě jsou **domněnka**, dokud je neověří architekt nebo ux-verifier na zařízení; nic z platformy jsem v této session neověřoval.
+Autor: ux-designer, stav k 2026-11-08 (zapracováno rozhodnutí D18 až D22 ve znění opraveném 2026-11-08, tj. jazyk se při importu volí, a US-26). Zdroj pravdy: `00-zadani.md`; stories: `02-user-stories.md`; obsah a import: `09-obsah-a-import.md`. Navrhuji, nerozhoduji o prioritě ani rozsahu (`00-zadani.md`). Tvrzení o platformě jsou **domněnka**, dokud je neověří architekt nebo ux-verifier na zařízení; nic z platformy jsem v této session neověřoval.
 
 ## Závěr
 
-1. **Aktivní jazyk (D18, US-26) je jeden globální stav nad všemi obrazovkami a je vždy vidět.** Na kořenech Procvičit, Sady, Slovesa a Pokrok je pod titulkem přepínač „English | Deutsch“ (C2, bez vlajek) a titulek říká jazyk („Sady · němčina“). Pod neaktivním jazykem je jen informace „k procvičení: N“, která nemíchá fronty. Na iPadu je přepínač v horní části sidebaru; když je sidebar skrytý, je v záhlaví obsahu jako na iPhonu. V testu přepínač zmizí a zůstane štítek jazyka (C3). Nastavení je společné a jazyk nemá. Jazyk sady je po vytvoření neměnný (D19): v UI není žádná akce „Změnit jazyk sady“, chybně založenou sadu opraví nabídka „Smazat a vytvořit znovu“ (S22). Import nabízí jen sady aktivního jazyka (D22), jazyk se tedy mění jen přepnutím. Pravidla: kap. 3.8, obrazovka S02, komponenty C2 a C3. Odchylky od zadaného návrhu a jejich důvody: kap. 3.8.1.
+1. **Aktivní jazyk (D18, US-26) je jeden globální stav nad všemi obrazovkami a je vždy vidět.** Na kořenech Procvičit, Sady, Slovesa a Pokrok je pod titulkem přepínač „English | Deutsch“ (C2, bez vlajek) a titulek říká jazyk („Sady · němčina“). Pod neaktivním jazykem je jen informace „k procvičení: N“, která nemíchá fronty. Na iPadu je přepínač v horní části sidebaru; když je sidebar skrytý, je v záhlaví obsahu jako na iPhonu. V testu přepínač zmizí a zůstane štítek jazyka (C3). Nastavení je společné a jazyk nemá. Jazyk sady je po vytvoření neměnný (D19): v UI není žádná akce „Změnit jazyk sady“, chybně založenou sadu opraví nabídka „Smazat a vytvořit znovu“ (S22). Import si jazyk slovíček volí zvlášť (D22: první řádek S31, předvyplněný aktivním jazykem) a aktivní jazyk nemění. Pravidla: kap. 3.8, obrazovka S02, komponenty C2 a C3. Odchylky od zadaného návrhu a jejich důvody: kap. 3.8.1.
 2. **Aplikace má jednu smyčku a čtyři místa kolem ní.** Smyčka je Procvičit → vyhodnocení → souhrn. Okolo jsou Sady (slova, import fotkou), Slovesa (samostatný vstup, D8), Pokrok (historie a slabá místa) a Nastavení (iCloud, duplicity, smazání dat). Na iPhonu je to tab bar o 5 položkách, na iPadu sidebar se stejnými 5 cíli. Layout se řídí size class, ne typem zařízení. Všechno kromě Nastavení je filtrované na aktivní jazyk.
 3. **Test je celoobrazovkový režim bez tab baru.** Nahoře je jen „Skončit“, štítek jazyka a ukazatel postupu (bez časomíry). Zadání a tlačítko výslovnosti jsou vždy nad klávesnicí. Pole a tlačítko „Zkontrolovat“ jsou ukotvené těsně nad klávesnicí, zadání se smí zmenšit nebo rolovat, nikdy ho klávesnice nepřekryje. Na SE velikosti (667 pt výšky) to vychází na dotyk, viz S13. Ve výběru z možností se chybné možnosti dopočítají z jiných sad téhož jazyka, nikdy z druhého (D21, S12).
 4. **Neúspěch nedemotivuje konkrétně takto:** v celé aplikaci není červená mimo potvrzení mazání, žádný symbol „X“, žádné body ani série. „Špatně“ je neutrální modrofialová s ikonou „znovu“, „skoro“ je jantarová, „správně“ je klidná zelená. Stav se nikdy nesděluje jen barvou (ikona + slovo + tvar). Souhrn začíná tím, co se povedlo, a srovnání s minulým pokusem ukazuje jen tehdy, když je lepší nebo stejné. Barvy jazyka (3.8) jsou od stavových barev oddělené a v testu se nepoužívají.
-5. **Kontrolní obrazovka importu (S35) je nejdůležitější obrazovka aplikace.** Je jedna pro fotku i CSV. Podezřelé řádky jsou nahoře a rozbalené s výřezem z fotky, ostatní jsou kompaktní. Každé pole je přímo editovatelné jedním ťuknutím. Uloží se jen to, co je bez značky nebo co syn opravil či potvrdil. Cílový jazyk je vždy aktivní jazyk (D22), je prvním řádkem průvodce (S31) a je vidět až do konce (S34, S35, S36).
+5. **Kontrolní obrazovka importu (S35) je nejdůležitější obrazovka aplikace.** Je jedna pro fotku i CSV. Podezřelé řádky jsou nahoře a rozbalené s výřezem z fotky, ostatní jsou kompaktní. Každé pole je přímo editovatelné jedním ťuknutím. Uloží se jen to, co je bez značky nebo co syn opravil či potvrdil. Jazyk slovíček se volí jako první řádek průvodce (S31, předvyplněný aktivním jazykem, D22), po zahájení skenu je zamčený a je vidět až do konce (S34, S35, S36).
 6. **Nepsání = „Nevím“.** Každá otázka má tlačítko „Nevím“. Vyhodnotí se jako „špatně“ bez trestu a ukáže správnou odpověď. Prázdné pole nelze potvrdit, aby nevznikaly omyly. Potřebuje potvrzení learning-scientist (viz kap. 7).
-7. **Mezery ve stories (kap. 6):** nenavrhl jsem nápovědu v testu, přepínání psaní → výběr, vyhledávání, „Vrátit import“, export dat, editaci množného čísla/příkladu/IPA, hromadné vkládání sloves a „O aplikaci“. Žádná z nich nemá story. Dále chybí rozhodnutí o „nic k opakování“ (US-08) a o konceptu kontroly po násilném ukončení (US-03). Nově (D18): sloveso nemá sadu, takže jeho jazyk bere z aktivního jazyka (G18). Nabídka „Smazat a vytvořit znovu“ vychází z D19 a v US-04 zatím nemá akceptační kritérium (G25). Dříve otevřené G2 (chybné možnosti) a G20 (import do druhého jazyka) jsou rozhodnuté (D21, D22).
+7. **Mezery ve stories (kap. 6):** nenavrhl jsem nápovědu v testu, přepínání psaní → výběr, vyhledávání, „Vrátit import“, export dat, editaci množného čísla/příkladu/IPA, hromadné vkládání sloves a „O aplikaci“. Žádná z nich nemá story. Dále chybí rozhodnutí o „nic k opakování“ (US-08) a o konceptu kontroly po násilném ukončení (US-03). Nově (D18): sloveso nemá sadu, takže jeho jazyk bere z aktivního jazyka (G18). Nabídka „Smazat a vytvořit znovu“ vychází z D19 a v US-04 zatím nemá akceptační kritérium. Dříve otevřené G2 (chybné možnosti), G20 (import do druhého jazyka) a G25 (přepnutí jazyka v „Smazat a vytvořit znovu“) jsou vyřešené (D21, D22).
 8. **Data, která aplikace zatím nemá odkud vzít (kap. 5):** výřezy řádků z fotky (R2), stav a čas syncu (R4), původní hodnota při konfliktu (US-12), pravidlo „zlepšuje se / drží se“ (Q1), definice „naučené slovo“ (Q1). Nově: velikost dnešního kola pro neaktivní jazyk (D-19), zjištění jazyka textu z fotky (D-21). Návrh s nimi počítá jako s požadavky na zdroj, ne jako s hotovými daty.
 9. **US-18 vs. D16:** story zmiňuje en-GB/en-US, zadání (D16) rozhodlo en-GB. Q10 je tím zodpovězena, v návrhu žádná volba varianty angličtiny není.
 10. **Gamifikace, rodičovský pohled a připomenutí nejsou navrženy** (P2, bez rozhodnutí). Architektura obrazovek je nevylučuje: souhrn (S16) a Pokrok (S50) jsou místa, kde by se pozdější odměny a agregace objevily. Součet ani srovnání přes oba jazyky se nenavrhuje nikde (D20); platí i pro pozdější rodičovský pohled (US-23).
@@ -38,7 +38,7 @@ Autor: ux-designer, stav k 2026-11-08 (zapracováno rozhodnutí D18 až D22 a US
 | # | Úkol | Story | Vstup | Kroky (obrazovky) | Konec |
 |---|---|---|---|---|---|
 | T1 | Otevřít aplikaci poprvé, zvolit jazyk a hned vědět, co dělat | US-01, US-26 | Spuštění z čisté instalace | S01 krok 1 (volba jazyka) → krok 2 → „Vyfotit slovíčka“ | S31 (kam uložit; jazyk je zvolený v S01 a v S31 jen zobrazený) |
-| T2 | Nafotit stránku ze sešitu a zkontrolovat, co aplikace přečetla | US-02, US-03 | Sady → „+“ nebo první spuštění | S30 → S31 (sada aktivního jazyka) → S32 (jen poprvé) → systémový skener → S34 → S35 → S36 | Slova uložená v sadě; nabídka „Procvičit teď“ |
+| T2 | Nafotit stránku ze sešitu a zkontrolovat, co aplikace přečetla | US-02, US-03 | Sady → „+“ nebo první spuštění | S30 → S31 (volba jazyka slovíček + sada tohoto jazyka) → S32 (jen poprvé) → systémový skener → S34 → S35 → S36 | Slova uložená v sadě; nabídka „Procvičit teď“ (u jiného než aktivního jazyka „Přepnout na … a procvičit“) |
 | T2b | Totéž z knihovny fotek (otec vkládá fotku) | US-02 | Sady → „+“ → „Vybrat z fotek“ | S30 → S31 → výběr fotky → S34 → S35 → S36 | Jako T2 |
 | T3 | Přidat nebo opravit jedno slovo ručně | US-04 | S21 → „+“ nebo řádek slova | S23 | Slovo uložené |
 | T4 | Mít slova v sadách a vybrat, co se bude zkoušet | US-04 | Sady; Procvičit → „Co procvičit“ | S20 → S21; S11 (jen sady aktivního jazyka) | Sada v procvičování |
@@ -56,8 +56,8 @@ Autor: ux-designer, stav k 2026-11-08 (zapracováno rozhodnutí D18 až D22 a US
 | T16 | Smazat všechna data (obou jazyků) | US-20 | Nastavení → „Smazat všechna data“ | S60 → S64 | Návrat na S01 (včetně volby jazyka) |
 | T17 | Používat vše bez internetu | US-13 | — | Průřezově (kap. 3.6) | — |
 | T18 | Přepnout se na druhý jazyk | US-26 | Přepínač C2 na kořeni Procvičit / Sady / Slovesa / Pokrok (v sidebaru na iPadu) | C2 → (S02 při velkém písmu) → táž záložka v novém jazyce | Obrazovka záložky v novém jazyce; VoiceOver: „Aktivní jazyk: …“ |
-| T19 | Začít se učit i druhý jazyk (poprvé) | US-26, US-04, US-02 | C2 → druhý jazyk, který nemá sady | C2 (přepnutí) → prázdný stav (S10 / S20) → „Vyfotit slovíčka“ nebo „Přidat sadu“ → S31 (nově aktivní jazyk) → T2 | Sada v druhém jazyce; jazyk je aktivní |
-| T20 | Opravit sadu založenou ve špatném jazyce | US-04 (D19, D22) | S21 → „Upravit“ | S22 → „Smazat a vytvořit znovu“ → S24 (varianta 3; přepne na správný jazyk) → S30 → S31 (původní název) → T2 | Nová sada ve správném jazyce; stará smazaná |
+| T19 | Začít se učit i druhý jazyk (poprvé) | US-26, US-04, US-02 | C2 → druhý jazyk, který nemá sady | C2 (přepnutí) → prázdný stav (S10 / S20) → „Vyfotit slovíčka“ nebo „Přidat sadu“ → S31 (jazyk předvyplněný aktivním, tedy druhým) → T2 | Sada v druhém jazyce; jazyk je aktivní |
+| T20 | Opravit sadu založenou ve špatném jazyce | US-04 (D19, D22) | S21 → „Upravit“ | S22 → „Smazat a vytvořit znovu“ → S24 (varianta 3; aktivní jazyk nepřepíná) → S30 → S31 (předvybraný správný jazyk, původní název) → T2 | Nová sada ve správném jazyce; stará smazaná |
 
 **Bez vlastní obrazovky:** US-08 (plánování) a US-10 (ukládání po každé odpovědi) jsou chování, ne obrazovky. Projevují se v S10 (z čeho se kolo skládá), v štítku „Znovu“ v S12/S13 a v mikrotextu S14.
 
@@ -74,7 +74,8 @@ Aplikace
 │  AKTIVNÍ JAZYK (EN | DE) = globální stav, mění se jen přes C2 / S02
 │  (přepínač je na kořeni záložek 1–4; v testu a hlubších obrazovkách je jen štítek C3)
 │  JAZYK SADY je po vytvoření neměnný (D19): žádná akce „Změnit jazyk sady“
-│  IMPORT nabízí jen sady aktivního jazyka (D22): jiný jazyk = nejdřív přepnout
+│  IMPORT si jazyk slovíček volí sám (D22): S31 první řádek, předvyplněný aktivním jazykem;
+│  import aktivní jazyk NEMĚNÍ (po uložení nabídka „Přepnout na … a procvičit“)
 │
 ├─ PROCVIČIT (tab 1)
 │    S10 Start ─► S11 Co procvičit (sheet)
@@ -98,7 +99,7 @@ Aplikace
      S60 ─► S61 iCloud ;  S62 Duplicity ;  S63 Přepsané změny ;  S64 Smazat všechna data
 
 S02 Přepnutí jazyka: tři podoby jedné akce (přepínač C2 v záhlaví, sheet „Jazyk“ při velkém písmu,
-tlačítko „Přepnout na …“ v prázdných stavech; zvláštní případ: výslovně potvrzené přepnutí v S24, varianta 3).
+tlačítko „Přepnout na …“ v prázdných stavech a po importu do neaktivního jazyka v S36).
 ```
 
 C1 (tlačítko výslovnosti) je v S12, S14, S16, S23, S42, S43. C2 (přepínač jazyka) je na kořenech S10, S20, S40, S50 (S51 je součást Pokroku), v S02 a v sidebaru iPadu. C3 (štítek jazyka) je v testu a na hlubších obrazovkách (tabulka v 3.8).
@@ -119,7 +120,7 @@ Pět položek, ikona + krátký popisek (popisky se nesmí zkrátit na „…“
 - **Přepínač jazyka (C2) leží pod velkým titulkem na kořenové obrazovce tabů 1–4**, ne v tab baru (tab bar zůstává na 5 cílech, jazyk není šestý cíl). V tabu Nastavení přepínač není.
 - Přepnutí jazyka zůstane na stejném tabu (z Sad zůstanu v Sadách) a vrátí ho na kořen (3.8, bod 4).
 - Test (S12–S16) se otevírá jako celoobrazovkový režim bez tab baru, aby se nedalo omylem odejít a aby nic neubíralo místo nad klávesnicí. Přepínač jazyka tam není.
-- Import (S31–S36) je modální průvodce s vlastním „Zrušit“ vlevo nahoře, ne push do tab baru. Přepínač jazyka v něm není: cílový jazyk je aktivní jazyk (D22).
+- Import (S31–S36) je modální průvodce s vlastním „Zrušit“ vlevo nahoře, ne push do tab baru. Přepínač aktivního jazyka (C2) v něm není; jazyk slovíček se volí v prvním řádku S31 (D22) a po zahájení skenu je zamčený.
 - Které z tabů jsou v konkrétním buildu vidět (Slovesa, Pokrok jsou P1), je rozhodnutí o rozsahu releasu, ne moje. Návrh počítá s tím, že tab, jehož funkce v buildu není, se prostě nezobrazí.
 
 ### 2.3 iPad (regular width): sidebar a split view
@@ -185,9 +186,9 @@ Pět položek, ikona + krátký popisek (popisky se nesmí zkrátit na „…“
 
 ### 3.8 Aktivní jazyk (D18 až D22, US-26)
 
-**Zdroj:** D18 (jazyky se nemíchají, jeden aktivní jazyk, přepnutí na nejvyšší úrovni, ne uprostřed testu), D19 (jazyk sady je po vytvoření neměnný), D20 (žádný celkový souhrn přes oba jazyky), D21 (chybné možnosti jen z téhož jazyka), D22 (import nabízí jen sady aktivního jazyka) a US-26. D19 až D22 jsou **rozhodnuté**, navrhuji podle nich. Q18–Q21 v `02-user-stories.md` jsou otevřené, návrh je neuzavírá; kde se na ně opírá, je to uvedeno.
+**Zdroj:** D18 (jazyky se nemíchají, jeden aktivní jazyk, přepnutí na nejvyšší úrovni, ne uprostřed testu), D19 (jazyk sady je po vytvoření neměnný), D20 (žádný celkový souhrn přes oba jazyky), D21 (chybné možnosti jen z téhož jazyka), D22 (při importu uživatel vždy volí jazyk slovíček; import nemění aktivní jazyk) a US-26. D19 až D22 jsou **rozhodnuté**, navrhuji podle nich. Q18–Q21 v `02-user-stories.md` jsou otevřené, návrh je neuzavírá; kde se na ně opírá, je to uvedeno.
 
-**1. Jeden stav, jedna akce.** Aktivní jazyk je jediná hodnota (angličtina, nebo němčina). Mění se přepínačem C2 / sheetem S02 a zkratkou k téže akci „Přepnout na …“ v prázdných stavech. Jediná další cesta je výslovně potvrzená oprava špatně založené sady (S24, varianta 3, bod 11). Nikde jinde (ne v S11, ne v S31, ne v S41, ne v S50 jako filtr). Aplikace ho nikdy nepřepne sama, ani podle obsahu fotky, souboru nebo termínů (US-26, Q21).
+**1. Jeden stav, jedna akce.** Aktivní jazyk je jediná hodnota (angličtina, nebo němčina). Mění se přepínačem C2 / sheetem S02 a zkratkou k téže akci „Přepnout na …“ v prázdných stavech. Nikde jinde (ne v S11, ne v S31, ne v S41, ne v S50 jako filtr, ne v S24). Segment „Jazyk slovíček“ v S31 je volba jazyka importu, ne přepínač aktivního jazyka: import aktivní jazyk nemění (bod 12). Aplikace ho nikdy nepřepne sama, ani podle obsahu fotky, souboru nebo termínů (US-26, Q21).
 
 **2. Co je vždy po jazycích.** Fronta a plán, test (včetně chybných možností, D21), souhrn, historie a trend, pravidelnost, slabá místa, slovesa, výslovnost (hlas), import (jazyk OCR). **Žádná obrazovka nesčítá ani nesrovnává jazyky (D20)**; platí i pro pozdější rodičovský pohled (US-23). Nastavení (S60–S64) je společné.
 
@@ -200,7 +201,7 @@ Pět položek, ikona + krátký popisek (popisky se nesmí zkrátit na „…“
 | Hlubší obrazovky (S21, S22, S23, S41) | ne | ano v záhlaví („DE · němčina“) | název sady / slova |
 | Sheet S11 | ne | v nadpisu | „Co procvičit · němčina“ |
 | Test a souhrn (S12–S16, S42, S43) | ne, zmizí | ano, neutrální (bez barvy) | „DE NĚMČINA → ČEŠTINA“; S16: „Souhrn · němčina“ |
-| Průvodce importem (S31–S37) | ne (cílový jazyk je aktivní jazyk, D22) | ano | S31 první řádek „Jazyk slovíček“, S34 řádek „Importuji do: …“, S35 záhlaví, S36 text |
+| Průvodce importem (S31–S37) | ne (jazyk slovíček se volí vlastním segmentem v S31, D22; aktivní jazyk se nemění) | S31: ovládací segment, od zahájení skenu zamčený; S34, S35, S36: štítek | S31 první řádek „Jazyk slovíček“, S34 řádek „Importuji do: …“, S35 záhlaví, S36 text |
 | Nastavení (S60, S61, S64) | ne | ne | S60: „Nastavení“ + věta „Platí pro angličtinu i němčinu.“ |
 | S62, S63 (řádky z obou jazyků) | ne | ano na každém řádku | — |
 
@@ -235,9 +236,9 @@ Důvod, proč přepínač není na hlubších obrazovkách: detail sady, slova n
 
 **10. Duplicity a hledání shody jen v rámci jazyka.** Totožný zápis v obou jazycích (např. „Hand“, „Bad“, „Kind“) není duplicita. Platí pro S35 (značky duplicit), S23 (varování) a S62. Stejně tak chybné možnosti ve výběru z možností se berou jen z téhož jazyka (D21, S12).
 
-**11. Jazyk sady je neměnný (D19, rozhodnuto).** Nikde v UI není akce „Změnit jazyk sady“: ani v S22, ani v S31, ani v nabídce „⋯“, ani v S23 (sada slova se dá změnit jen na jinou sadu téhož jazyka). Slovo ani sloveso nejde přesunout ani zkopírovat do sady jiného jazyka. Chybně založenou sadu opraví nabídka **„Smazat a vytvořit znovu“** v S22: potvrzení S24 (varianta 3) → S30 → S31 v druhém jazyce s původním názvem. Protože import nabízí jen aktivní jazyk (bod 12), potvrzení v S24 výslovně říká, že se aplikace přepne na druhý jazyk; je to jediné místo, kde se jazyk přepíná jinak než přepínačem, a je to akce, kterou syn sám potvrdí (G25). Slova se při tom **nepřenášejí** (jsou vázaná na jazyk) a text to říká předem. Před uložením, tedy ještě v průvodci importem, je oprava levnější: S35 → „Zrušit import“ → přepnout jazyk → znovu (nic se zatím nevytvořilo).
+**11. Jazyk sady je neměnný (D19, rozhodnuto).** Nikde v UI není akce „Změnit jazyk sady“: ani v S22, ani v S31, ani v nabídce „⋯“, ani v S23 (sada slova se dá změnit jen na jinou sadu téhož jazyka). Slovo ani sloveso nejde přesunout ani zkopírovat do sady jiného jazyka. Chybně založenou sadu opraví nabídka **„Smazat a vytvořit znovu“** v S22: potvrzení S24 (varianta 3) → S30 → S31 s předvybraným správným jazykem (jazyk sady, která se maže) a s původním názvem. Aktivní jazyk se při tom **nepřepíná** (D22: import ho nemění); po uložení nové sady S36 případně nabídne „Přepnout na … a procvičit“. Slova se **nepřenášejí** (jsou vázaná na jazyk) a text to říká předem. Před uložením, tedy ještě v průvodci importem, je oprava levnější: do zahájení skenu stačí v S31 změnit segment „Jazyk slovíček“; po skenu S35 → „Zrušit import“ → znovu (nic se zatím nevytvořilo).
 
-**12. Import jen v aktivním jazyce (D22, rozhodnuto).** Průvodce importu nabízí jen sady aktivního jazyka a nová sada dostane aktivní jazyk. S31 ukazuje jazyk jako první řádek, ale **není to volba**: žádný přepínač jazyka v importu není. Chce-li syn importovat do druhého jazyka, import zruší (nebo jím neprojde), přepne jazyk přepínačem na hlavní obrazovce a začne znovu. Jazyk se během importu nemění (09, kap. 2). Důsledek: S36 neřeší případ „uloženo do jiného jazyka než aktivního“, ten nemůže nastat.
+**12. Jazyk slovíček se při importu volí (D22, rozhodnuto, opravené znění).** První řádek S31 „Jazyk slovíček“ je **ovládací prvek** (segment English | Deutsch, předvyplněný aktivním jazykem, jde zvolit i druhý). Průvodce nabízí sady zvoleného jazyka a nová sada vznikne ve zvoleném jazyce. Změna jazyka přefiltruje seznam sad a smaže dosud zvolený výběr. Po zahájení skenu je jazyk pevný (S34, S35, S36 jen štítek) a nelze ho změnit, ani mísit dva jazyky v jednom importu (09, kap. 2). **Import aktivní jazyk zařízení nemění.** Důsledek: S36 řeší případ „uloženo do jiného jazyka než aktivního“ nabídkou „Přepnout na … a procvičit“ vedle „Hotovo“.
 
 #### 3.8.1 Odchylky od zadaného návrhu a důvody
 
@@ -249,11 +250,11 @@ Důvod, proč přepínač není na hlubších obrazovkách: detail sady, slova n
 | 4 | „k procvičení: N“ pod neaktivním jazykem | Pořadí segmentů je pevné (English vlevo); řádek je součástí cíle ťuknutí neaktivního segmentu (US-26); N je velikost dnešního kola, ne resta; při 0 se skryje; strop podle Q19 | Stabilní poloha pro paměť ruky; nespouští tlak (3.5, US-08). |
 | 5 | Barevný akcent jazyka | Omezený na přepínač, štítek a linku; v testu vypnutý | Barvy „správně / skoro / zatím ne“ nesmí mít konkurenci. |
 | 6 | Prázdný stav: „Přidat sadu“ a „Přepnout na …“ | Přidána akce „Vyfotit slovíčka“ (US-26 ji uvádí) a „Přepnout na …“ se nabídne jen tehdy, když druhý jazyk něco má | Žádná slepá ulička; shoda s US-26. |
-| 7 | Vytvoření sady a import: jazyk je první povinná volba a zobrazí se na kontrolní obrazovce | Po D22 je jazyk v S31 první řádek, ale jen zobrazený (aktivní jazyk), ne volba; zůstává vidět v S34, S35, S36 | D22: import nabízí jen sady aktivního jazyka, jazyk se mění jen přepnutím. |
+| 7 | Vytvoření sady a import: jazyk je první povinná volba a zobrazí se na kontrolní obrazovce | Po D22 (opravené znění) je jazyk v S31 první řádek a ovládací prvek (segment, předvyplněný aktivním jazykem); po zahájení skenu zamčený, v S34, S35, S36 štítek | D22: jazyk se při importu vždy volí; import aktivní jazyk nemění. |
 | 8 | (nebylo řečeno) | Zrušen filtr „Vše“ v S50 a segment jazyka v S40 a S41 | Filtr „Vše“ by míchal jazyky (D18, D20); segment jazyka by duplikoval C2. |
 | 9 | (nebylo řečeno) | Úvod: sloučeny původní kroky 1 a 2, aby se s volbou jazyka vešly do 3 kroků; volba jazyka nelze přeskočit | US-01 (max. 3 kroky) a D18 (aktivní jazyk musí být vždy dán). |
 | 10 | (nebylo řečeno) | Nastavení: věta „Platí pro angličtinu i němčinu.“ a S64 uvádí oba jazyky | Nastavení je společné, smazání se týká obou. |
-| 11 | D19: chybnou sadu smazat a vytvořit znovu | Jedna nabídka „Smazat a vytvořit znovu“ v S22 místo ruční cesty (smazat, přepnout jazyk, otevřít „+“, znovu zadat název) | Zkrátí opravu; nevytváří akci „Změnit jazyk“. Slova se nepřenášejí a text to říká předem. Přepnutí jazyka je výslovně v potvrzení (G25). |
+| 11 | D19: chybnou sadu smazat a vytvořit znovu | Jedna nabídka „Smazat a vytvořit znovu“ v S22 místo ruční cesty (smazat, přepnout jazyk, otevřít „+“, znovu zadat název) | Zkrátí opravu; nevytváří akci „Změnit jazyk“. Slova se nepřenášejí a text to říká předem. Aktivní jazyk se nepřepíná, průvodce se otevře s předvybraným správným jazykem. |
 
 ---
 
@@ -340,7 +341,7 @@ Když iCloud je dostupný, krok 3 se nezobrazí. Pokud by aplikace v buildu ješ
 | B. Sheet „Jazyk“ (iPad: popover 360 pt) | Otevírá ho tlačítko „Jazyk: Deutsch ▾“ | Místo A při největších velikostech písma, kdy segment s podřádkem nevejde (domněnka: od AX1; práh změřit). |
 | C. Tlačítko „Přepnout na …“ | Prázdné stavy S10, S20, S40, S50, S51 | Když se obrazovka v aktivním jazyce nemá čím naplnit, ale druhý jazyk něco má. Přepne přímo, bez sheetu. |
 
-S02 přepíná **aktivní jazyk aplikace**. Nemění jazyk žádné sady (D19) a nic nepřesouvá. Zvláštním případem je oprava špatně založené sady (S24, varianta 3), kde je přepnutí součástí výslovně potvrzené akce.
+S02 přepíná **aktivní jazyk aplikace**. Nemění jazyk žádné sady (D19) a nic nepřesouvá. Aktivní jazyk se jinde nepřepíná; import ho nemění, jen v S36 nabídne zkratku „Přepnout na … a procvičit“.
 
 **A. iPhone — přepínač pod titulkem (příklad: kořen Sady, aktivní němčina, v angličtině je 7 slov k procvičení):**
 ```
@@ -440,7 +441,7 @@ Nahoře v sidebaru je jen přepínač C2 (ne šestý cíl). Titulek obsahu řík
 | Sync konflikt | Aktivní jazyk se podle návrhu nesynchronizuje (3.8, bod 5), takže nekonfliktuje. Pokud by se synchronizoval (Q18), vyhrála by pozdější volba a nepřepisovala by běžící test. |
 | Uprostřed testu | Přepínač neexistuje. V záhlaví testu je štítek C3. Odchod: „Skončit“ → S15 → S16 → „Hotovo“. |
 | Otevřený sheet / popover | Přepínač je pod nimi nedostupný; jazyk se přepíná až po zavření. |
-| Uprostřed importu | Přepínač není dostupný (průvodce je modální). Jiný jazyk než aktivní se v importu nenabízí (D22). |
+| Uprostřed importu | Přepínač aktivního jazyka není dostupný (průvodce je modální). Jazyk slovíček se volí v S31 a aktivní jazyk nemění (D22). |
 | Rozepsaná kontrola importu (G6) | Patří jazyku své sady. Banner „Máš rozdělanou kontrolu slov“ se ukáže v jeho jazyce. |
 | Nenapsal nic / nevybral nic | — |
 
@@ -831,7 +832,7 @@ Je to jeden průvodce pro fotku, knihovnu fotek a CSV. Mikrotexty a stavy odpov�
 └────────────────────────────────┘
 ```
 **iPhone:** sheet od spodu, velké řádky ≥ 56 pt. **iPad:** popover od „+“ (na výšku i na šířku).
-„Načíst soubor CSV“ se zobrazí jen, pokud je US-19 v buildu. Nadpis nese aktivní jazyk; jazyk se v toku importu nevolí, je to aktivní jazyk (D22). V toku „Smazat a vytvořit znovu“ (S22 → S24) nese nadpis nově aktivní (druhý) jazyk.
+„Načíst soubor CSV“ se zobrazí jen, pokud je US-19 v buildu. Nadpis jazyk nenese; jazyk slovíček se volí až v S31 (první řádek, předvyplněný aktivním jazykem, D22). V toku „Smazat a vytvořit znovu“ (S22 → S24) se S31 otevře s předvybraným jazykem smazané sady.
 
 | Stav | Chování |
 |---|---|
@@ -840,47 +841,47 @@ Je to jeden průvodce pro fotku, knihovnu fotek a CSV. Mikrotexty a stavy odpov�
 
 ---
 
-#### S31 Kam uložit — US-02, US-04, US-26 (jazyk patří k sadě, D18, D19, D22)
+#### S31 Kam uložit — US-02, US-04 (jazyk patří k sadě, D18, D19, D22; US-26 se importu netýká)
 
-**Účel:** ukázat cílový **jazyk jako první řádek** a vybrat sadu **aktivního jazyka**, **před** snímkem (nápověda pro OCR a směr sloupců, 09 kap. 2.1). Jazyk určuje, jak se stránka přečte (čeština + aktivní jazyk, US-02). **Jazyk tu není volba (D22)**: jazyk se mění jen přepnutím aktivního jazyka mimo průvodce.
+**Účel:** nechat vybrat **jazyk slovíček jako první řádek** a pod ním sadu **tohoto jazyka**, **před** snímkem (nápověda pro OCR a směr sloupců, 09 kap. 2.1). Jazyk určuje, jak se stránka přečte (čeština + zvolený jazyk, US-02). **Jazyk je tu ovládací prvek (D22)**: předvyplněný aktivním jazykem, jde zvolit i druhý. Volba **nemění aktivní jazyk zařízení**.
 
 ```
 ┌────────────────────────────────┐
 │ Zrušit       Kam to uložit?    │
 │ Jazyk slovíček                 │
-│ [DE] němčina                   │   první řádek; jen zobrazený (aktivní jazyk)
-│ Importuješ do němčiny. Jiný    │
-│ jazyk přepneš po zrušení       │
-│ nahoře na hlavní obrazovce.    │
+│ [ English | Deutsch ]          │   první řádek; segment (ovládací prvek),
+│ Importuješ do němčiny.         │   předvyplněný aktivním jazykem
 │ Sada                           │
-│ (•) Deutsch 1          34 slov │   jen sady aktivního jazyka
+│ (•) Deutsch 1          34 slov │   jen sady zvoleného jazyka
 │ ( ) Deutsch 2          21 slov │
 │ ( ) Nová sada                  │
 │     Název  [ Lektion 2       ] │   při „Nová sada“
 │ [         Pokračovat         ] │
 └────────────────────────────────┘
 ```
-- **Jazyk je první řádek, vždy viditelný, nikdy nevybírá.** Řádek není ovládací prvek (VoiceOver: „Jazyk slovíček: němčina. Importuješ do němčiny.“). Odchylka od původního zadání návrhu („jazyk je první povinná volba“): po D22 volba odpadá, zůstává povinnost jazyk ukázat (3.8.1, řádek 7).
-- Seznam sad obsahuje jen sady aktivního jazyka, sady druhého jazyka se nenabízejí. Nová sada vznikne v aktivním jazyce. Sady obou jazyků nejsou nikdy v jednom seznamu.
+- **Jazyk slovíček je první řádek a ovládací prvek.** Segment English | Deutsch (bez vlajek), předvyplněný aktivním jazykem. Odpovídá zadání návrhu („jazyk je první povinná volba“) a D22 (3.8.1, řádek 7). Nad ním ani pod ním není žádné „přepni jazyk“: volba jazyka importu je samostatná věc vedle aktivního jazyka.
+- **Změna jazyka** přefiltruje seznam sad na sady zvoleného jazyka a **smaže dosud zvolený výběr** (vybraná existující sada se zruší; výchozí je „Nová sada“, pokud zvolený jazyk žádnou sadu nemá, jinak není vybráno nic). Nová sada vznikne ve zvoleném jazyce. Sady obou jazyků nejsou nikdy v jednom seznamu.
+- **Zámek:** po zahájení skenu (fotoaparát, výběr fotky nebo souboru) je jazyk pevný. V S34 a S35 je jen štítek (ne segment), v S36 text. Změnit ho jde jen zrušením importu a začátkem znovu. Do jednoho importu nejde míchat dva jazyky.
+- **Import aktivní jazyk nemění.** Syn může při aktivní angličtině naimportovat němčinu; aktivní zůstane angličtina. Zkratka na přepnutí je až v S36.
 - Při první cestě (žádné sady) je výchozí „Nová sada“. Název je povinný.
 - **Jazyk existující sady se nemění (D19).** Žádná akce „Změnit jazyk sady“ neexistuje.
 - „Pokračovat“ nedostupné, dokud není vybraná sada nebo vyplněný název.
 - Zástupný text v názvu: „Např. Project 3 — Unit 2“ pro angličtinu, „Např. Deutsch 1 — Lektion 2“ pro němčinu.
 - Pod seznamem při „Nová sada“: „Sada patří vždy jednomu jazyku. Později ho už nezměníš.“
-- **Vstup z „Smazat a vytvořit znovu“ (S22, S24):** aktivní jazyk je už přepnutý na správný (výslovně potvrzeno v S24), „Nová sada“ je vybraná a název je předvyplněný původním názvem (upravitelný). Nad jazykem řádek: „Zakládáš sadu znovu ve správném jazyce.“
+- **Vstup z „Smazat a vytvořit znovu“ (S22, S24):** segment „Jazyk slovíček“ je předvybraný na správný jazyk (ten, který nemá smazaná sada; aktivní jazyk se nepřepíná), „Nová sada“ je vybraná a název je předvyplněný původním názvem (upravitelný). Nad jazykem řádek: „Zakládáš sadu znovu ve správném jazyce.“ Jazyk jde v S31 stále změnit.
 
 **iPad:** formát (centrovaný sheet 540 pt); na šířku i na výšku stejný.
 
 | Stav | Chování a text |
 |---|---|
-| Prázdno | Bez sad v aktivním jazyce: „Nová sada“ rozbalená; pod ní řádek „Pro {němčinu} zatím nemáš žádnou sadu.“ |
+| Prázdno | Bez sad ve zvoleném jazyce: „Nová sada“ rozbalená; pod ní řádek „Pro {němčinu} zatím nemáš žádnou sadu.“ |
 | Načítání | — |
-| Chyba | Název prázdný: pod polem „Pojmenuj sadu, ať ji najdeš.“ Název už existuje: „Sada s tímhle názvem už je. Můžeš ji vybrat výše.“ (varování; duplicitní názvy nejsou zakázané, R4). Chyba „nevybrán jazyk“ nenastává, jazyk je vždy aktivní. |
+| Chyba | Název prázdný: pod polem „Pojmenuj sadu, ať ji najdeš.“ Název už existuje: „Sada s tímhle názvem už je. Můžeš ji vybrat výše.“ (varování; duplicitní názvy nejsou zakázané, R4). Chyba „nevybrán jazyk“ nenastává, segment je vždy předvyplněný. |
 | Offline | Beze změny. |
 | Dlouhý obsah | Dlouhý seznam sad rolue; dlouhý název se zalomí. Dynamic Type velký: text pod jazykem se zalomí. |
 | Sync konflikt | — |
-| Chce jiný jazyk | „Zrušit“ → přepnout jazyk (C2) → znovu „+“ (3.8, bod 12). V průvodci to jinak nejde. |
-| VoiceOver | Přečte „Jazyk slovíček: němčina“ jako první prvek; ke každé sadě její počet slov. |
+| Chce jiný jazyk | Přepne segment „Jazyk slovíček“ (do zahájení skenu). Seznam sad se přefiltruje a dosavadní výběr se smaže (3.8, bod 12). Po skenu: „Zrušit“ a znovu. |
+| VoiceOver | Segment čte česky: „Jazyk slovíček: němčina.“ (hodnota), po přepnutí „Jazyk slovíček: angličtina“, nikoli „Deutsch“; k ovládacímu prvku patří nápověda „Dvojitým klepnutím změníš jazyk slovíček. Aktivní jazyk se nezmění.“ Po změně VoiceOver oznámí „Sady v němčině“ a čte první sadu; ke každé sadě její počet slov. |
 
 ---
 
@@ -915,7 +916,7 @@ Skener stránky je systémové UI (domněnka: `VNDocumentCameraViewController`, 
 │        (   spinner   )         │
 │    Čtu stránku…                │
 │    Stránka 2 ze 3              │   jen při více stránkách
-│  Importuji do: Němčina ·       │   cílový jazyk a sada (US-02)
+│  Importuji do: Němčina ·       │   zamčený jazyk (štítek) a sada (US-02)
 │  Deutsch 1                     │
 │  Čtení běží přímo v zařízení,  │
 │  internet není potřeba.        │
@@ -923,7 +924,7 @@ Skener stránky je systémové UI (domněnka: `VNDocumentCameraViewController`, 
 ```
 - Po delší době (návrh: 10 s) přibude řádek: „Trvá to déle než obvykle. Čtu dál, můžeš počkat nebo zrušit.“
 - „Zrušit“ zastaví čtení a vrátí do S30; nic se neuloží.
-- Řádek „Importuji do: {Němčina} · {název sady}“ je vidět před i po rozpoznání (US-02: cílový jazyk viditelný před rozpoznáním).
+- Řádek „Importuji do: {Němčina} · {název sady}“ je vidět před i po rozpoznání (US-02: cílový jazyk viditelný před rozpoznáním). Jazyk je tu už zamčený a je to jen štítek, ne ovládací prvek (D22).
 
 | Stav | Chování a text |
 |---|---|
@@ -937,9 +938,9 @@ Skener stránky je systémové UI (domněnka: `VNDocumentCameraViewController`, 
 
 ---
 
-#### S35 Kontrolní obrazovka — US-03 (vstup z US-02 fotkou, z US-19 CSV), US-26 (jazyk v záhlaví)
+#### S35 Kontrolní obrazovka — US-03 (vstup z US-02 fotkou, z US-19 CSV; jazyk v záhlaví, D22)
 
-**Účel:** jediné místo, kde se text z fotky mění. OCR se bude mýlit (R2), každý řádek jde opravit. Jazyk sady je v záhlaví vidět a nejde tu změnit (D19, D22).
+**Účel:** jediné místo, kde se text z fotky mění. OCR se bude mýlit (R2), každý řádek jde opravit. Jazyk slovíček zvolený v S31 je v záhlaví vidět jako štítek a nejde tu změnit (D19, D22).
 
 **Struktura:**
 1. **Souhrn nahoře:** kolik dvojic aplikace přečetla a kolik chce kontrolu.
@@ -988,7 +989,7 @@ Skener stránky je systémové UI (domněnka: `VNDocumentCameraViewController`, 
   - **Spojit s předchozím:** spojí texty obou polí s řádkem nad ním.
   - **Rozdělit:** nejdřív ťukni do textu, kde se má rozdělit; zbytek textu se přesune do nového řádku pod ním. Interakci by měl ověřit uživatelský test, jde o nejméně jasnou akci návrhu.
   - Žádná akce „Přesunout do druhého jazyka“ (D19, US-04: slovo nejde přesunout do sady jiného jazyka).
-- **Jiný jazyk než jazyk sady (US-02, US-03, Q21).** Řádky, které vypadají jako druhý jazyk (např. anglická slova v německé sadě), se **neuloží potichu**: dostanou značku „Jiný jazyk?“ a patří mezi „K ověření“. Když je takových řádků většina, nahoře přibude banner: „Tahle stránka vypadá spíš jako {angličtina}, ale importuješ do {němčiny}. Zkontroluj, jestli je aktivní jazyk správně.“ Tlačítka: [ Zrušit import ] (US-02: nabídne se zrušení; zahodí kontrolu a fotku, po zrušení jde jazyk přepnout a stránku vyfotit znovu) a [ Pokračovat v kontrole ]. Průvodce jazyk nepřepíná ani nenabízí jeho změnu (D22). Aplikace jazyk nikdy nepřepne a slova nepřesune sama. Zjišťování jazyka z textu je **domněnka** (spolehlivost u krátkých slov, R2), požadavek D-21.
+- **Jiný jazyk než jazyk sady (US-02, US-03, Q21).** Řádky, které vypadají jako druhý jazyk (např. anglická slova v německé sadě), se **neuloží potichu**: dostanou značku „Jiný jazyk?“ a patří mezi „K ověření“. Když je takových řádků většina, nahoře přibude banner: „Tahle stránka vypadá spíš jako {angličtina}, ale importuješ do {němčiny}. Zkontroluj, jestli jsi zvolil správný jazyk slovíček.“ Tlačítka: [ Zrušit import ] (US-02: nabídne se zrušení; zahodí kontrolu a fotku, po zrušení jde v S31 zvolit správný jazyk a stránku vyfotit znovu) a [ Pokračovat v kontrole ]. Po zahájení skenu průvodce jazyk nemění ani nenabízí jeho změnu (D22). Aplikace jazyk nikdy nepřepne a slova nepřesune sama. Zjišťování jazyka z textu je **domněnka** (spolehlivost u krátkých slov, R2), požadavek D-21.
 - **Značky řádků a mikrotexty (podle 09 kap. 2.2–2.4):**
   | Značka | Text |
   |---|---|
@@ -1044,7 +1045,7 @@ Pravý panel ukazuje výřez aktuálně zaměřeného řádku (z `boundingBox`, 
 
 ---
 
-#### S36 Uloženo — US-02, US-03, US-26
+#### S36 Uloženo — US-02, US-03 (D22)
 
 ```
 ┌────────────────────────────────┐
@@ -1053,11 +1054,16 @@ Pravý panel ukazuje výřez aktuálně zaměřeného řádku (z `boundingBox`, 
 │ Deutsch 1 (němčina).           │
 │ (2 nové překlady přidané ke    │   jen když platí
 │  stávajícím slovům, 1 přeskočeno)│
-│ [      Procvičit teď        ]  │   → S10 / test
+│ [      Procvičit teď        ]  │   → S10 / test (jazyk = aktivní)
 │ [          Hotovo           ]  │
 └────────────────────────────────┘
+
+Jiný jazyk než aktivní (např. aktivní angličtina, uloženo do němčiny):
+│ [ Přepnout na němčinu          │   přepne aktivní jazyk → S10 / test
+│   a procvičit ]                │
+│ [          Hotovo           ]  │   aktivní jazyk zůstává
 ```
-Cílová sada je vždy v aktivním jazyce (D22), proto S36 nenabízí přepnutí jazyka. Bez „Vrátit import“: 09 ho navrhuje, ale žádná story ho nemá (G8). Opravy po uložení jsou přes S23 (úprava a mazání slova, US-04); sada ve špatném jazyce se opraví přes S22 „Smazat a vytvořit znovu“ (D19).
+Při jazyce shodném s aktivním je nabídka „Procvičit teď“. Při jiném jazyce než aktivním ji nahradí „Přepnout na {němčinu} a procvičit“ vedle „Hotovo“ (D22); „Hotovo“ aktivní jazyk nemění. Přepnutí je výslovná volba syna (jazyk se nikdy nepřepne samo, US-26). Bez „Vrátit import“: 09 ho navrhuje, ale žádná story ho nemá (G8). Opravy po uložení jsou přes S23 (úprava a mazání slova, US-04); sada ve špatném jazyce se opraví přes S22 „Smazat a vytvořit znovu“ (D19).
 „Procvičit teď“ je odkaz do US-05, ne samostatná funkce; nová slova se zařadí podle plánovače.
 
 | Stav | Chování |
@@ -1068,7 +1074,7 @@ Cílová sada je vždy v aktivním jazyce (D22), proto S36 nenabízí přepnutí
 
 #### S37 CSV: vstupní kontrola souboru — US-19
 
-Po výběru souboru systémovým výběrem a po S31 (sada aktivního jazyka; jazyk ze souboru nemění aktivní jazyk a nemá přednost před ním):
+Po výběru souboru systémovým výběrem a po S31 (jazyk slovíček zvolený v S31 a jeho sada; jazyk ze souboru nemění aktivní jazyk a nemá přednost před volbou v S31):
 - Úspěch: rovnou S35 se značkami podle 09 kap. 4.
 - Obecné chyby souboru (obrazovka s textem a jednou akcí):
   | Případ | Text |
@@ -1119,7 +1125,7 @@ Po výběru souboru systémovým výběrem a po S31 (sada aktivního jazyka; jaz
 └────────────────────────────────┘
 ```
 - Řádek sady: název, počet slov, malý štítek „v procvičování“ podle výběru v S11. Štítek jazyka v řádku není (všechny řádky mají jazyk záhlaví); jazyk je v titulku, v přepínači a v hlasu VoiceOveru („Deutsch 1, němčina, 34 slov“). US-04 požaduje „jazyk uveden v záhlaví seznamu“.
-- Ťuknutí → S21. Smazání sady: swipe nebo podržení + přístupnostní akce → potvrzení S24. „+“ → S30 (nová sada vzniká až v S31, v aktivním jazyce).
+- Ťuknutí → S21. Smazání sady: swipe nebo podržení + přístupnostní akce → potvrzení S24. „+“ → S30 (nová sada vzniká až v S31, ve zvoleném jazyce slovíček, předvyplněném aktivním).
 
 **iPad na výšku:** dva sloupce: seznam sad (320 pt) s přepínačem pod titulkem | detail sady (S21).
 **iPad na šířku:** sidebar (přepínač nahoře) | seznam sad (320 pt) | detail sady (S21).
@@ -1260,13 +1266,13 @@ V anglické sadě je popisek „Anglické slovo“ a řádek „Člen“ se nezo
 
 ---
 
-#### S24 Potvrzení smazání (alert) — US-04 (D19, D22 pro variantu 3)
+#### S24 Potvrzení smazání (alert) — US-04 (D19; D22 pro variantu 3)
 
 1. **Slovo:** „Smazat slovo Tisch? Smaže se i historie jeho procvičování. To nejde vrátit.“ [ Smazat ] [ Nechat ]
 2. **Sada:** „Smazat sadu Deutsch 1? Smaže se 34 slov a jejich historie procvičování. To nejde vrátit.“ [ Smazat sadu ] [ Nechat ]
-3. **Sada a vytvořit znovu (z S22, D19):** „Smazat sadu Deutsch 1 a vytvořit ji znovu v {angličtině}? Smaže se 34 slov a jejich historie procvičování. Slova se do nové sady nepřenesou, budeš je muset znovu vyfotit nebo zadat. Aplikace se přepne na {angličtinu}. To nejde vrátit.“ [ Smazat a vytvořit znovu ] [ Nechat ]. U prázdné sady: „Smazat prázdnou sadu Deutsch 1 a vytvořit ji znovu v {angličtině}? Aplikace se přepne na {angličtinu}.“ Po potvrzení se sada smaže, aktivní jazyk se přepne na druhý (jedinou výjimku z pravidla „jazyk se přepíná jen přepínačem“ tvoří právě tato výslovně potvrzená akce, protože import nabízí jen aktivní jazyk, D22) a otevře se S30, po zvolení zdroje S31 s předvyplněným názvem. „Zrušit“ v průvodci už smazání nevrací; alert to říká („To nejde vrátit.“).
+3. **Sada a vytvořit znovu (z S22, D19):** „Smazat sadu Deutsch 1 a vytvořit ji znovu v {angličtině}? Smaže se 34 slov a jejich historie procvičování. Slova se do nové sady nepřenesou, budeš je muset znovu vyfotit nebo zadat. To nejde vrátit.“ [ Smazat a vytvořit znovu ] [ Nechat ]. U prázdné sady: „Smazat prázdnou sadu Deutsch 1 a vytvořit ji znovu v {angličtině}?“ Po potvrzení se sada smaže, **aktivní jazyk se nepřepíná** (D22: import jazyk volí sám) a otevře se S30, po zvolení zdroje S31 s předvybraným správným jazykem (segment „Jazyk slovíček“) a předvyplněným názvem. „Zrušit“ v průvodci už smazání nevrací; alert to říká („To nejde vrátit.“).
 
-(US-04: ukáže, co se smaže, včetně počtu slov a historie.) „Nechat“ je výchozí a nejvýraznější. Cílový jazyk ve variantě 3 je vždy ten druhý (jazyky jsou dva).
+(US-04: ukáže, co se smaže, včetně počtu slov a historie.) „Nechat“ je výchozí a nejvýraznější. Cílový jazyk ve variantě 3 je vždy ten druhý (jazyky jsou dva) a je jen předvybraný, v S31 jde změnit.
 
 | Stav | Chování |
 |---|---|
@@ -1823,7 +1829,7 @@ Návrh s těmito daty počítá, ale aplikace je zatím odnikud nemá nebo nejso
 | D-19 | Velikost dnešního kola (počet k procvičení) pro **neaktivní** jazyk bez spuštění kola; je to velikost kola, ne zpoždění; strop podle Q19 | C2 (řádek „k procvičení“), S02, S10 (řádek v hotovo-stavu) | Learning-scientist / plánovač (US-08, US-26, Q19) |
 | D-20 | Počty sad, slov, sloves a „v procvičování“ po jazycích; jazyk slova, slovesa i pokusu dědí ze sady / z aktivního jazyka; jazyk sady je po vytvoření neměnný (D19) | S02 sheet, S20, S64 rozpis, všechny filtry | Architekt (D18, D19, US-04). Jazyk sloves: viz G18. |
 | D-21 | Zjištění jazyka textu z OCR / CSV pro značky „Jiný jazyk?“ a banner; přiznaně **domněnka** (spolehlivost u krátkých slov), bez ní značky odpadnou | S35, S37 | Prototyper (R2, Q21) |
-| D-22 | Smazání sady, přepnutí aktivního jazyka a založení nové sady (původní název) jako jeden tok; smazání sady odstraní i slova a pokusy (US-04) | S22, S24 (varianta 3), S30, S31 | Architekt (US-04, D19, D22). Žádný přesun slov se nenavrhuje. |
+| D-22 | Smazání sady a založení nové sady (původní název, předvybraný správný jazyk, bez přepnutí aktivního jazyka) jako jeden tok; smazání sady odstraní i slova a pokusy (US-04) | S22, S24 (varianta 3), S30, S31 | Architekt (US-04, D19, D22). Žádný přesun slov se nenavrhuje. |
 | D-23 | Chybné možnosti pro výběr z možností se berou z jiných sad téhož jazyka, když sada nemá 3 použitelné (D21); počet možností klesne jen když nestačí celý jazyk | S12 | Architekt (`DistractorPicker`, `05` kap. 13.3), learning-scientist (`07` kap. 3: pravidlo okrajového případu). Z UX hlediska žádný nový prvek. |
 
 ---
@@ -1846,7 +1852,7 @@ Návrh s těmito daty počítá, ale aplikace je zatím odnikud nemá nebo nejso
 | G22 | Správa jazyků (zapnutí / vypnutí jazyka, přidání třetího jazyka) | Odvozeno z „druhý jazyk jde přidat později“ | Bez story a mimo rozsah (01-vize: právě dva jazyky). Druhý jazyk se „přidá“ tím, že se přepne a vznikne v něm první sada (T19); žádný zvláštní stav „jazyk zapnutý“ nezavádím. |
 | — | Změna jazyka sady, přesun nebo kopie slova do sady jiného jazyka | Odvozeno z chybně založené sady | **Rozhodnuto: nenavrhuje se (D19).** UI nemá žádnou takovou akci. Oprava je „Smazat a vytvořit znovu“ (S22). |
 | — | Celkový souhrn, součet nebo srovnání přes oba jazyky | — | **Rozhodnuto: nenavrhuje se (D20)**, ani pro rodičovský pohled (US-23). |
-| — | Import do sady druhého jazyka, volba jazyka v importu | Původní návrh S31 | **Rozhodnuto: nenavrhuje se (D22).** Průvodce nabízí jen sady aktivního jazyka. |
+| — | Import do sady druhého jazyka, volba jazyka v importu | Původní návrh S31 | **Rozhodnuto: navrhuje se (D22, opravené znění).** S31 má první řádek „Jazyk slovíček“ jako ovládací prvek; import aktivní jazyk nemění. |
 | — | Gamifikace, odznaky, série, denní cíle | US-24, D13 | P2 a bez rozhodnutí. Série a denní cíle navíc odporují principům 1 a 3. |
 | — | Rodičovský pohled, připomenutí | US-23, US-25 | P2, nenavrhováno. Architektura obrazovek je nevylučuje. |
 | — | Hotové sady, kontrola výslovnosti hlasem | US-21, US-22 | P2. |
@@ -1869,9 +1875,8 @@ Návrh s těmito daty počítá, ale aplikace je zatím odnikud nemá nebo nejso
 | G21 | Číslo „k procvičení“ u druhého jazyka je velikost kola **slovíček**; slovesa nemají v US-17 pravidlo termínů. Na tabu Slovesa může číslo působit zavádějícím dojmem | C2, S40 |
 | G23 | US-26 uvádí příklad „Němčina · 12 slov k procvičení“; návrh má pro rozložení jen „k procvičení: 12“ pod segmentem (jazyk je v segmentu). Sjednotit znění v US-26 | C2 |
 | G24 | US-26 uvádí v prázdném stavu „Vyfotit slovíčka“ a „Vytvořit sadu“, zadání pro návrh „Přidat sadu“ a „Přepnout na …“. Návrh obsahuje všechny tři (název tlačítka „Přidat sadu“). Sjednotit | S10, S20 |
-| G25 | Nabídka „Smazat a vytvořit znovu“ (S22 → S24 → S30 → S31) vychází z D19, ale US-04 pro ni nemá akceptační kritérium. Slova se nepřenášejí a fotka už je po importu smazaná (Q8), takže oprava znamená znovu vyfotit nebo zadat. Protože import nabízí jen aktivní jazyk (D22), potvrzení v S24 zároveň přepne aktivní jazyk na druhý; je to výslovně potvrzená akce, ale je to výjimka z „jazyk se mění jen přepínačem“. Potvrdit s zadavatelem; jinak se po smazání vrátí S20 a syn přepne ručně (T19). Doplnit do US-04 nebo nabídku vypustit a nechat jen „Smazat sadu“ | S22, S24, S31 |
 
-**Dříve mezery, nyní rozhodnuto:** G2 (odkud brát chybné možnosti, když sada nestačí) je rozhodnuto D21, viz S12. G20 (import do neaktivního jazyka) je rozhodnuto D22, viz S31 a 3.8, bod 12. Čísla G2 a G20 se nepoužívají znovu.
+**Dříve mezery, nyní rozhodnuto:** G2 (odkud brát chybné možnosti, když sada nestačí) je rozhodnuto D21, viz S12. G20 (import do neaktivního jazyka) je rozhodnuto D22 (jazyk se při importu volí), viz S31 a 3.8, bod 12. G25 (přepnutí aktivního jazyka v „Smazat a vytvořit znovu“) je vyřešeno D22: aktivní jazyk se nepřepíná, S31 se otevře s předvybraným správným jazykem (S24, varianta 3). Čísla G2, G20 a G25 se nepoužívají znovu.
 
 ---
 
@@ -1891,8 +1896,8 @@ Návrh s těmito daty počítá, ale aplikace je zatím odnikud nemá nebo nejso
 12. **Vedlejší nabídka v „Na dnes je hotovo“ (S10):** řádek „V {angličtině} je k procvičení: {n}.“ + „Přepnout na …“ je volitelný, ne požadovaný story. Pokud je to tlak, odpadne.
 13. **Ověřit na zařízení (ux-verifier), jazyk:** výška a šířka segmentů C2 (≥ 44 pt), práh přechodu na tlačítko „Jazyk: … ▾“ při velkém písmu, umístění přepínače v hlavičce sidebaru na iOS 26, kontrast a odlišitelnost dvou barev jazyka od stavových barev (i při poruše barevného vidění), čtení C2 a titulků ve VoiceOveru (česká výslovnost „English“, „Deutsch“).
 14. **Znění segmentů:** zadání požaduje „English | Deutsch“ (jazyk sám), US-26 používá „Angličtina / Němčina“. Návrh: vizuálně „English | Deutsch“, texty a VoiceOver česky „angličtina / němčina“. Potvrdit.
-15. **„Smazat a vytvořit znovu“ (G25):** chce zadavatel tuto zkratku včetně automatického přepnutí jazyka v potvrzení S24, nebo stačí „Smazat sadu“ a nová sada přes přepnutí a „+“? Návrh zkratku obsahuje, protože zkracuje opravu; nic nepřenáší.
-16. **Import do druhého jazyka bez zrušení (D22):** po D22 syn musí průvodce zrušit, přepnout jazyk a začít znovu (fotka se při zrušení zahazuje). Pokud by to při špatně zvoleném jazyce bolelo (např. po vyfocení 3 stránek), je jedinou levnější cestou zachovat fotku po „Zrušit import“ do přepnutí jazyka, což je změna Q8 (ukládání fotek). Neřeším, jen upozorňuji.
+15. *(Vyřešeno D22, číslo se nepoužívá znovu.)* „Smazat a vytvořit znovu“ aktivní jazyk nepřepíná, otevře průvodce s předvybraným správným jazykem.
+16. **Špatně zvolený jazyk v importu po skenu (D22):** jazyk se volí před skenem a je pak zamčený. Pokud syn zjistí chybu až v S35 (např. po vyfocení 3 stránek), musí import zrušit a začít znovu (fotka se při zrušení zahazuje). Levnější cestou by bylo zachovat fotku po „Zrušit import“, což je změna Q8 (ukládání fotek). Neřeším, jen upozorňuji; banner „Jiný jazyk?“ v S35 chybu odhalí včas.
 
 ---
 
@@ -1901,7 +1906,7 @@ Návrh s těmito daty počítá, ale aplikace je zatím odnikud nemá nebo nejso
 | Story | Priorita | Obrazovky |
 |---|---|---|
 | US-01 První spuštění | P0 | S01 (krok 1 = volba jazyka), S10 (prázdný stav), S32 |
-| US-02 Import fotkou | P0 | S30, S31 (jazyk jako první řádek, jen sady aktivního jazyka; D22), S32, S34 (řádek „Importuji do: …“), S35 (banner a značka „Jiný jazyk?“), S36 |
+| US-02 Import fotkou | P0 | S30, S31 (jazyk slovíček jako první řádek a ovládací prvek, sady zvoleného jazyka; D22), S32, S34 (řádek „Importuji do: …“), S35 (banner a značka „Jiný jazyk?“), S36 |
 | US-03 Oprava OCR | P0 | S35 (a výřezy; člen jen v německé sadě), S36, banner S35 |
 | US-04 Správa sad a slov | P0 | S11, S20, S21, S22 (jazyk jen zobrazený, „Smazat a vytvořit znovu“; D19), S23, S24 (varianta 3), S31 |
 | US-05 Test: mix výběr/psaní | P0 | S10, S12 (chybné možnosti z téhož jazyka; D21), S13, S15 (jazyk zamčený: štítek C3) |
@@ -1913,7 +1918,7 @@ Návrh s těmito daty počítá, ale aplikace je zatím odnikud nemá nebo nejso
 | US-11 iCloud sync | P0 | S01 (krok 3), S61 |
 | US-12 Konflikty | P0 | S20 (banner), S62, S63 |
 | US-13 Offline | P0 | průřezově, kap. 3.6, řádek „Offline“ každé obrazovky |
-| US-26 Přepnutí aktivního jazyka | P0 | **S02** (podoby A, B, C), C2, C3, kap. 3.8; prázdné stavy S10, S20, S40, S50, S51; S01 krok 1; S31 (jazyk jen zobrazený); S60 (společné); S64 (text o obou jazycích); jazyk zamčený v S12–S16, S42, S43 |
+| US-26 Přepnutí aktivního jazyka | P0 | **S02** (podoby A, B, C), C2, C3, kap. 3.8; prázdné stavy S10, S20, S40, S50, S51; S01 krok 1; S60 (společné); S64 (text o obou jazycích); jazyk zamčený v S12–S16, S42, S43 |
 | US-14 Historie pokroku | P1 | S50 (a S16 z historie; bez filtru „Vše“, D20) |
 | US-15 Slabá místa | P1 | S51 |
 | US-16 Zadání sloves | P1 | S40, S41 |
@@ -1922,4 +1927,4 @@ Návrh s těmito daty počítá, ale aplikace je zatím odnikud nemá nebo nejso
 | US-19 CSV import | P1 | S30, S35, S37 (chyba „dva jazyky v souboru“) |
 | US-20 Smazání dat | P1 | S60, S64 (oba jazyky; návrat na S01 včetně volby jazyka) |
 
-Každá obrazovka v kap. 4 má alespoň jednu story. Obrazovky bez story jsou v kap. 6 označené jako scope creep a nenavrženy. Nová obrazovka S02 a komponenty C2, C3 vycházejí z US-26 (P0, D18). Nabídka „Smazat a vytvořit znovu“ vychází z D19 a v US-04 zatím nemá vlastní kritérium (G25).
+Každá obrazovka v kap. 4 má alespoň jednu story. Obrazovky bez story jsou v kap. 6 označené jako scope creep a nenavrženy. Nová obrazovka S02 a komponenty C2, C3 vycházejí z US-26 (P0, D18). Nabídka „Smazat a vytvořit znovu“ vychází z D19 a v US-04 zatím nemá vlastní kritérium.
