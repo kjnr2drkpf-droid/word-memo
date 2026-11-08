@@ -25,6 +25,7 @@ Syn (7. třída ZŠ, češtinou mluvící) se učí angličtinu a němčinu. Šp
 | D15 | Syn je **13 let**. iPhone i iPad mají **iOS 26** → minimální cílová verze **iOS 26**. |
 | D16 | Angličtina je **britská (en-GB)** — hlas výslovnosti i slovník. |
 | D17 | **(potvrzeno 2026-11-07)** Fotky vkládá otec **na synově zařízení**, ne ze svého Apple ID (SwiftData sync je jen v rámci jednoho iCloud účtu). |
+| D18 | **Jazyky se nemíchají (zadavatel, 2026-11-08).** Aplikace má vždy jeden **aktivní jazyk** (angličtina nebo němčina). Uživatel procvičuje jedno, nebo druhé; nikdy ne obojí v jedné relaci, frontě, testu ani statistice. Jazyk je vlastnost sady (sada nemůže obsahovat oba jazyky), slovo a sloveso ho dědí. Plánování opakování, nepravidelná slovesa, výslovnost (hlas), import (jazyk OCR) i pokrok a slabá místa jsou **po jazycích odděleně**. Přepnutí jazyka je viditelná, jednoznačná volba na nejvyšší úrovni; uprostřed testu se nepřepíná. |
 
 ## Priority (návrh k odsouhlasení)
 - **P0:** import fotkou s kontrolou, test s plánováním opakování, uložení výsledků, iCloud sync, souhrn po pokusu.
