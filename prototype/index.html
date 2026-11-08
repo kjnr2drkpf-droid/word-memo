@@ -1658,9 +1658,20 @@ dev.addEventListener('input',function(e){
 dev.addEventListener('change',function(e){
  var el=e.target,b=el.getAttribute&&el.getAttribute('data-bind');if(!b)return;
  if(b==='wf'){patchWord();return}
- if(b==='vline'){patchVerb();return}
+ if(b==='vline'||b==='vf'||b==='vcz'){patchVerb();return}
  if(b==='impname'){var hh=$('#imp-help',area);if(hh)hh.hidden=!!el.value.trim();return}
- if(b==='impf'||b==='impcz'){var r=S.imp.rows.filter(function(x){return x.id===el.getAttribute('data-id')})[0];if(r&&r.st==='flag'&&r.touched&&r.f.trim()&&r.cz.trim()){r.st='done';render()}}
+});
+/* řádek v kontrole importu se označí jako zkontrolovaný až po opuštění řádku, ne při přechodu mezi jeho poli */
+dev.addEventListener('focusout',function(e){
+ var el=e.target,b=el.getAttribute&&el.getAttribute('data-bind');
+ if((b!=='impf'&&b!=='impcz')||!S.imp)return;
+ var row=el.closest('.irow'),rt=e.relatedTarget;
+ if(rt&&row&&row.contains(rt))return;
+ var r=S.imp.rows.filter(function(x){return x.id===el.getAttribute('data-id')})[0];
+ if(!(r&&r.st==='flag'&&r.touched&&r.f.trim()&&r.cz.trim()))return;
+ var key=rt&&rt.getAttribute&&rt.getAttribute('data-bind')?[rt.getAttribute('data-bind'),rt.getAttribute('data-id')]:null;
+ r.st='done';render();
+ if(key){var n=$('[data-bind="'+key[0]+'"][data-id="'+key[1]+'"]',area);if(n){try{n.focus({preventScroll:true})}catch(x){}}}
 });
 
 /* ================= render / layout ================= */
