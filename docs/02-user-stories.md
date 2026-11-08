@@ -3,16 +3,16 @@
 Stav k 2026-11-08. Zdroj pravdy: `00-zadani.md`. Priority P0/P1/P2 jsou převzaty ze zadání (návrh k odsouhlasení). Kde zadání prioritu neuvádí, je to označeno **(předpoklad)**.
 
 ## Závěr
-26 stories: 14 × P0, 7 × P1, 5 × P2. P0 tvoří celou smyčku „fotka → kontrola → test → vyhodnocení → plán → souhrn" plus uložení, iCloud sync, offline a přepnutí aktivního jazyka (US-26). Podle D18 se jazyky nemíchají: fronta, test, souhrn, historie, slabá místa i import jsou vždy po jednom (aktivním) jazyce. Stories pro rodičovský pohled (D11, US-23) a gamifikaci (D13, US-24) jsou P2. Každá story respektuje principy z `01-vize.md`: žádný tlak, neúspěch nedemotivuje, krátké relace, soukromí.
+26 stories: 14 × P0, 7 × P1, 5 × P2. P0 tvoří celou smyčku „fotka → kontrola → test → vyhodnocení → plán → souhrn" plus uložení, iCloud sync, offline a přepnutí aktivního jazyka (US-26). Podle D18 se jazyky nemíchají: fronta, test, souhrn, historie a slabá místa jsou vždy po jednom (aktivním) jazyce; import má svůj jazyk, který syn vybere jako první krok (D22), a aktivní jazyk nemění. Stories pro rodičovský pohled (D11, US-23) a gamifikaci (D13, US-24) jsou P2. Každá story respektuje principy z `01-vize.md`: žádný tlak, neúspěch nedemotivuje, krátké relace, soukromí.
 
 ## Přehled
 
 | ID | Story | Priorita | Rozhodnutí |
 |---|---|---|---|
 | US-01 | První spuštění | P0 (předpoklad) | D5, D10, D18 |
-| US-02 | Import slovíček fotkou | P0 | D7, D18 |
-| US-03 | Oprava výsledku OCR | P0 | D7 |
-| US-04 | Správa sad a slov | P0 (předpoklad) | D7, D18 |
+| US-02 | Import slovíček fotkou | P0 | D7, D18, D22 |
+| US-03 | Oprava výsledku OCR | P0 | D7, D22 |
+| US-04 | Správa sad a slov | P0 (předpoklad) | D7, D18, D22 |
 | US-05 | Test: mix výběr/psaní | P0 | D3, D18 |
 | US-06 | Test v obou směrech | P0 | D2 |
 | US-07 | Vyhodnocení odpovědi | P0 | D1, D3, D18 |
@@ -27,14 +27,14 @@ Stav k 2026-11-08. Zdroj pravdy: `00-zadani.md`. Priority P0/P1/P2 jsou převzat
 | US-16 | Zadání nepravidelných sloves | P1 | D8, D18 |
 | US-17 | Procvičování nepravidelných sloves | P1 | D8, D18 |
 | US-18 | Výslovnost: přehrání | P1 | D9, D18 |
-| US-19 | CSV import | P1 | D7, D18 |
+| US-19 | CSV import | P1 | D7, D18, D22 |
 | US-20 | Smazání dat | P1 (předpoklad) | R5 |
 | US-21 | Hotové sady | P2 | D7 |
 | US-22 | Kontrola výslovnosti hlasem | P2 | D9, D18 |
 | US-23 | Rodičovský pohled | P2 | D11 |
 | US-24 | Gamifikace | P2 | D13 |
 | US-25 | Připomenutí | P2 | zadání |
-| US-26 | Přepnutí aktivního jazyka | P0 | D18 |
+| US-26 | Přepnutí aktivního jazyka | P0 | D18, D22 |
 
 ---
 
@@ -53,8 +53,10 @@ Jako syn chci při prvním otevření aplikace hned vidět, co dělat dál, abyc
 Jako syn chci vyfotit stránku ze sešitu nebo učebnice, abych slovíčka nemusel opisovat.
 - Given sadu nebo novou sadu, When vyfotím stránku nebo vyberu fotku z knihovny, Then aplikace rozpozná text v zařízení (bez odeslání obrázku ven, R5) a zobrazí návrh dvojic „cizí slovo — čeština".
 - Podporované jazyky rozpoznání: čeština, angličtina, němčina včetně ä ö ü ß a české diakritiky.
-- **Jazyk nejdřív (D18):** import vždy míří do sady s jedním jazykem. Nová sada vzniká v aktivním jazyce, existující si jazyk drží (US-04). Cílový jazyk je před rozpoznáním viditelný (např. „Importuji do: Němčina · název sady").
-- **OCR dostane jazykový kontext:** rozpoznání se nastaví na češtinu a jazyk sady (cs + en, nebo cs + de), ne na oba cizí jazyky zároveň. Že to zvyšuje přesnost, je **domněnka** k ověření sondou (R2).
+- **Jazyk se volí jako první krok importu (D18, D22):** Given zahájený import, When se otevře jeho první krok, Then syn vybere, pro který jazyk slovíčka přidává (Angličtina / Němčina). Volba je předvyplněná aktivním jazykem, ale jde zvolit i druhý jazyk. Aplikace jazyk za syna nevybere ani ho nezmění podle obsahu fotky.
+- **Sady podle zvoleného jazyka:** nabízejí se sady zvoleného jazyka (ne nutně aktivního) a nová sada vznikne ve zvoleném jazyce; existující sada si jazyk drží (US-04). Zvolený jazyk je po celý import pevný a viditelný i na kontrolní obrazovce (např. „Importuji do: Němčina · název sady"). Dva jazyky v jednom importu nejdou.
+- **Import nemění aktivní jazyk zařízení:** Given aktivní jazyk A a import do jazyka B, When import dokončím nebo zruším, Then aktivní jazyk zůstává A; všechny vzniklé sady a slova mají jazyk B. Po uložení lze nabídnout „Přepnout na … a procvičit" (přepnutí je volba syna, US-26).
+- **OCR dostane jazykový kontext:** rozpoznání se nastaví na češtinu a zvolený jazyk (cs + en, nebo cs + de), ne na oba cizí jazyky zároveň. Že to zvyšuje přesnost, je **domněnka** k ověření sondou (R2).
 - Text, který vypadá jako druhý jazyk (např. německá slova při importu do anglické sady), se potichu neuloží: označí se k ruční kontrole (US-03) a nabídne se zrušení. Jazyk se nikdy nepřepne automaticky (Q21).
 - Podporován je i případ, kdy fotku vloží otec (výběr z knihovny fotek); viz otevřená otázka Q3.
 - Dvousloupcová tabulka se rozloží na dvojice. Co se nepodaří spárovat, aplikace označí k ruční kontrole, ne zahodí.
@@ -66,7 +68,8 @@ Jako syn chci vyfotit stránku ze sešitu nebo učebnice, abych slovíčka nemus
 Jako syn chci před uložením rychle opravit chyby rozpoznání, abych v sadě neměl špatná slovíčka.
 - Given návrh dvojic z US-02, When ho prohlížím, Then každou dvojici mohu upravit, smazat, přidat nebo spojit/rozdělit řádky.
 - Podezřelé položky (nízká jistota, nespárované, podezřelá diakritika) jsou vizuálně označeny a nabídnuty jako první.
-- Mezi podezřelé patří i dvojice, která vypadá jako jiný jazyk než jazyk sady (D18). Ukládá se jen do sady svého jazyka; žádná dvojice se bez vědomí syna nepřesune do sady druhého jazyka.
+- Mezi podezřelé patří i dvojice, která vypadá jako jiný jazyk než jazyk zvolený při importu (D18, D22). Ukládá se jen do sady tohoto jazyka; žádná dvojice se bez vědomí syna nepřesune do sady druhého jazyka.
+- Kontrola běží ve zvoleném jazyce importu, i když není aktivní; zvolený jazyk je na kontrolní obrazovce vidět a nelze ho uprostřed kontroly změnit (změna = zrušit a začít import znovu). Uložení ani zrušení kontroly nemění aktivní jazyk zařízení (D22).
 - U německých podstatných jmen lze vyplnit nebo opravit člen der/die/das (US-07); pole pro člen se zobrazuje jen v sadě němčiny (D18).
 - Do sady se uloží jen to, co jsem potvrdil. Zrušení kontroly nic neuloží a nic nesmaže.
 - Oprava slova je jedno ťuknutí do pole; netřeba otevírat další obrazovku.
@@ -76,7 +79,7 @@ Jako syn chci před uložením rychle opravit chyby rozpoznání, abych v sadě 
 Jako syn chci mít slovíčka rozdělená do sad podle jazyka a lekce, abych mohl procvičovat to, co se zrovna učíme.
 - Given uložená slovíčka, When otevřu seznam sad, Then vidím sady **aktivního jazyka** (D18) s názvem a počtem slov; jazyk je uveden v záhlaví seznamu. Sady druhého jazyka se objeví až po přepnutí (US-26), v jednom seznamu se jazyky nemíchají.
 - Mohu vytvořit, přejmenovat a smazat sadu a upravit, přidat nebo smazat jednotlivé slovo.
-- **Jazyk sady je povinný při vytvoření** (předvyplněn aktivním jazykem). Sada nemůže obsahovat slova obou jazyků a slovo, sloveso i pokus dědí jazyk sady; zvlášť se u nich jazyk nezadává (D18).
+- **Jazyk sady je povinný při vytvoření** (předvyplněn aktivním jazykem; při importu jazykem zvoleným na jeho začátku, D22). Sada nemůže obsahovat slova obou jazyků a slovo, sloveso i pokus dědí jazyk sady; zvlášť se u nich jazyk nezadává (D18).
 - **Po vytvoření je jazyk sady neměnný** (návrh). Zda změnu vůbec umožnit, případně s varováním o dopadu na plán opakování a statistiky, je otevřená otázka Q16.
 - Slovo nelze přesunout ani zkopírovat do sady druhého jazyka.
 - Smazání sady nebo slova vyžaduje potvrzení a ukáže, co se smaže (včetně počtu slov a jejich historie).
@@ -174,13 +177,14 @@ Jako syn chci moci procvičovat bez internetu (v autobuse, o prázdninách), aby
 ### US-26 Přepnutí aktivního jazyka — P0 (D18)
 Jako syn chci jednoduše přepnout mezi angličtinou a němčinou, abych vždy procvičoval jen jeden jazyk a nic se mi nemíchalo.
 - **Viditelná volba:** Given kterákoli obrazovka nejvyšší úrovně (domů, sady, historie, slabá místa), When se na ni podívám, Then vidím, který jazyk je aktivní (Angličtina / Němčina), a jedním ťuknutím ho mohu přepnout. Volba není schovaná v nastavení.
-- Přepnutí je okamžité, funguje offline, nic nemaže ani nemění v datech a nespouští žádný test. Po přepnutí ukazují všechny obrazovky (sady, test, plán, souhrn, historie, slabá místa, slovesa, import, výslovnost) jen nový jazyk.
+- Přepnutí je okamžité, funguje offline, nic nemaže ani nemění v datech a nespouští žádný test. Po přepnutí ukazují všechny obrazovky (sady, test, plán, souhrn, historie, slabá místa, slovesa, výslovnost) jen nový jazyk. Import je výjimka (D22): jazyk si volí syn jako první krok importu (předvyplněný aktivním jazykem) a import aktivní jazyk nemění.
 - **Pamatuje si poslední jazyk:** Given zavřená a znovu otevřená aplikace, When ji spustím, Then je aktivní jazyk, který byl aktivní naposledy. Při úplně prvním spuštění ho volí syn (US-01). Aplikace jazyk nikdy nepřepíná sama (ani podle obsahu fotky, souboru nebo termínů). Zda se poslední jazyk sdílí mezi zařízeními, je Q18.
 - **Nepřepíná se uprostřed testu:** Given probíhající relace (test nebo procvičování sloves), When jsem uvnitř, Then přepínač jazyka není dostupný (skrytý, nebo neaktivní s krátkým vysvětlením) a jazyk platí do konce relace. Relaci lze ukončit (odpovědi se uloží, US-05, US-09); po souhrnu lze jazyk přepnout. Odchod do jiné aplikace a návrat jazyk nemění.
 - **Druhý jazyk bez míchání:** Given aktivní jazyk A a v druhém jazyce B slova s nastalým termínem, When se podívám na přepínač, Then u jazyka B vidím neutrální počet slov k procvičení (např. „Němčina · 12 slov k procvičení"). Je to jen informace u přepínače: slova se nepřidají do fronty, testu ani statistik aktivního jazyka. Ťuknutí na ni jazyk jen přepne, test nespustí. Číslo je nabídka, ne resta: bez červené a bez „dluhu" (US-08). Jak se zobrazí při velkém počtu, je Q19.
 - **Prázdný stav jazyka bez sad:** Given jazyk, ve kterém zatím není žádná sada, When ho přepnu (nebo zvolím v US-01), Then vidím přívětivý prázdný stav (např. „Pro němčinu tu zatím nemáš žádná slovíčka") s nabídkami „Vyfotit slovíčka" a „Vytvořit sadu" (nová sada vznikne v tomto jazyce), bez tlačítka testu a bez chybové hlášky. U přepínače se místo počtu zobrazí „zatím žádné sady".
 - Přepínač zůstává použitelný i v prázdném stavu, takže se lze kdykoli vrátit do jazyka se sadami.
-- Testovatelné v `Domain`: sestavení fronty a statistik pro jazyk A nikdy neobsahuje slovo, pokus ani sadu jazyka B.
+- **Import do neaktivního jazyka nemění aktivní jazyk (D22):** Given aktivní jazyk A, When naimportuji slovíčka (fotka i CSV) do jazyka B, Then po importu je aktivní jazyk stále A, všechny nové sady a slova mají jazyk B a obrazovky aktivního jazyka A je neukazují. Nabídka „Přepnout na … a procvičit" jazyk přepne jen po ťuknutí syna. Uprostřed importu je přepínač nedostupný stejně jako uprostřed testu.
+- Testovatelné v `Domain`: sestavení fronty a statistik pro jazyk A nikdy neobsahuje slovo, pokus ani sadu jazyka B; import do jazyka B nezmění aktivní jazyk a každý vzniklý záznam má jazyk B.
 
 ---
 
@@ -233,7 +237,8 @@ Jako syn (nebo otec) chci načíst slovíčka z CSV souboru, abych využil sezna
 - Given soubor CSV (UTF-8, dva až tři sloupce: cizí, česky, volitelně člen/poznámka), When ho vyberu, Then uvidím náhled a stejnou kontrolu a opravu jako u OCR (US-03).
 - Chybné řádky se označí, neuloží se slova bez překladu.
 - Rozpoznání oddělovače (čárka/středník) a kódování; diakritika se nezkomolí.
-- Import jde do vybrané sady a jazyk importu je dán jazykem sady (D18); duplicity se nabídnou ke sloučení (jen v rámci jazyka). Jeden soubor = jedna sada = jeden jazyk: řádky, které vypadají jako druhý jazyk (nebo mají odlišné označení jazyka, Q11, Q21), se označí k ruční kontrole a automaticky se neuloží.
+- **Jazyk se volí jako první krok importu (D22)**, stejně jako u fotky (US-02): předvyplněný aktivním jazykem, jde zvolit i druhý; nabízejí se sady zvoleného jazyka a nová sada vznikne ve zvoleném jazyce. Zvolený jazyk je po celý import pevný a vidět na kontrolní obrazovce. CSV import nemění aktivní jazyk zařízení; po uložení lze nabídnout „Přepnout na … a procvičit".
+- Import jde do vybrané sady a jazyk importu je jazyk zvolený na začátku (D22), shodný s jazykem sady (D18); duplicity se nabídnou ke sloučení (jen v rámci jazyka). Jeden soubor = jedna sada = jeden jazyk: řádky, které vypadají jako druhý jazyk (nebo mají odlišné označení jazyka, Q11, Q21), se označí k ruční kontrole a automaticky se neuloží.
 - Přesný formát je otevřená otázka Q11.
 
 ### US-20 Smazání dat — P1 (předpoklad)

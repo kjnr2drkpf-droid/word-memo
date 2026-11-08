@@ -25,7 +25,7 @@ Vlna 1 je rozdělena na 1A a 1B jen kvůli pořadí buildů, priorita obou je P0
 | US-01 První spuštění | — | Minimální verze stačí; úvod se rozšiřuje později. Volba jazyka ukládá aktivní jazyk, který dál řídí US-26 (D18). |
 | US-04 Správa sad | — | Základ datového modelu (sada, slovo). |
 | US-10 Uložení výsledků | US-04 | Model pokusů navržen podle omezení SwiftData/CloudKit (R4). |
-| US-02 Import fotkou | US-04 | Cíl importu je sada. Riziko R2. |
+| US-02 Import fotkou | US-04 | Cíl importu je sada. Jazyk importu volí uživatel jako první krok (D22), import nemění aktivní jazyk. Riziko R2. |
 | US-03 Oprava OCR | US-02 | Sdílená kontrolní obrazovka s US-19. |
 | US-07 Vyhodnocení odpovědi | US-04 | Potřebuje slova, členy, více významů. |
 | US-05 Test: mix | US-04, US-07, US-08 | Hranice nové/známé z plánovače. |
@@ -40,14 +40,14 @@ Vlna 1 je rozdělena na 1A a 1B jen kvůli pořadí buildů, priorita obou je P0
 | US-16 Zadání sloves | US-04 | Samostatný datový typ. |
 | US-17 Procvičování sloves | US-16, US-08 | Znovupoužije plánovač. |
 | US-18 Výslovnost | US-04 | Nezávislé na testu; R3. |
-| US-19 CSV import | US-03, US-04 | Znovupoužije kontrolní obrazovku. |
+| US-19 CSV import | US-03, US-04 | Znovupoužije kontrolní obrazovku. Jazyk importu se volí stejně jako u fotky (D22). |
 | US-20 Smazání dat | US-04, US-11 | Musí smazat i iCloud kopii. |
 | US-21 Hotové sady | US-04, licence | Neprovádět bez ověřené licence (D7). |
 | US-22 Kontrola výslovnosti | US-18 | Rozpoznání řeči v zařízení (R5). |
 | US-23 Rodičovský pohled | US-10, US-11, US-14 | Jen architektonická podmínka od vlny 1. |
 | US-24 Gamifikace | US-09, US-14 | Nesmí porušit principy 1–3. |
 | US-25 Připomenutí | US-08 | |
-| US-26 Přepnutí aktivního jazyka | US-01, US-04, US-05, US-08 | D18. Jazyk sady (US-04) a volba při prvním spuštění (US-01); zámek přepnutí během relace (US-05); počet k procvičení u druhého jazyka z plánovače po jazycích (US-08). Aktivní jazyk pak filtruje US-02, US-05, US-08, US-09, US-14 až US-19. |
+| US-26 Přepnutí aktivního jazyka | US-01, US-04, US-05, US-08 | D18. Jazyk sady (US-04) a volba při prvním spuštění (US-01); zámek přepnutí během relace (US-05); počet k procvičení u druhého jazyka z plánovače po jazycích (US-08). Aktivní jazyk pak filtruje US-05, US-08, US-09, US-14 až US-19. |
 
 ```
 US-04 ─┬─ US-02 ─ US-03 ─ US-19
@@ -56,7 +56,7 @@ US-04 ─┬─ US-02 ─ US-03 ─ US-19
        ├─ US-16 ─ US-17            └──────────────────────┘
        └─ US-18 ─ US-22
 US-10 ─ US-11 ─ US-12 ;  US-11 ─ US-20 ;  US-14 ─ US-23, US-24 ;  US-08 ─ US-25
-US-01, US-04, US-05, US-08 ─ US-26   (aktivní jazyk je filtr pro US-02, US-05, US-08, US-09, US-14 až US-19)
+US-01, US-04, US-05, US-08 ─ US-26   (aktivní jazyk je filtr pro US-05, US-08, US-09, US-14 až US-19)
 ```
 
 Kritická cesta pro první smysluplnou verzi: US-04 → US-10 → US-07 → US-08 → US-05 → US-06 → US-09, paralelně US-02 → US-03. US-26 je malá a přidává se nad plán po jazycích (US-08); model s jazykem sady (US-04) musí existovat od začátku.
@@ -99,7 +99,7 @@ Kritická cesta pro první smysluplnou verzi: US-04 → US-10 → US-07 → US-0
 - Soukromí: žádná analytika, OCR v zařízení, žádné odesílání obrázků ven (R5).
 - Principy z `01-vize.md`: bez tlaku, neúspěch nedemotivuje, krátké relace.
 - Rozšiřitelnost datového modelu pro rodičovský pohled a gamifikaci (D11, D13).
-- Jeden jazyk najednou (D18): fronta, test, souhrn, historie, slabá místa, slovesa, výslovnost i import vždy jen pro aktivní jazyk. Kontroluje se průřezově, mj. jednotkovými testy v `Domain` (výstup pro jazyk A neobsahuje data jazyka B).
+- Jeden jazyk najednou (D18): fronta, test, souhrn, historie, slabá místa, slovesa a výslovnost vždy jen pro aktivní jazyk; import má jazyk zvolený uživatelem na začátku (D22) a aktivní jazyk nemění. Kontroluje se průřezově, mj. jednotkovými testy v `Domain` (výstup pro jazyk A neobsahuje data jazyka B).
 - Tvrzení o platformě jsou **domněnka**, dokud je neověříme podle zdroje.
 
 ## Otevřené otázky
@@ -109,4 +109,4 @@ Kritická cesta pro první smysluplnou verzi: US-04 → US-10 → US-07 → US-0
 - **O4 Zda se má do buildu 1 přidat přehrání výslovnosti (US-18)** jako levná P1 věc. Návrh: ne, kvůli rozsahu; pozdější rozhodnutí zadavatele.
 - **O5 Zařazení US-20 (smazání dat), US-04 (správa sad), US-01, US-12, US-13 do priorit.** Zadání je výslovně nezařazuje; v dokumentech jsou označeny jako předpoklad.
 - **O6 Q1–Q21 z `02-user-stories.md`** (algoritmus, přísnost, vložení fotek otcem a další) čekají na rozhodnutí.
-- **O7 US-26 a D18.** Návrh: US-26 patří do buildu 1, protože D18 platí od prvního buildu. Otázky k D18 (Q16 změna jazyka sady, Q17 celkový souhrn přes oba jazyky, Q18 uložení aktivního jazyka, Q19 až Q21) čekají na zadavatele.
+- **O7 US-26 a D18: ROZHODNUTO podle opraveného D22 (zadavatel, 2026-11-08).** US-26 patří do buildu 1, protože D18 platí od prvního buildu. Jazyk importu (fotka i CSV) volí syn jako první krok importu: předvyplněný aktivním jazykem, ale jde zvolit i druhý; nabízejí se sady zvoleného jazyka, nová sada vznikne ve zvoleném jazyce, jazyk je po celý import pevný a OCR dostane [zvolený jazyk, cs]. Import nemění aktivní jazyk zařízení, po uložení lze nabídnout „Přepnout na … a procvičit“; dva jazyky v jednom importu nejdou. Dřívější znění „import nabízí jen sady aktivního jazyka“ bylo mylný výklad. Z otázek k D18 jsou rozhodnuty Q16 (D19) a Q17 (D20); Q18 (uložení aktivního jazyka), Q19 až Q21 čekají na zadavatele.

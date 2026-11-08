@@ -1,6 +1,6 @@
 # 05 — Architektura
 
-Stav k 2026-11-07. Autor: architekt. Zdroj pravdy: `00-zadani.md` (vč. D5 Ad Hoc, D15 iOS 26, D16 en-GB, D17 potvrzeno, R6). Vstupy: `01`, `02`, `04`, `08`, `09`, `10`. **Revize 2026-11-07:** distribuce se mění z TestFlightu na Ad Hoc (TestFlight dětský účet nespustí), viz A11, kap. 10 a ADR-14. Tvrzení o platformě přebírám z `08`/`09` se stejným značením (**ověřeno** / **domněnka**); nová tvrzení, která jsem neověřil, jsou **domněnka → sonda** (seznam v kap. 11). **Revize 2026-11-08:** zapracováno D18 (jazyky se nemíchají) a rozhodnutí D19 (jazyk sady je neměnný, slovo nejde přesunout do jiného jazyka) a D20 (žádný souhrn přes oba jazyky), D21 (možnosti výběru se doplňují z jiných sad téhož jazyka) a D22 (import nabízí jen sady aktivního jazyka): jazyk je neměnná vlastnost sady, denormalizovaná do slova, slovesa, karty, pokusu a relace; dotazy, fronta, plánovač, výběr možností, metriky, OCR a hlas jsou po jazycích; aktivní jazyk je lokální předvolba zařízení (A13, kap. 13, ADR-15).
+Stav k 2026-11-07. Autor: architekt. Zdroj pravdy: `00-zadani.md` (vč. D5 Ad Hoc, D15 iOS 26, D16 en-GB, D17 potvrzeno, R6). Vstupy: `01`, `02`, `04`, `08`, `09`, `10`. **Revize 2026-11-07:** distribuce se mění z TestFlightu na Ad Hoc (TestFlight dětský účet nespustí), viz A11, kap. 10 a ADR-14. Tvrzení o platformě přebírám z `08`/`09` se stejným značením (**ověřeno** / **domněnka**); nová tvrzení, která jsem neověřil, jsou **domněnka → sonda** (seznam v kap. 11). **Revize 2026-11-08:** zapracováno D18 (jazyky se nemíchají) a rozhodnutí D19 (jazyk sady je neměnný, slovo nejde přesunout do jiného jazyka) a D20 (žádný souhrn přes oba jazyky), D21 (možnosti výběru se doplňují z jiných sad téhož jazyka) a D22 (opraveno: jazyk importu volí uživatel jako první krok, předvyplněný aktivním jazykem; import nemění aktivní jazyk zařízení): jazyk je neměnná vlastnost sady, denormalizovaná do slova, slovesa, karty, pokusu a relace; dotazy, fronta, plánovač, výběr možností, metriky, OCR a hlas jsou po jazycích; aktivní jazyk je lokální předvolba zařízení (A13, kap. 13, ADR-15).
 
 > **Sladěno s `07-opakovani-algoritmus.md`** (FSRS-6, karta = slovo × směr, sloveso = jedna karta, fáze se počítá a neukládá, log musí mít `mode`, `outcome`, `hintLevel`, `rating`, `responseMs`, `typedText`, fazety a výsledky po tvarech). Zdrojem pravdy je historie pokusů. Stav FSRS je z ní kdykoli přepočitatelný (ADR-03). Kdyby se FSRS nahradilo Leitnerem (`07` kap. 1), mění se jen doménová funkce a lokální cache, ne synchronizované schéma.
 
@@ -166,7 +166,7 @@ Pole „počítá se do FSRS" se neukládá. Do FSRS jde jen první pokus karty 
 
 **`StudySession`** (relace) — `id, schemaVersion, startedAt, endedAt: Date?, mode: String = "words"` (words/verbs/weak/retryWrong), `setIDs: [UUID] = [], directionFilter: String = "both", plannedCount: Int = 0, language: String = "unknown"`. **Jedna relace = jeden jazyk** (D18): `language` = aktivní jazyk při startu, `setIDs` smí obsahovat jen sady téhož jazyka. Píše ji vždy jen jedno zařízení. `endedAt == nil` = přerušená relace, souhrn se dopočítá z pokusů (US-09).
 
-**`ImportBatch`** — `id, schemaVersion, createdAt, source: String, setID: UUID?, language: String = "unknown"` (jazyk sady, zvolený před skenem), ` addedCount: Int = 0, mergedCount: Int = 0, revertedAt: Date?`. Fotka ani text OCR se neukládá.
+**`ImportBatch`** — `id, schemaVersion, createdAt, source: String, setID: UUID?, language: String = "unknown"` (jazyk importu zvolený uživatelem před skenem, D22; shodný s jazykem cílové sady), ` addedCount: Int = 0, mergedCount: Int = 0, revertedAt: Date?`. Fotka ani text OCR se neukládá.
 
 **`ReviewState`** (lokální, **odvozený**, cache stavu FSRS-6 podle `07`)
 
@@ -181,7 +181,7 @@ Pole „počítá se do FSRS" se neukládá. Do FSRS jde jen první pokus karty 
 
 **Fáze** (Nové / Učí se / Známé / Zvládnuté) se neukládá, počítá se z `ReviewState` při sestavení relace (`07` kap. 3). Stejně se počítá i odemknutí směru c2f. Aktuální `desired_retention` (hlídač kalibrace, `07` kap. 1) je odvozený z posledních 100 opakování **daného jazyka** a vede se po jazycích. Uloží se jen lokálně a obě zařízení se po syncu shodnou.
 
-**`ImportDraft`** (lokální) — rozpracovaná kontrolní obrazovka: JSON návrhu dvojic, `setID`, `language` (pevně od začátku importu), `createdAt`, cesta k dočasnému obrázku. Přežije, když iOS aplikaci na pozadí ukončí. Maže se po uložení, po zrušení a nejpozději po 7 dnech (předpoklad).
+**`ImportDraft`** (lokální) — rozpracovaná kontrolní obrazovka: JSON návrhu dvojic, `setID`, `language` (zvolí uživatel jako první krok importu, D22; pak pevný, nezávislý na aktivním jazyce zařízení), `createdAt`, cesta k dočasnému obrázku. Přežije, když iOS aplikaci na pozadí ukončí. Maže se po uložení, po zrušení a nejpozději po 7 dnech (předpoklad).
 
 ### 2.4 Zdroj pravdy vs. odvozené
 
@@ -213,7 +213,7 @@ Objem: řádově tisíce pokusů ročně (domněnka), plný přepočet na zaří
 | iCloud nepřihlášen, plný, nebo vypnutý | Aplikace jede lokálně (A1). Stav účtu (`CKContainer.accountStatus`) se ukáže jednou a pak už jen v Nastavení. `QUOTA_EXCEEDED` se nesmí projevit pádem (`08` a). Data zůstanou lokálně a odešlou se po vyřešení (**domněnka → T3/T4**). |
 | OCR selže nebo vrátí prázdno | Přátelská zpráva, znovu vyfotit nebo zadat ručně (US-02). Nic se neuloží. |
 | Hlas pro locale chybí | Tlačítko přehrání ukáže vysvětlení a návod ke stažení. Test ani jiná funkce na tom nezávisí. |
-| Přepnutí aktivního jazyka | Jen mimo relaci a mimo kontrolu importu (D18). Uloží se lokálně, fronta, statistiky a seznamy se přepočtou pro nový jazyk. Přerušená relace si nese `StudySession.language` a nabídne se jen v jejím jazyce. Rozpracovaný `ImportDraft` má vlastní jazyk a přepnutím se nemění. |
+| Přepnutí aktivního jazyka | Jen mimo relaci a mimo kontrolu importu (D18, D22: přepnutí zůstává zakázáno uprostřed importu). Uloží se lokálně, fronta, statistiky a seznamy se přepočtou pro nový jazyk. Přerušená relace si nese `StudySession.language` a nabídne se jen v jejím jazyce. Rozpracovaný `ImportDraft` má vlastní jazyk (může se lišit od aktivního) a přepnutím se nemění. Import sám aktivní jazyk nemění; po uložení lze nabídnout „Přepnout na … a procvičit“, což je běžné přepnutí mimo import. |
 | Porušený invariant jazyka (záznam ze syncu, starší build, chyba) | `LanguageGuard` při startu a po syncu: neplatné členství, pokus nebo stav s jiným jazykem než položka, položka nebo sada `unknown` → nezapočte se do fronty, testu, distraktorů ani statistik. Počet se ukáže v Nastavení → Kontrola dat (počítá se lokálně, nic se neodesílá). Pokus se nepřepisuje, neplatné členství smaže uživatel. |
 | Smazání sady | Měkce smazat `WordSet` a jeho `SetMembership`. Slova, která nejsou v žádné jiné sadě, také měkce smazat (předpoklad). Před potvrzením ukázat počet slov a pokusů (US-04). Pokusy zůstávají až do vysypání koše. |
 
@@ -245,7 +245,7 @@ SwiftData synchronizuje přes `NSPersistentCloudKitContainer` do soukromé datab
 ## 5. Import pipeline
 
 ```
-[Sada + jazyk]──►[Kamera VNDocumentCamera │ PHPicker]──► dočasný JPEG (tmp, mimo zálohu, nikdy do iCloudu)
+[Jazyk (volba) + sada]──►[Kamera VNDocumentCamera │ PHPicker]──► dočasný JPEG (tmp, mimo zálohu, nikdy do iCloudu)
       │                                                     │
       │                                    OCRVision: RecognizeDocumentsRequest (iOS 26)
       │                                    jazyky [cs, de|en] podle sady, korekce podle T6
@@ -266,7 +266,7 @@ SwiftData synchronizuje přes `NSPersistentCloudKitContainer` do soukromé datab
 
 - OCR běží v zařízení. Vision nemá síťový parametr, ale **ověření, že nic neodchází, je sonda T6** (režim Letadlo + sledování sítě).
 - Díky D15 se nemusí stavět větev pro iOS < 26. Geometrické párování z řádků se ponechává, protože je potřeba i na iOS 26, pokud T6 ukáže, že tabulky bez linek se jako tabulka nerozpoznají (**domněnka**, `09` 3.2). Pokud T6 ukáže opak, větev se nepostaví.
-- **Jazyk importu (D18):** je to jazyk cílové sady, pevně daný **před skenem** a uložený v `ImportDraft`/`ImportBatch`. Během kontroly se nemění. Nová sada dostane aktivní jazyk. Tok importu nabízí **jen sady aktivního jazyka** (D22, rozhodnuto). Jiný jazyk znamená přepnout aktivní jazyk mimo import. Repozitář pro výběr sady v importu proto bere `language` = aktivní jazyk, stejně jako ostatní dotazy.
+- **Jazyk importu (D18, D22):** **první krok importu je volba jazyka** (fotka i CSV), předvyplněná aktivním jazykem, ale jde zvolit i druhý. Zvolený jazyk je jazyk cílové sady, pevně daný **před skenem** a uložený v `ImportDraft`/`ImportBatch`; během kontroly se nemění a je vidět na kontrolní obrazovce. Tok importu nabízí **sady zvoleného jazyka** a nová sada vznikne ve zvoleném jazyce. Repozitář pro výběr sady v importu bere `language` = jazyk importu (povinný parametr jako u ostatních dotazů, jen jeho zdrojem není aktivní jazyk zařízení). Kontrola (`PairExtractor`, dedup, `LanguageGuard`) běží v jazyce importu, i když není aktivní. **Import aktivní jazyk nemění**; přepnutí aktivního jazyka zůstává zakázáno uprostřed importu (kap. 3) a po uložení lze nabídnout „Přepnout na … a procvičit“. Dva jazyky v jednom importu nejdou (jeden draft = jedna sada = jeden jazyk).
 - **Jazykový kontext OCR:** doména předá `LanguageHint(foreign:)`, adaptér ho převede na `[de, cs]` nebo `[en, cs]`. Konkrétní kódy (`de-DE`, `en-US`/`en-GB`, `cs-CZ`) vybere za běhu ze `supportedRecognitionLanguages` podle prefixu, ne natvrdo. Že seznam jazyků není v dokumentaci a zjišťuje se za běhu, je **ověřeno** (`08` d, `09` 3.1). Že v něm na iOS 26 jsou `de`, `en` a hlavně `cs`, je **domněnka → T6**. Pořadí v `recognitionLanguages` je priorita (**ověřeno** u `VNRecognizeTextRequest`/`RecognizeTextRequest`, `08` d). Zda jde jazyky nastavit i u `RecognizeDocumentsRequest` (dokumentace podle `08`/`09` uvádí jen vlastnost `supportedRecognitionLanguages`), je **domněnka → sonda N8**. Pokud nejde, rozhodne T6 mezi `RecognizeDocumentsRequest` bez nápovědy a `RecognizeTextRequest` s jazyky + geometrickým párováním.
 - `PairExtractor` dostane očekávaný jazyk. Když heuristika najde jiný cizí jazyk (ä ö ü ß v anglické sadě), označí stránku „vypadá to na němčinu, sada je anglická" a nic nepřepne. Dedup se hledá jen v knihovně téhož jazyka. CSV řádek se sloupcem `language` odlišným od jazyka sady je chyba s důvodem a neimportuje se (`09` 4.1).
 - Seznam jazyků se bere za běhu (`supportedRecognitionLanguages`). Pokud v něm `cs` chybí, adaptér pošle jen cizí jazyk a doména ve sloupci češtiny označí víc položek k ověření (`09` 3.3). Kontrolní obrazovka se nemění.
@@ -485,7 +485,7 @@ Nové sondy z tohoto návrhu:
 - **Údržba Ad Hoc:** kdo a jak často obnovuje podpis a přeinstaluje build na synových zařízeních (Mac, kabel, Developer Mode). Doporučení: kalendářní připomínka otce.
 - Z `07`: má-li zůstat „první pokus karty v relaci" pravidlem i při souběžných relacích na dvou zařízeních (kap. 4).
 - ~~**D18, výběr ze 4 v malé sadě**~~ **Rozhodnuto (D21):** když sada nemá 3 použitelné chybné možnosti, doplní se z jiných sad téhož jazyka, nikdy z druhého jazyka. Méně možností jen tehdy, když nestačí celý jazyk. Pravidlo pro tento okrajový případ navrhuje `07` kap. 3.
-- ~~Zda tok importu nabízí i sady druhého jazyka~~ **Rozhodnuto (D22):** jen sady aktivního jazyka.
+- ~~Zda tok importu nabízí i sady druhého jazyka~~ **Rozhodnuto (D22, opraveno):** jazyk importu volí uživatel jako první krok (předvyplněný aktivním jazykem), nabízejí se sady zvoleného jazyka, nová sada vznikne ve zvoleném jazyce a import nemění aktivní jazyk zařízení. Dřívější znění „jen sady aktivního jazyka“ bylo mylný výklad.
 - **D18, UX:** kde se volí aktivní jazyk na novém zařízení.
 
 ---
@@ -501,12 +501,13 @@ Nové sondy z tohoto návrhu:
 | `SetMembership` | bez pole | platné jen při `word.language == set.language` | — |
 | `Attempt` | snímek | z položky při zápisu | ne (append-only) |
 | `StudySession` | jazyk relace | aktivní jazyk při startu | ne |
-| `ImportDraft` (lokální), `ImportBatch` | jazyk importu | ze sady před skenem | ne |
+| `ImportDraft` (lokální), `ImportBatch` | jazyk importu | volba uživatele jako první krok importu (D22), výchozí = aktivní jazyk; shodný s jazykem cílové sady | ne |
 | `ReviewState` (lokální) | kopie pro dotaz | z položky při rebuildu | přepočítá se |
 | Aktivní jazyk | lokální předvolba | volba uživatele, výchozí = jazyk nejnovějšího platného pokusu | jen mimo relaci |
 
 ### 13.2 Zápis
 - Položka vzniká vždy „v sadě": jazyk se zkopíruje ze sady. Bez sady (ruční zadání slovesa) se nabídnou jen sady aktivního jazyka.
+- Import (D22) zapisuje do jazyka zvoleného na jeho začátku, ne do aktivního jazyka zařízení; bez ohledu na aktivní jazyk dostanou všechny vznikající záznamy jazyk importu a import aktivní jazyk nemění.
 - Členství (přidání, přesun, import do existujícího slova) ověří shodu jazyků, jinak `languageMismatch`.
 - Pokus převezme jazyk z položky a ověří, že se shoduje s `StudySession.language`. Nesoulad je chyba programu: pokus se nezapíše a chyba jde do lokálního logu.
 - Sloučení duplicit (`MergePlanner`) a reimport dedup hledají jen v rámci jazyka.
@@ -551,6 +552,7 @@ Nové sondy z tohoto návrhu:
 | L12 | Pokus a členství dorazí dřív než slovo | nezapočteno v žádném jazyce. Po příchodu slova se ověří a započte. |
 | L13 | Vlastnostní test: náhodné sekvence operací (vytvoř, přidej, přesuň, smaž, sluč, odpověz) na dvou simulovaných zařízeních, sjednocení v náhodném pořadí | po sjednocení a `LanguageGuard` platí invariant pro vše viditelné. Každá fronta, relace a statistika obsahuje jeden jazyk. |
 | L14 | Import: `PairExtractor` s očekávaným `en` nad stránkou s ä ö ü ß; CSV s řádky `de` při importu do `en` sady | označení „vypadá to na němčinu", nic se nepřepne / řádky `de` jsou chyba s důvodem |
+| L14a | Import do neaktivního jazyka (D22): aktivní jazyk `en`, `ImportDraft` s `language = de`, commit (fotka i CSV) | aktivní jazyk po commitu i po zrušení zůstává `en`; `ImportBatch`, všechny nové `WordEntry`, `WordSet` (pokud vznikla nová) a `SetMembership` mají `language == de`; fronta, seznamy a statistiky pro `en` je neobsahují; nabídka sad v importu obsahuje jen sady `de`; OCR hint = `[de, cs]` |
 | L15 | Mapování jazyka: `Language` → locale hlasu a `LanguageHint` OCR; výchozí aktivní jazyk bez předvolby | `en` → `en-GB`, `de` → `de-DE`, `unknown` → nepřehrávat; OCR `[cizí, cs]`; výchozí = jazyk nejnovějšího platného pokusu, bez pokusů `nil` (zeptat se) |
 
 Co tím **neověříme:** jak se mirroring skutečně zachová k pořadí a obsahu záznamů (T4) a jak Vision zpracuje jazykový kontext (T6, N8).
