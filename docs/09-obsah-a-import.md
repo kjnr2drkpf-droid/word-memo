@@ -1,6 +1,7 @@
 # 09 – Obsah a import slovíček
 
 Autor: content-curator, stav k 2026-11-07. Navrhuje, nerozhoduje (viz `00-zadani.md`). Značení tvrzení o platformě: **ověřeno (zdroj)** / **domněnka**.
+**Revize 2026-11-08 (architekt, D18, D19):** jazyk je vlastnost sady, neměnný po založení. Slovo a sloveso ho převezmou ze sady, import má jazyk pevně daný před skenem, OCR, slovník kontroly, dedup a hlas se jím řídí. Model a invariant viz `05` ADR-15 a kap. 13.
 
 ## Závěr
 
@@ -9,7 +10,8 @@ Autor: content-curator, stav k 2026-11-07. Navrhuje, nerozhoduje (viz `00-zadani
 3. **Vision umí na zařízení tabulky**, ale jen od iOS 26 (`RecognizeDocumentsRequest`, ověřeno). Starší `VNRecognizeTextRequest` (iOS 13+) vrací jen řádky s polohou, sloupce se pak skládají geometricky.
 4. **Podpora češtiny ve Vision není v dokumentaci vypsána** – seznam jazyků dává až běh (`supportedRecognitionLanguages`). Češtinu, ruční písmo a diakritiku proto bereme jako **domněnku**, dokud neproběhne krátký test na reálném zařízení (kap. 3.4).
 5. **CSV** (UTF-8, hlavička, `;` i `,` i tab) jde stejnou kontrolní obrazovkou jako fotka. Nepravidelná slovesa mají vlastní záznam a vlastní CSV.
-6. **Licence:** nic z učebnic nebundlovat ani do fixtures. Hotové sady jen P2, jen vlastní nebo s otevřenou licencí a atribucí. Právní tvrzení jsou **domněnka**, nejde o právní radu.
+6. **Jazyk patří sadě (D18, D19):** jazyk importu je jazyk cílové sady a je daný **před** snímkem. OCR dostane jazykový kontext (němčina + čeština, nebo angličtina + čeština). Slovník kontroly, dedup a hlas se řídí týmž jazykem. Řádky jiného jazyka se neimportují, jen označí. Zda Vision tyto jazyky (hlavně češtinu) podporuje a zda jde jazyky nastavit u `RecognizeDocumentsRequest`, je **domněnka** (T6, `05` N8).
+7. **Licence:** nic z učebnic nebundlovat ani do fixtures. Hotové sady jen P2, jen vlastní nebo s otevřenou licencí a atribucí. Právní tvrzení jsou **domněnka**, nejde o právní radu.
 
 ---
 
@@ -22,7 +24,7 @@ Logický model (názvy jsou návrh; architekt je převede do SwiftData s ohledem
 | Pole | Typ | Poznámka |
 |---|---|---|
 | `id` | UUID | Není `unique` (R4). Duplicity hlídá aplikace, ne databáze. |
-| `language` | `en` / `de` | Překlad je vždy do češtiny (D1). |
+| `language` | `en` / `de` | Překlad je vždy do češtiny (D1). **Převzato ze sady při vzniku a pak neměnné** (D18, D19, `05` ADR-15). Slovo smí být jen v sadách svého jazyka, do sady jiného jazyka ho nejde přidat ani přesunout. |
 | `kind` | `noun` / `verb` / `adjective` / `adverb` / `phrase` / `other` | Řídí, která pole se zobrazí. |
 | `lemma` | String | Cizí slovo **bez členu**, jak je vytištěno (`Tisch`, `to run`, `at home`). |
 | `article` | `der` / `die` / `das` / nil | Jen `de` + `noun`. Povinné pro podstatná jména při ukládání (varování, ne blokace). |
@@ -34,13 +36,13 @@ Logický model (názvy jsou návrh; architekt je převede do SwiftData s ohledem
 | `exampleTranslation` | String? | Česky. |
 | `note` | String? | Krátká poznámka (`sich +4`, `nepočitatelné`, `něco/někoho`). |
 | `ipa` | String? | Jen pokud je v zdroji (hranaté závorky). Nepovinné; výslovnost se přehrává hlasem (D9), ne ze záznamu. |
-| `setName`, `unit` | String? | Sada (např. „Project 3“) a lekce/kapitola (např. „Unit 2“, volitelně strana). Návrh: sada = štítek, ne vlastník slova (viz otázka O3). |
+| `setName`, `unit` | String? | Sada (např. „Project 3“) a lekce/kapitola (např. „Unit 2“, volitelně strana). Návrh: sada = štítek, ne vlastník slova (viz otázka O3). Vždy jen sady téhož jazyka (D18). |
 | `source` | `photo` / `csv` / `manual` / `builtin` | Původ. |
 | `importBatchID` | UUID? | Umožní „vrátit poslední import“. |
 | `createdAt`, `updatedAt` | Date | |
 | `userEdited` | Bool | Ať pozdější reimport nepřepíše opravy. |
 
-Výslovnost: přehrává se `AVSpeechSynthesizer` ze `lemma` (u podstatných jmen včetně členu, aby syn slyšel i člen). Jazyková varianta (`de-DE`, `en-GB`/`en-US`) je nastavení sady; předpoklad: výchozí `en-GB` (ZŠ obvykle učí britskou angličtinu – **domněnka**, potvrdit se synem/učebnicí).
+Výslovnost: přehrává se `AVSpeechSynthesizer` ze `lemma` (u podstatných jmen včetně členu, aby syn slyšel i člen). Hlas se řídí jazykem sady, který je díky invariantu i jazykem slova: `de` → `de-DE`, `en` → `en-GB` (D16). Hlas se neukládá jako zvláštní nastavení sady (`05` kap. 2.3, 6). Hlas jiného jazyka se jako náhrada nepoužije (D18).
 
 ### 1.2 Co do `Word` **nepatří**
 
@@ -62,14 +64,14 @@ Word{ language: en, kind: phrase, lemma: "look forward to",
 
 ### 1.4 Normalizace a klíč pro duplicity
 
-`dedupKey = language | kind | foldedLemma`, kde `foldedLemma` = Unicode NFC, casefold, oříznuté mezery, bez členu a bez úvodního `to ` u anglických sloves. Pro **porovnání** se sklopí diakritika, `ß`→`ss`; pro **zobrazení a ukládání** se nic neskládá. Protože CloudKit neumí unikátní klíče a dvě zařízení mohou vytvořit totéž slovo, je potřeba i pozdější úklid duplicit (sloučení překladů, přepojení SRS stavů) – předat architektovi (**domněnka**, že R4 jinak nejde obejít).
+`dedupKey = language | kind | foldedLemma` (jazyk je první složka, takže stejné lemma ve dvou jazycích, např. en `Hand` × de `Hand` nebo en `kind` × de `Kind`, **není** duplicita a nikdy se nesloučí, D18), kde `foldedLemma` = Unicode NFC, casefold, oříznuté mezery, bez členu a bez úvodního `to ` u anglických sloves. Pro **porovnání** se sklopí diakritika, `ß`→`ss`; pro **zobrazení a ukládání** se nic neskládá. Protože CloudKit neumí unikátní klíče a dvě zařízení mohou vytvořit totéž slovo, je potřeba i pozdější úklid duplicit (sloučení překladů, přepojení SRS stavů) – předat architektovi (**domněnka**, že R4 jinak nejde obejít).
 
 ---
 
 ## 2. Tok importu z fotky
 
 ```
-[Zvolit sadu + jazyk] → [Snímek / výběr fotky] → [Rozpoznání] → [Spárování dvojic]
+[Zvolit sadu (= jazyk)] → [Snímek / výběr fotky] → [Rozpoznání s jazykem sady] → [Spárování dvojic]
         → [Kontrolní obrazovka] → [Oprava] → [Uložení + smazání fotky]
 ```
 
@@ -77,12 +79,12 @@ Word{ language: en, kind: phrase, lemma: "look forward to",
 
 | # | Krok | Co se děje | Poznámka |
 |---|---|---|---|
-| 0 | Volba sady a jazyka | Syn vybere (nebo založí) sadu a jazyk EN/DE **před** snímkem. | Jazyk je nápověda pro OCR i pro určení směru sloupců. |
+| 0 | Volba sady (a tím jazyka) | Syn vybere (nebo založí) sadu **před** snímkem. Jazyk importu = jazyk sady (D18). Nabízejí se sady aktivního jazyka, nová sada má výchozí aktivní jazyk a její jazyk se po založení nemění (D19). Během importu se jazyk nemění. | Jazyk je kontext pro OCR, směr sloupců, slovník kontroly a dedup. Zda se v importu nabízejí i sady druhého jazyka, viz O7. |
 | 1 | Snímek | `VNDocumentCameraViewController` (skener stránky po jedné, vrací obrázky stránek; iOS 13+; ověřeno). Alternativně výběr fotky z galerie (otec vkládá fotky, D10). | `DataScannerViewController` (živé OCR, iOS 16+, ověřeno) pro tento účel nepotřebujeme: potřebujeme celou stránku a řádky v kontextu. Může přijít později. |
-| 2 | Rozpoznání | Celé na zařízení (R5). iOS 26+: `RecognizeDocumentsRequest` → `document.tables` (řádky × buňky). Starší/bez tabulky: `VNRecognizeTextRequest` (`.accurate`) → řádky s `boundingBox`. | Viz kap. 3. |
-| 3 | Spárování | **Tabulka:** řádek = dvojice, sloupec 1 = cizí, poslední = česky (třetí sloupec s `[...]` = výslovnost → do `ipa`). **Bez tabulky:** shlukování řádků podle x-souřadnice do sloupců; případně dělení řádku oddělovači ` – `, ` - `, ` = `, tabulátorem. Jazyk sloupce se ověří heuristikou: znaky `ěščřžýůďťň` → čeština; `äöüß` → němčina; navíc `NLLanguageRecognizer` (**domněnka**, že spolehlivě dělí cs/de/en na krátkých slovech – ověřit v testu). | Přepínač „prohodit sloupce“ pro celou stránku jedním tapem. |
+| 2 | Rozpoznání | Celé na zařízení (R5). iOS 26+: `RecognizeDocumentsRequest` → `document.tables` (řádky × buňky). Starší/bez tabulky: `VNRecognizeTextRequest` (`.accurate`) → řádky s `boundingBox`. **Jazykový kontext podle sady:** `de` → [němčina, čeština], `en` → [angličtina, čeština], cizí jazyk první (pořadí = priorita, **ověřeno** u `VNRecognizeTextRequest`, kap. 3.1). Konkrétní kódy (`de-DE`, `en-US`/`en-GB`, `cs-CZ`) se vyberou ze `supportedRecognitionLanguages` za běhu. | Že je cizí jazyk první lepší pořadí, je **domněnka** (T6 porovná obě). `automaticallyDetectsLanguage` (iOS 16+, ověřeno) zkusit vypnuté, aby Vision neodhadoval třetí jazyk (**domněnka**). Viz kap. 3. |
+| 3 | Spárování | **Tabulka:** řádek = dvojice, sloupec 1 = cizí, poslední = česky (třetí sloupec s `[...]` = výslovnost → do `ipa`). **Bez tabulky:** shlukování řádků podle x-souřadnice do sloupců; případně dělení řádku oddělovači ` – `, ` - `, ` = `, tabulátorem. Jazyk sloupce se ověří heuristikou: znaky `ěščřžýůďťň` → čeština; `äöüß` → němčina; navíc `NLLanguageRecognizer` (**domněnka**, že spolehlivě dělí cs/de/en na krátkých slovech – ověřit v testu). Očekávaný cizí jazyk je jazyk sady. Když heuristika najde jiný (`äöüß` v anglické sadě), stránka dostane banner „Vypadá to na němčinu, sada je anglická“. Nic se nepřepne ani nepřesune (D19), uživatel import zruší a začne v sadě správného jazyka. | Přepínač „prohodit sloupce“ pro celou stránku jedním tapem. |
 | 4 | Kontrolní obrazovka | Seznam dvojic; u každé: cizí, česky, odznak stavu, miniatura výřezu řádku z fotky (z `boundingBox`) pro porovnání s originálem. | Povinný krok; tlačítko Uložit je vedlejší, dokud existují nevyřešené označené řádky (lze „Uložit i s nevyřešenými = přeskočit“). |
-| 5 | Oprava | Úprava v řádku; rozdělit / sloučit řádky; smazat; doplnit člen a plurál; rozdělit překlady `;`/`,` do `translations`. | Bez automatických oprav a s vypnutým autocorrect v polích. Lišta se znaky `ä ö ü ß` a `ě š č ř ž ý á í é ů ú ď ť ň`. |
+| 5 | Oprava | Úprava v řádku; rozdělit / sloučit řádky; smazat; doplnit člen a plurál; rozdělit překlady `;`/`,` do `translations`. | Bez automatických oprav a s vypnutým autocorrect v polích. Lišta se znaky `ä ö ü ß` (u německé sady) a `ě š č ř ž ý á í é ů ú ď ť ň`. |
 | 6 | Uložení | Jedna transakce, `importBatchID`, zobrazí se shrnutí („23 nových, 2 přidané překlady, 1 přeskočeno“) a **Vrátit import**. Fotka se smaže. Nabídka „Procvičit teď“. | Žádné odesílání ven (R5). |
 
 ### 2.2 Chyby OCR
@@ -91,7 +93,7 @@ Zásada: **označit, ne opravit.** Kontrolní obrazovka je jediné místo, kde s
 
 | Problém | Typický příznak | Zacházení |
 |---|---|---|
-| Chybějící/špatná diakritika | `ucitel`, `uß`, `ii` místo `ü`, `a` místo `ä` | Slovo se ověří slovníkem (`UITextChecker` pro `en`/`de`; pro `cs` – **domněnka**, ověřit `availableLanguages`). Neznámé slovo = odznak „ověřit“. Žádná automatická oprava. |
+| Chybějící/špatná diakritika | `ucitel`, `uß`, `ii` místo `ü`, `a` místo `ä` | Slovo se ověří slovníkem jazyka sady (`UITextChecker` pro `en`/`de`; pro `cs` – **domněnka**, ověřit `availableLanguages`). Neznámé slovo = odznak „ověřit“. Žádná automatická oprava. |
 | Záměna znaků | `l`/`I`/`1`, `0`/`O`, `rn`/`m`, `ß`/`B` | Jen odznak „ověřit“ při nízké `confidence` (práh např. 0,5 je **počáteční odhad**, nastavit po testu na reálných fotkách). |
 | Spojená / rozdělená slova | `look forwardto`, `Haus aufgabe` | Označit řádek, uživatel upraví. |
 | Ruční písmo | nízká `confidence`, mnoho „ověřit“ | Banner „Rukopis se čte hůř, zkontroluj pozorně“. Kvalita je **domněnka**, dokumentace ji neslibuje. |
@@ -111,13 +113,14 @@ Zásada: **označit, ne opravit.** Kontrolní obrazovka je jediné místo, kde s
 
 ### 2.4 Duplicity
 
-Hlídají se **uvnitř dávky** i **proti knihovně** podle `dedupKey` (kap. 1.4).
+Hlídají se **uvnitř dávky** i **proti knihovně téhož jazyka** podle `dedupKey` (kap. 1.4, D18).
 
 | Situace | Výchozí akce | Volby |
 |---|---|---|
 | Stejné slovo i stejné překlady | Přeskočit (zobrazit šedě). | Přidat jako nové / přeskočit |
 | Stejné slovo, **jiný** překlad | Přidat překlad ke stávajícímu záznamu (neztratí se SRS stav). | Nový záznam / přeskočit |
-| Stejné slovo v jiné sadě | Slovo se nezakládá znovu; přidat do dané sady (štítek). | Samostatná kopie |
+| Stejné slovo v jiné sadě téhož jazyka | Slovo se nezakládá znovu; přidat do dané sady (štítek). | Samostatná kopie |
+| Stejné lemma v jiném jazyce (en `Hand` × de `Hand`) | Nejde o duplicitu, nic se nehlásí (D18). | – |
 | Stejný lemma, jiný `kind` (`Lauf` × `laufen`) | Nejde o duplicitu. | – |
 | Ruční úprava existujícího (`userEdited`) | Nikdy nepřepisovat. | – |
 
@@ -149,11 +152,13 @@ Zdroje: Apple Developer Documentation (strojově čitelné `.md` verze stránek)
 ### 3.3 Dopad na návrh
 
 - Pokud `cs-CZ` v seznamu **není**: OCR spustit s `[de-DE]` / `[en-US]` bez češtiny; české sloupce budou horší, což kontrolní obrazovka musí unést (vyšší podíl „ověřit“ u českého sloupce). Případně druhý průchod bez jazykových nápověd.
+- **Jazykový kontext (D18):** OCR se vždy volá s dvojicí [cizí jazyk sady, čeština]. Že jazyky jde nastavit i u `RecognizeDocumentsRequest` (ne jen přečíst `supportedRecognitionLanguages`), dokumentace podle kap. 3.1 nedokládá: **domněnka** (`05` N8). Pokud nejde, rozhodne T6 mezi `RecognizeDocumentsRequest` bez nápovědy a `VNRecognizeTextRequest`/`RecognizeTextRequest` s jazyky a geometrickým párováním.
 - Minimální verze iOS: pokud lze zvolit iOS 26+, lze spoléhat na `RecognizeDocumentsRequest` (tabulky). Jinak je nutná geometrická záloha (kap. 2.1, krok 3). **Rozhodnutí o minimální verzi patří Pavlovi/architektovi** (otázka O1).
 
 ### 3.4 Navržený krátký test (spike, předat prototyperovi a test-authorovi)
 
-1. Na reálném iPhonu vypsat `VNRecognizeTextRequest().supportedRecognitionLanguages()` a `RecognizeDocumentsRequest().supportedRecognitionLanguages` – zjistit, zda je v nich `cs`, `de`, `en`.
+1. Na reálném iPhonu vypsat `VNRecognizeTextRequest().supportedRecognitionLanguages()` a `RecognizeDocumentsRequest().supportedRecognitionLanguages` – zjistit, zda je v nich `cs`, `de`, `en` (a který anglický kód: `en-US`, `en-GB`) a zda jde u `RecognizeDocumentsRequest` jazyky nastavit (`05` N8).
+   1a. Každou stránku spustit s kontextem jazyka sady ([de, cs] / [en, cs]), v obou pořadích a pro srovnání bez nápovědy; měřit jako v bodě 3.
 2. 10 fotek vlastních (vymyšlených) tabulek: tištěné EN, tištěné DE, ručně psané; s linkami i bez; 2 a 3 sloupce; šikmé světlo.
 3. Měřit: podíl správně přečtených dvojic, podíl označených „ověřit“, kolik chyb je neoznačených (to je nejhorší kategorie).
 4. Cíl pro P0 (**návrh k odsouhlasení, ne měřený údaj**): tištěné tabulky ≥ 90 % dvojic bez ruční opravy a prakticky žádné neoznačené chyby v diakritice.
@@ -169,7 +174,8 @@ Fixtures: **vlastní vymyšlená slovíčka**, ne stránky z učebnic (viz kap. 
 - Kódování UTF-8 (BOM tolerovat). Oddělovač se rozpozná automaticky: `,` `;` tab (Excel v české lokalizaci ukládá `;`). Uvozovky podle RFC 4180.
 - **Hlavička je povinná**, názvy sloupců anglicky, pořadí libovolné. Neznámé sloupce se ignorují (s upozorněním).
 - Více překladů v jedné buňce odděluje `|`.
-- Povinné jsou jen `term` a `translations`. Zbytek volitelný; `language` a `set` lze zvolit v dialogu, pak se sloupce nepoužijí.
+- Povinné jsou jen `term` a `translations`. Zbytek volitelný.
+- **Jazyk (D18):** jeden import = jeden jazyk. Jazyk je jazyk sady zvolené **v dialogu před importem**. Sloupec `language`, je-li vyplněn, se jen kontroluje: řádek s jiným jazykem je „chyba: jiný jazyk než sada“ a neimportuje se. Sloupec `set` smí jmenovat jen sady téhož jazyka (nová sada dostane jazyk importu, existující sada jiného jazyka = chyba řádku). Soubor s oběma jazyky se importuje dvakrát, jednou pro každý jazyk.
 - Chybné řádky nezastaví import; jdou na kontrolní obrazovku jako „chyba“ s důvodem a číslem řádku. Ani CSV se neukládá bez kontroly.
 - Duplicity jako v kap. 2.4.
 - Limit rozumné velikosti (např. 2 000 řádků na soubor – **návrh**).
@@ -178,8 +184,8 @@ Fixtures: **vlastní vymyšlená slovíčka**, ne stránky z učebnic (viz kap. 
 
 | Sloupec | Povinné | Popis |
 |---|---|---|
-| `language` | ne | `en` / `de` |
-| `set` | ne | název sady |
+| `language` | ne | `en` / `de`; jen kontrola proti jazyku importu (D18) |
+| `set` | ne | název sady téhož jazyka |
 | `unit` | ne | lekce |
 | `kind` | ne | `noun` `verb` `adjective` `adverb` `phrase` `other` (výchozí `other`; u `de` při vyplněném `article` = `noun`) |
 | `term` | **ano** | cizí slovo bez členu |
@@ -192,11 +198,19 @@ Fixtures: **vlastní vymyšlená slovíčka**, ne stránky z učebnic (viz kap. 
 
 ### 4.3 Příklad (`;` jako oddělovač, vymyšlená data)
 
+Jeden soubor = jeden jazyk (D18). Němčina:
+
 ```csv
 language;set;unit;kind;term;article;plural;translations;example;example_cs;note
 de;Deutsch 1;Lektion 2;noun;Kind;das;Kinder;dítě;Das Kind spielt im Garten.;Dítě si hraje na zahradě.;
 de;Deutsch 1;Lektion 2;noun;Lehrer;der;=;učitel|učitel (muž);Mein Lehrer ist nett.;Můj učitel je milý.;
 de;Deutsch 1;Lektion 2;noun;Milch;die;-;mléko;;;nepočitatelné
+```
+
+Angličtina (samostatný import):
+
+```csv
+language;set;unit;kind;term;article;plural;translations;example;example_cs;note
 en;Project 3;Unit 1;verb;run;;;běhat|běžet;I run every morning.;Každé ráno běhám.;
 en;Project 3;Unit 1;phrase;look forward to;;;těšit se na;I look forward to the holiday.;Těším se na prázdniny.;+ -ing
 ```
@@ -211,10 +225,16 @@ apple,jablko
 
 ### 4.4 CSV nepravidelných sloves
 
+Také jeden soubor = jeden jazyk (D18), pravidla sloupce `language` jako v kap. 4.1.
+
 ```csv
 language,infinitive,present_3sg,past,participle,auxiliary,translations,note
 en,go,,went,gone|been,,jít|jet,
 en,learn,,learnt|learned,learnt|learned,,učit se,
+```
+
+```csv
+language,infinitive,present_3sg,past,participle,auxiliary,translations,note
 de,fahren,fährt,fuhr,gefahren,sein,jet|jezdit,
 de,aufstehen,steht auf,stand auf,aufgestanden,sein,vstávat,odlučitelné: auf|stehen
 ```
@@ -238,6 +258,8 @@ Pro `en` je `infinitive` = základní tvar; `present_3sg` a `auxiliary` se nepou
 | `separablePrefix` | – | String? (`auf`) – tvoří se z infinitivu, slouží ke správnému zobrazení a kontrole |
 | `kind` | `strong` / `modal` / `mixed` / `other` – volitelný štítek pro třídění (`modal`: `können`, `müssen`…) | |
 
+`language` se bere ze sady slovesa a po vzniku se nemění. Sloveso je jen v sadě svého jazyka (D18, D19).
+
 Zobrazení němčiny: `fahren – fährt – fuhr – ist gefahren`. Perfekt se skládá z `auxiliary` + `participle`; u `both` se přijme jakýkoli.
 
 Proč pole po slotech: každý tvar (`past`, `participle`, u DE i `present3sg` a `auxiliary`) je samostatná testovatelná položka, takže plánovač vidí, že syn zná `went`, ale ne `gone`. Podrobnosti hodnocení patří do learning-scientist.
@@ -246,7 +268,7 @@ Varianty: `learned`/`learnt`, `got`/`gotten` (US), `was`/`were` (u `be` dvě pla
 
 ### 5.2 UX ručního zadání
 
-1. **Formulář:** přepínač EN/DE → první pole `infinitive` (autofokus) → další pole podle jazyka → česky (`translations`) → Uložit. Pole se pohybují klávesou Další.
+1. **Formulář:** jazyk je daný aktivním jazykem a zvolenou sadou a ve formuláři se jen zobrazuje, nepřepíná (D18) → první pole `infinitive` (autofokus) → další pole podle jazyka → česky (`translations`) → Uložit. Pole se pohybují klávesou Další.
 2. **Rychlé zadání jednou řádkou** (nejčastější cesta, syn píše z sešitu): `go – went – gone` nebo `fahren – fährt – fuhr – ist gefahren`. Oddělovače `–`, `-`, `/`, mezera-čárka. Parser rozdělí a ukáže náhled do polí; chybějící pole zůstanou prázdná.
 3. **Vložení více řádků** (otec zkopíruje seznam) → seznam náhledů na stejné kontrolní obrazovce jako u importu (kap. 2). Totéž pro CSV (kap. 4.4).
 4. **Varianty:** malé „+ varianta“ u tvaru; ne víc políček najednou.
@@ -327,6 +349,7 @@ Poznámky ke kontrole: `stehen`/`sitzen`/`liegen` mají v jižním Německu/Rako
 - Import lze **vrátit** jako celek; úpravy uživatele nikdy nepřepisovat.
 - Žádné odesílání obrázků ani textu ven (R5). Žádná analytika.
 - Hlas a přehrání: nad `lemma` (u DE podstatných jmen včetně členu), ne nad uloženým zvukem.
+- Vše po jazycích (D18): sada, dedup, jazykový kontext OCR, slovník kontroly, hlas. Slovo nejde přesunout do sady jiného jazyka a jazyk sady se po založení nemění (D19).
 
 ---
 
@@ -363,6 +386,7 @@ Právní stránku považujte za **domněnku**, není to právní poradenství. R
 | O3 | Předpoklad: slovo je jedno, sady jsou štítky (jedno slovo = jeden SRS stav, i když je ve více sadách). Alternativa: kopie na sadu. | architect + learning-scientist |
 | O4 | Zda aplikace vnitřně drží malou kontrolní tabulku nepravidelných sloves (varování o překlepu), nebo vše ručně (D8). | Pavel |
 | O5 | Výchozí varianta angličtiny pro hlas: `en-GB` (předpoklad). | Pavel / syn |
-| O6 | Výsledek testu z kap. 3.4 rozhodne o: `usesLanguageCorrection`, podpoře češtiny v OCR, prahu „ověřit“. | prototyper |
+| O6 | Výsledek testu z kap. 3.4 rozhodne o: `usesLanguageCorrection`, podpoře češtiny v OCR, prahu „ověřit“, pořadí jazyků a o tom, zda jde u `RecognizeDocumentsRequest` jazyk nastavit. | prototyper |
+| O7 | Výběr sady v toku importu: jen sady aktivního jazyka (návrh), nebo i sady druhého jazyka s viditelným označením jazyka? | Pavel + ux-designer |
 
 **Co v této session nešlo ověřit:** weby `tatoeba.org`, `en.wiktionary.org` a `www.apple.com` jsou mimo povolenou síť session, proto licence těchto zdrojů a stránka Apple „feature availability“ (jazyky Live Text) nejsou ověřeny. Zdrojem pro Vision je `developer.apple.com`.

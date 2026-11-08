@@ -1,6 +1,7 @@
 # 07 — Algoritmus opakování, hodnocení a metriky pokroku
 
-Stav k 2026-11-07. Zdroj pravdy: `00-zadani.md` (D2, D3, D4, D8, D12). Rozsah produktu tento dokument nemění; parametry jsou **návrh k odsouhlasení**.
+Stav k 2026-11-07. Zdroj pravdy: `00-zadani.md` (D2, D3, D4, D8, D12, D18, D20). Rozsah produktu tento dokument nemění; parametry jsou **návrh k odsouhlasení**.
+**Revize 2026-11-08 (D18, D20):** vše v tomto dokumentu platí **pro jeden jazyk**. Plánovač, fronta, slovesa, metriky, prahy a kalibrace se počítají zvlášť pro angličtinu a zvlášť pro němčinu, souhrn přes oba jazyky neexistuje (kap. 9, `05` ADR-15).
 Označení: **simulace** = ověřeno v syntetickém modelu žáka (viz „Simulační model“), **ověřeno (zdroj)**, **domněnka** = nedoloženo.
 
 ## Závěr
@@ -11,6 +12,7 @@ Označení: **simulace** = ověřeno v syntetickém modelu žáka (viz „Simula
 5. **Překlep = Hard, ne Again.** Rozdíl ve výsledku je malý (0,59 vs. 0,62), ale Again stojí +0,5 pokusu na kartu a trestá správné vybavení.
 6. **Nepravidelná slovesa:** jedna karta na sloveso, všechny tvary se zadávají najednou, samostatná fronta/relace, 3 nová slovesa na relaci seskupená podle vzoru. Frekvence relací rozhoduje víc než počet nových: 5 relací týdně → ~43 dní k 80 % zvládnutých, 3 týdně → ~86 dní, 2 týdně → téměř nikdy (simulace, 60 sloves).
 7. **Trend:** okno 14 dnů s 25–60 pokusy je šum (falešný poplach při pravidle „±5 pp“ 57–65 %). Trend se hlásí až při ≥ 100 pokusech v každém z 28denních oken a z ≥ 1,64, jinak „málo dat“ (falešný poplach 10 %, záchyt zlepšení o 15 pp 74 %). Slabé kategorie: ≥ 30 pokusů a chybovost ≥ celková + 10 pp, vždy jako „podezření“ (záchyt 61 %, falešné označení 5 % kategorií).
+8. **Jazyky odděleně (D18, D20):** fronta, plánovač, slovesa, metriky a jejich prahy (trend ≥ 100 pokusů v každém 28denním okně, slabá kategorie ≥ 30 pokusů za 60 dní, hlídač kalibrace 100 opakování) i `desired_retention` platí **na jazyk**. Pokusy druhého jazyka se nepřičítají a souhrn přes oba jazyky se nepočítá. Prahy zůstávají, protože simulace trendu a kategorií je binomiální nad n pokusy jednoho proudu a na jazyce nezávisí. Cena: stav „málo dat“ potrvá u každého jazyka déle. Výběr ze 4 bere možnosti jen ze stejné sady a jazyka.
 
 ## 1. Volba algoritmu
 
@@ -30,7 +32,7 @@ Obhajoba pro malé sady a dítě:
 - **Robustnost:** parita Leitner/FSRS platí i při nepravidelném cvičení (40 % dnů) a velké rozptýlenosti obtížnosti slov (simulace; Leitner vs. FSRS s cílem 0,95, rozdíl p@d56 ≤ 0,06 ve všech 4 variantách).
 - **Co simulace nedokazuje:** že FSRS je lepší než Leitner. Dokazuje, že na volbě retence v tomto modelu nezáleží; volba stojí na metrikách a ladění. Pokud by implementace FSRS dělala potíže, Leitner je přijatelná náhrada s mapováním boxu na „stabilitu“ (box → dny).
 
-Hlídač kalibrace (domněnka, nesimulováno): z posledních 100 opakování se počítá skutečná úspěšnost (podíl ≠ Again) u karet s odstupem ≥ 2 d. Je-li < 0,75, zvýšit cíl o 0,01 (max 0,96); je-li > 0,92, snížit (min 0,90).
+Hlídač kalibrace (domněnka, nesimulováno): z posledních 100 opakování **daného jazyka** se počítá skutečná úspěšnost (podíl ≠ Again) u karet s odstupem ≥ 2 d. Je-li < 0,75, zvýšit cíl o 0,01 (max 0,96); je-li > 0,92, snížit (min 0,90). Cíl se vede **zvlášť pro každý jazyk** (výchozí 0,93 pro oba): němčina jako novější jazyk může mít jinou skutečnou úspěšnost než angličtina (**domněnka**) a společný cíl by jeden jazyk přeceňoval a druhý podceňoval.
 
 ## 2. Převod odpovědi na hodnocení
 
@@ -77,23 +79,25 @@ Stav se vede **na kartu = slovo × směr** (D2: cizí → čeština a čeština 
 
 - Fáze se **počítá ze stavu při každém výběru testu**, nepamatuje se zvlášť. Chyba u psaní proto automaticky vrací kartu do Učí se a k výběru (S po Again klesne pod 4 d).
 - Úspěch v řadě = hodnocení ≠ Again; Hard se počítá jako úspěch.
-- Distraktory ve výběru: ze stejného jazyka a slovního druhu, u německých podstatných jmen se stejným členem nebo odlišné (návrh pro content/UX).
+- Distraktory ve výběru: **jen ze stejného jazyka a ze stejné sady** (D18, `05` kap. 13.3), přednostně stejný slovní druh, u německých podstatných jmen se stejným členem nebo odlišné (návrh pro content/UX). Napříč jazyky nikdy, ani jako záloha (en „Hand“ není distraktor pro de „Hand“). Má-li sada méně než 3 použitelné distraktory, nabídne se méně možností a pokus nese `choiceCount` = k. Míra hádání je pak 1/k a správná odpověď zůstává Hard (**domněnka**: při k = 2 je hádání 50 %, hodnocení nebylo simulováno). Zda místo toho doplnit distraktory z jiných sad téhož jazyka, rozhodne zadavatel (`05` kap. 12).
 - **Prahový S pro psaní** (simulace, MC → Hard, slabá paměť): 2 d → chyby u psaní 15 %, čas 99 s/kartu; **4 d → 16 %, 85 s**; 7 d → 18 %, 71 s; vybavení p@d56 0,79 / 0,79 / 0,78. Vybraných 4 d je kompromis; 7 d je nejkratší čas při stejném výsledku. Rozdíly jsou malé, volba není kritická.
 - Délka relace (domněnka, nesimulováno čas): 30 karet ≈ 6–8 minut při odhadu 6 s na výběr a 15 s na psaní.
 
 Plánování relace:
 ```
-func buildSession(now) -> [Card] {
-  due  = cards.filter { $0.due <= now }.sorted(by: due ascending)    // nejvíc po termínu první
+func buildSession(language, now) -> [Card] {                       // jazyk povinný, bez výchozí hodnoty (D18)
+  pool = cards.filter { $0.language == language }                    // druhý jazyk se vůbec nepočítá
+  due  = pool.filter { $0.due <= now }.sorted(by: due ascending)     // nejvíc po termínu první
   list = due.prefix(maxCardsPerSession)                              // 30
-  if due.count <= 40 { list += nextNewCards(newPerSession) }         // 8 nových karet
+  if due.count <= 40 { list += nextNewCards(language, newPerSession) } // 8 nových karet; 40 = po termínu v tomto jazyce
   return list     // po Again: vložit zpět o 3–5 pozic dál, max 2×, výsledek neposílat do FSRS
 }
 ```
-Přeskočené dny nic nepenalizují: nedělá se „nedoplněný dluh“, po pauze se bere nejstarší termín jako první a relace má strop.
+Přeskočené dny nic nepenalizují: nedělá se „nedoplněný dluh“, po pauze se bere nejstarší termín jako první a relace má strop. Totéž platí mezi jazyky: týdny bez němčiny jsou pro německou frontu obyčejná pauza a cvičení angličtiny ji neposouvá. Strop 30, 8 nových a práh 40 se počítají v aktivním jazyce.
 
 ## 4. Nepravidelná slovesa (D8)
 
+- **Jazyk:** sloveso patří jazyku své sady (D18). Fronta, relace, strop 25 a 3 nová slovesa se počítají **na jazyk**. Distraktory tvarů („pravidelný tvar“, „tvar podle jiného vzoru“) se tvoří jen ze sloves téhož jazyka.
 - **Entita:** jedna karta na sloveso (infinitiv + český význam + tvary). Angličtina: infinitiv, minulý čas, příčestí (3 tvary). Němčina: infinitiv, Präteritum, Partizip II s pomocným slovesem (hat/ist), 3. osoba přítomného času jen u sloves se změnou kmene (3–4 tvary). Zadávají se ručně, seznam je konečný (D8).
 - **Test:** zadání je infinitiv + český význam, odpověď = všechny tvary najednou. Reverzní směr (tvar → význam) se neprocvičuje (domněnka: rozpoznání je lehčí a hlavní obtíž je produkce tvarů).
 - **Hodnocení karty:** všechny tvary správně = Good (psaní) / Hard (výběr tvaru z voleb); jen překlepy = Hard; jakýkoli chybný či chybějící tvar = Again. Výsledky po tvarech se ukládají pro metriky. Po chybě se v relaci opakují jen chybné tvary.
@@ -108,25 +112,27 @@ Přeskočené dny nic nepenalizují: nedělá se „nedoplněný dluh“, po pau
 | 5 nových/relace, 3 relace týdně | 81 | 22,1 |
 | 3 nová/relace, 2 relace týdně | téměř nikdy (92 % běhů nedosáhlo) | 20,8 |
 
-  Vliv počtu nových sloves na relaci je malý (strop relace), rozhoduje četnost. **Doporučení:** 3 nová slovesa na relaci seskupená podle vzoru (sing–sang–sung, drink–drank–drunk), strop 25 sloves (~ 8–10 min při 20–25 s na sloveso, domněnka), alespoň 3 relace týdně; samostatná fronta, aby slovesa nepřebila běžná slovíčka. Při menší frekvenci je nutné jasně říct, že 60 sloves je záležitost týdnů, ne dní.
+  Vliv počtu nových sloves na relaci je malý (strop relace), rozhoduje četnost. **Doporučení:** 3 nová slovesa na relaci seskupená podle vzoru (sing–sang–sung, drink–drank–drunk), strop 25 sloves (~ 8–10 min při 20–25 s na sloveso, domněnka), alespoň 3 relace týdně **v každém jazyce, ve kterém se slovesa učí** (simulace byla pro 60 sloves jednoho jazyka, dvě fronty se nesčítají); samostatná fronta, aby slovesa nepřebila běžná slovíčka. Při menší frekvenci je nutné jasně říct, že 60 sloves je záležitost týdnů, ne dní.
 
 ## 5. Metriky pokroku a slabých míst
 
-Ukládá se každý pokus (viz „Co musí uchovávat datový model“). Metriky se vždy počítají **zvlášť pro psaní a výběr**: s postupem karet do psaní by společná úspěšnost sama klesala (simulace: u psaní se chybuje v 16–33 % pokusů, u výběru výrazně méně kvůli hádání), takže by „zhoršování“ ukazovala falešně.
+Ukládá se každý pokus (viz „Co musí uchovávat datový model“). Metriky se vždy počítají **pro jeden jazyk** (D18; souhrn přes oba jazyky neexistuje, D20) a **zvlášť pro psaní a výběr**: s postupem karet do psaní by společná úspěšnost sama klesala (simulace: u psaní se chybuje v 16–33 % pokusů, u výběru výrazně méně kvůli hádání), takže by „zhoršování“ ukazovala falešně.
 
 | Metrika | Definice | Poznámka |
 |---|---|---|
-| **Úspěšnost** | podíl prvních pokusů s hodnocením ≠ Again; za okno 7 dnů pro zobrazení | psaní a výběr zvlášť; u výběru zobrazit i „nad náhodou“ = (úspěšnost − 0,25) / 0,75 |
-| **Vybavení po odstupu** | úspěšnost u psaní s odstupem od minulého opakování ≥ 7 d | odpovídá M4 ve vizi (cíl ≥ 70 %) |
+| **Úspěšnost** | podíl prvních pokusů s hodnocením ≠ Again v jednom jazyce; za okno 7 dnů pro zobrazení | psaní a výběr zvlášť; u výběru zobrazit i „nad náhodou“ = (úspěšnost − 1/k) / (1 − 1/k), k = `choiceCount` (obvykle 4, tj. (úspěšnost − 0,25) / 0,75) |
+| **Vybavení po odstupu** | úspěšnost u psaní v jednom jazyce s odstupem od minulého opakování ≥ 7 d | odpovídá M4 ve vizi (cíl ≥ 70 %) |
 | **Stabilita** | S karty z FSRS ve dnech; slovo = minimum přes jeho karty; sada = medián S | popisná, bez testu |
 | **Odhad zvládnutí sady** | průměr R(teď) přes karty; označit jako odhad | R je predikce plánovače, ne měření |
 | **Zvládnuté slovo** | fáze Zvládnuté (S ≥ 30 d a ≥ 3 úspěchy v řadě) | „X z N“ |
-| **Trend** | porovnání vybavení po odstupu a úspěšnosti u psaní v aktuálním a předchozím 28denním okně | pravidlo níže |
-| **Slabé slovo** | karta s ≥ 2 pády (Again) za posledních 30 dní a S < 7 d; zobrazit nejvýš 10 řazených podle pádů, pak S vzestupně | |
+| **Trend** | porovnání vybavení po odstupu a úspěšnosti u psaní v aktuálním a předchozím 28denním okně, **v jednom jazyce** | pravidlo níže |
+| **Slabé slovo** | karta s ≥ 2 pády (Again) za posledních 30 dní a S < 7 d; zobrazit nejvýš 10 **na jazyk** řazených podle pádů, pak S vzestupně | |
 | **Zaseknuté slovo** | ≥ 4 pády celkem; nabídnout jiný přístup (příklad ve větě, rozložení, přeskočit) | |
-| **Slabá kategorie** | kategorie s ≥ 30 pokusy za 60 dní a chybovostí ≥ celková + 10 pp; nejvýš 3, jako „podezření“ | pravidlo níže |
+| **Slabá kategorie** | kategorie s ≥ 30 pokusy **daného jazyka** za 60 dní a chybovostí ≥ celková chybovost **téhož jazyka** + 10 pp; nejvýš 3 na jazyk, jako „podezření“ | pravidlo níže |
 
-**Trend (pravidlo):** v každém okně musí být ≥ 100 pokusů, jinak „málo dat“. Označit „zlepšuje se“ / „zhoršuje se“ jen při rozdílu ≥ 5 pp a z-testu dvou podílů z ≥ 1,64 v daném směru, jinak „beze změny“. **Simulace (binomiální):** při skutečně beze změny 10 % falešných poplachů (n = 100), záchyt zlepšení o 10 pp 43 %, o 15 pp 74 % (n = 150: 48 % a 82 %). U 14denního okna s 25–60 pokusy: pravidlo „±5 pp“ falešně hlásí změnu v 57–65 % případů; s z ≥ 1,64 a 10 pp záchyt zlepšení o 15 pp jen 30–55 %. Proto 28 dní a n ≥ 100. Zprávy musí být neutrální („beze změny“ není neúspěch).
+**Trend (pravidlo):** v každém okně musí být ≥ 100 pokusů **daného jazyka** (pokusy druhého jazyka se nepřičítají), jinak „málo dat“. Označit „zlepšuje se“ / „zhoršuje se“ jen při rozdílu ≥ 5 pp a z-testu dvou podílů z ≥ 1,64 v daném směru, jinak „beze změny“. **Simulace (binomiální):** při skutečně beze změny 10 % falešných poplachů (n = 100), záchyt zlepšení o 10 pp 43 %, o 15 pp 74 % (n = 150: 48 % a 82 %). U 14denního okna s 25–60 pokusy: pravidlo „±5 pp“ falešně hlásí změnu v 57–65 % případů; s z ≥ 1,64 a 10 pp záchyt zlepšení o 15 pp jen 30–55 %. Proto 28 dní a n ≥ 100. Zprávy musí být neutrální („beze změny“ není neúspěch).
+
+**Proč prahy platí na jazyk beze změny (D18):** simulace je binomiální nad n pokusy v okně a předpokládá jeden proud pokusů s jednou úspěšností. Sloučení jazyků by předpoklad porušilo: dvě různé úspěšnosti a měnící se poměr jazyků mezi okny by vyrobily „trend“ i bez změny znalostí (**domněnka**, nesimulováno). Cena: n ≥ 100 za 28 dní znamená v průměru ≈ 3,6 pokusu denně **v každém jazyce**. Jazyk, který se cvičí méně, zůstane dlouho na „málo dat“, a to je správný výsledek, ne chyba.
 
 **Slabá a zaseknutá slova (simulace, slabá paměť, 42 dní):** 23 % karet má ≥ 3 pády, 13 % ≥ 4. Pravidlo ≥ 2 pádů označí 39 % karet s přesností 43 % (náhodně 25 %), ≥ 4 pády 13 % s přesností 56 %. Značka je jen orientační a proto se zobrazuje seznam nejvýš 10 slov, ne absolutní práh.
 
@@ -138,7 +144,7 @@ Ukládá se každý pokus (viz „Co musí uchovávat datový model“). Metriky
 | Množné číslo | množné číslo se testovalo | špatný tvar |
 | Nepravidelná slovesa | po tvarech (infinitiv, minulý čas, příčestí) | špatný tvar; zvlášť „který tvar“ |
 | Pravopis | odpověď psaním | překlep (nebo chybějící ä ö ü ß) |
-| Diakritika ä ö ü ß | v odpovědi je takový znak | chybějící či špatný znak |
+| Diakritika ä ö ü ß | jen němčina; v odpovědi je takový znak | chybějící či špatný znak |
 | Směr | cizí → čeština vs. čeština → cizí | Again |
 | Slovní druh, téma sady | tag slova | Again |
 
@@ -148,8 +154,9 @@ Simulace detekce (5 kategorií, jedna s chybovostí o 15 pp vyšší, celková 3
 
 | Parametr | Hodnota | Stav |
 |---|---|---|
-| Plánovač | FSRS-6, 21 výchozích parametrů (py-fsrs 6.3.2) | ověřeno (spuštěno) |
-| desired_retention | **0,93** | simulace (0,9: skutečná 0,71; 0,93: 0,78; 0,95: 0,83) |
+| Rozsah výpočtu | vše na jazyk: fronta, plánovač, slovesa, metriky, hlídač, personalizace; souhrn přes jazyky není | D18, D20 (rozhodnutí zadavatele) |
+| Plánovač | FSRS-6, 21 výchozích parametrů (py-fsrs 6.3.2), stejné pro oba jazyky | ověřeno (spuštěno) |
+| desired_retention | **0,93**, vede se na jazyk | simulace (0,9: skutečná 0,71; 0,93: 0,78; 0,95: 0,83); oddělení po jazycích domněnka |
 | maximum_interval | 365 d | v simulaci 365, vliv neověřen |
 | Fuzz intervalů | vypnuto | domněnka: u jednoho uživatele nepotřeba |
 | learning/relearning steps | žádné; opakování v relaci řeší aplikace | simulace |
@@ -159,19 +166,19 @@ Simulace detekce (5 kategorií, jedna s chybovostí o 15 pp vyšší, celková 3
 | Překlep | Hard (2); prahy: Damerau–Levenshtein 1, délka ≥ 4 | simulace (volba), práh domněnka |
 | Nápověda | 1. úroveň → Hard, 2. úroveň → Again | domněnka |
 | Čas v hodnocení | vypnuto, jen log | domněnka |
-| Počet voleb v MC | 4 | domněnka (hádání 25 %, použito v simulaci) |
-| Max. kontrol v relaci | 30 karet; sloves 25 | domněnka (čas), simulace (verb) |
-| Nových karet na relaci | 8 (0, pokud po termínu > 40 karet) | simulace (8) |
+| Počet voleb v MC | 4, jen ze stejné sady a jazyka; méně (`choiceCount`), když sada nemá dost slov | domněnka (hádání 25 %, použito v simulaci); menší k nesimulováno |
+| Max. kontrol v relaci | 30 karet; sloves 25 (relace má jeden jazyk) | domněnka (čas), simulace (verb) |
+| Nových karet na relaci | 8 (0, pokud po termínu > 40 karet v aktivním jazyce) | simulace (8) |
 | Nová slovesa na relaci | 3, seskupená dle vzoru | simulace |
 | Odemknutí směru čeština → cizí | úspěch v 1. směru v jiný den | návrh |
-| Trend | okno 28 d, n ≥ 100, z ≥ 1,64, Δ ≥ 5 pp | simulace |
-| Slabé slovo | ≥ 2 pády/30 d a S < 7 d; zaseknuté ≥ 4 pády | simulace (přesnost) |
-| Slabá kategorie | n ≥ 30/60 d, ≥ celková + 10 pp | simulace |
-| Hlídač kalibrace | 100 opakování, < 0,75 → +0,01 DR, > 0,92 → −0,01 | domněnka |
-| Personalizace parametrů | až po ~1000 opakováních, dle ověření | domněnka |
+| Trend | okno 28 d, n ≥ 100 na jazyk, z ≥ 1,64, Δ ≥ 5 pp | simulace |
+| Slabé slovo | ≥ 2 pády/30 d a S < 7 d; zaseknuté ≥ 4 pády; seznam na jazyk | simulace (přesnost) |
+| Slabá kategorie | n ≥ 30/60 d na jazyk, ≥ celková téhož jazyka + 10 pp | simulace |
+| Hlídač kalibrace | 100 opakování na jazyk, < 0,75 → +0,01 DR, > 0,92 → −0,01 | domněnka |
+| Personalizace parametrů | až po ~1000 opakováních **na jazyk**, dle ověření | domněnka |
 
 ## 7. Co musí uchovávat datový model (návrh pro architekta)
-Pokus (`ReviewLog`): `cardId`, `timestamp`, `mode` (choice/typed), `direction`, `outcome` (správně / překlep / špatně / nevím), `hintLevel`, `rating`, `responseMs`, `typedText` (pro rozpoznání překlepu), `elapsedDays`, `S_before`, `R_before`, po fazetách (`articleOk`, `pluralOk`, `formResults[]`). Stav karty: FSRS (stabilita, obtížnost, termín, počet opakování, pády), počet úspěchů v řadě. Fáze se z něj počítá (nespoléhat na uložené pole). Logy jsou potřeba od první verze, jinak nepůjde kalibrovat čas ani personalizovat parametry. CloudKit omezení (R4) se tím nemění: vše volitelné nebo s výchozí hodnotou.
+Pokus (`ReviewLog`): `cardId`, `language` (kopie jazyka položky, D18), `timestamp`, `mode` (choice/typed), `choiceCount`, `direction`, `outcome` (správně / překlep / špatně / nevím), `hintLevel`, `rating`, `responseMs`, `typedText` (pro rozpoznání překlepu), `elapsedDays`, `S_before`, `R_before`, po fazetách (`articleOk`, `pluralOk`, `formResults[]`). Stav karty: FSRS (stabilita, obtížnost, termín, počet opakování, pády), počet úspěchů v řadě, jazyk (pro frontu po jazycích). Fáze se z něj počítá (nespoléhat na uložené pole). Logy jsou potřeba od první verze, jinak nepůjde kalibrovat čas ani personalizovat parametry. CloudKit omezení (R4) se tím nemění: vše volitelné nebo s výchozí hodnotou.
 
 ## 8. Simulační model (předpoklady, pro čtenáře čísel výše)
 - **Žák:** exponenciální zapomínání P = 0,9^(t/s), kde s je čas do poklesu na 90 %. Plánovač používá jiný tvar křivky (mocninná ve FSRS), takže model plánovači nenahrává.
@@ -180,6 +187,21 @@ Pokus (`ReviewLog`): `cardId`, `timestamp`, `mode` (choice/typed), `direction`, 
 - **Provoz:** 80 karet (40 slov × 2 směry), relace v 70 % dnů, 8 nových karet na relaci, strop 40, 42 dní + měření po 14 dnech bez cvičení (p@d56 = skutečná pravděpodobnost vybavení při psaní). 100–150 běhů na variantu.
 - Skripty jsou mimo repozitář (`/tmp`, `engine.py`, `sim1–5.py`); nezahrnují reálná data. **Model nelze brát jako důkaz pro konkrétní dítě**: ukazuje směr a řád rozdílů. První 4 týdny provozu je potřeba porovnat skutečné chyby u psaní, skutečnou úspěšnost při opakování a pravidelnost cvičení s těmito čísly.
 
+## 9. Oddělení jazyků (D18, D20) – souhrn
+
+| Co | Rozsah | Poznámka |
+|---|---|---|
+| Fronta „k procvičení“, plánovač, nová slova | aktivní jazyk | strop 30, 8 nových, práh 40 po termínu na jazyk (kap. 3) |
+| Relace a souhrn po relaci | jeden jazyk | jazyk se zafixuje při startu, uprostřed se nemění (D18) |
+| Nepravidelná slovesa | fronta na jazyk | 3 nová, strop 25, ≥ 3 relace týdně v každém jazyce (kap. 4) |
+| Distraktory | stejná sada a jazyk | méně voleb místo míchání (kap. 3) |
+| Metriky, trend, slabá slova a kategorie | na jazyk | prahy beze změny, n se počítá v jazyce (kap. 5) |
+| `desired_retention`, hlídač kalibrace, personalizace | na jazyk | výchozí hodnoty stejné (kap. 1, 6) |
+| Souhrn přes oba jazyky | neexistuje | D20, platí i pro rodičovský pohled |
+
+Test v doméně: smíšený log 60 pokusů `en` + 60 `de` na okno musí dát „málo dat“ v obou jazycích (`05` kap. 13.4, L9).
+
 ## Otevřené otázky pro zadavatele
 - Má se pro slovíčka přidat možnost, aby syn sám zvolil „chci psát“ i u nových slov (mimo D3)?
 - Zobrazovat u výběru „nad náhodou“, nebo jen úspěšnost u psaní? (UX; metrika je definována, zobrazení rozhodne UX.)
+- Sada s méně než 4 slovy (D18: možnosti jen ze stejné sady a jazyka): nabídnout méně voleb (návrh), nebo doplnit distraktory z jiných sad téhož jazyka?
