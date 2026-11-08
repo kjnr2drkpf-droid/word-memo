@@ -1,9 +1,9 @@
 # 01 — Vize produktu
 
-Stav k 2026-11-07. Zdroj pravdy: `00-zadani.md`. Čísla v měřítkách úspěchu jsou **návrh k odsouhlasení**, zadání je nestanovuje.
+Stav k 2026-11-08. Zdroj pravdy: `00-zadani.md`. Čísla v měřítkách úspěchu jsou **návrh k odsouhlasení**, zadání je nestanovuje.
 
 ## Závěr
-Word-memo je malá iOS aplikace (iPhone i iPad, instalace Ad Hoc přes Mac) pro jednoho uživatele, syna v 7. třídě. Přebírá slovíčka z jeho sešitu fotkou, zjišťuje, jak dobře se mu každé vybavilo, a podle toho plánuje opakování. Nejdůležitější vlastnost není chytrý algoritmus, ale to, že se k ní syn vrací dobrovolně. Proto platí: neúspěch nesmí demotivovat, relace jsou krátké a bez tlaku.
+Word-memo je malá iOS aplikace (iPhone i iPad, instalace Ad Hoc přes Mac) pro jednoho uživatele, syna v 7. třídě. Přebírá slovíčka z jeho sešitu fotkou, zjišťuje, jak dobře se mu každé vybavilo, a podle toho plánuje opakování. Nejdůležitější vlastnost není chytrý algoritmus, ale to, že se k ní syn vrací dobrovolně. Proto platí: neúspěch nesmí demotivovat, relace jsou krátké a bez tlaku. Aplikace má vždy jeden aktivní jazyk (angličtina, nebo němčina) a jazyky se nemíchají (D18).
 
 ## Problém
 Syn se učí angličtinu a němčinu (překlady vždy do češtiny, D1) a špatně si pamatuje slovíčka. Nemá nástroj, který by změřil, jak dobře se mu slovo vybavilo, a podle toho řídil opakování. Co se vybaví hned, se má připomínat později, co ne, častěji.
@@ -23,9 +23,10 @@ Syn se učí angličtinu a němčinu (překlady vždy do češtiny, D1) a špatn
 6. **Soukromí dítěte.** OCR běží v zařízení, žádná analytika, žádné odesílání obrázků ven (R5). Data jsou jen v zařízeních a iCloudu syna.
 7. **Funguje všude, kde syn je.** Offline použitelné, výsledky se synchronizují přes iCloud mezi iPhonem a iPadem (D6).
 8. **Rozšiřitelnost.** Datový model nesmí vylučovat pozdější rodičovský pohled ani gamifikaci (D11, D13).
+9. **Jeden jazyk najednou.** Aplikace má vždy jeden aktivní jazyk (angličtina, nebo němčina, D18). Fronta opakování, test, souhrn, historie, slabá místa, slovesa, výslovnost i import se týkají jen aktivního jazyka a nikdy se nemíchají s druhým. Sada patří právě jednomu jazyku. Přepnutí je viditelná volba na nejvyšší úrovni (US-26), nikdy ne uprostřed testu.
 
 ## Měřítka úspěchu (návrh)
-Měří se lokálně z uložených pokusů, bez analytiky (princip 6). Hodnocení po 4 týdnech používání.
+Měří se lokálně z uložených pokusů, bez analytiky (princip 6). Hodnocení po 4 týdnech používání. Měřítka vázaná na obsah (M4, M5) se vyhodnocují po jazycích (D18); M1 počítá relaci v kterémkoli jazyce.
 
 | # | Měřítko | Cíl |
 |---|---|---|
@@ -46,11 +47,13 @@ Měří se lokálně z uložených pokusů, bez analytiky (princip 6). Hodnocen�
 - Není to veřejná aplikace: distribuce Ad Hoc přes Mac a Xcode, bez App Store a bez TestFlightu (D5), bez Androidu a webu, bez účtů a přihlašování mimo Apple ID.
 - Nesbírá analytiku, neobsahuje reklamy a nenabízí nákupy.
 - Nenahrazuje jazykové kurzy a nenabízí hotové sady, dokud není jasná licence (D7).
+- Nemíchá jazyky (D18): žádný společný test, fronta, souhrn ani statistika angličtiny a němčiny dohromady; sada nemůže obsahovat slova obou jazyků a aplikace sama jazyk nikdy nepřepíná.
 
 ## Předpoklady (zadání je nestanovuje)
 - Aplikace je jednouživatelská (jeden syn na zařízení). Více profilů není v rozsahu.
 - Aplikace běží česky. Jazyk rozhraní jiný než čeština se neřeší.
 - Číselné cíle M1–M8 jsou odhady k odsouhlasení.
+- Aktivních jazyků je právě dvě (angličtina, němčina). Přidání dalšího jazyka není v rozsahu. Přepnutí jazyka je vždy ruční volba syna (D18).
 
 ## Otevřené otázky
 Viz seznamy na konci `02-user-stories.md` a `04-story-mapa.md`; rizika R1–R5 jsou vedena v `00-zadani.md`.

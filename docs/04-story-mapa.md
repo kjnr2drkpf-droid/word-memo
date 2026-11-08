@@ -1,15 +1,15 @@
 # 04 — Story mapa
 
-Stav k 2026-11-07. Vychází z `00-zadani.md` a `02-user-stories.md`. Rozdělení do vln a návrh první verze jsou **návrh k odsouhlasení**; rozsah mění jen zadavatel.
+Stav k 2026-11-08. Vychází z `00-zadani.md` a `02-user-stories.md`. Rozdělení do vln a návrh první verze jsou **návrh k odsouhlasení**; rozsah mění jen zadavatel.
 
 ## Závěr
-Tři vlny podle priorit ze zadání: **vlna 1 = P0** (13 stories), **vlna 2 = P1** (7), **vlna 3 = P2** (5). Nejmenší smysluplná první verze pro instalaci Ad Hoc je **jádro učební smyčky bez iCloud syncu**: první spuštění, import fotkou s opravou, správa sad, test (mix, oba směry), vyhodnocení, plán, souhrn, uložení a offline (US-01 až US-10, US-13). iCloud sync (US-11, US-12) je P0 a následuje jako druhý build (pokud sondy U1–U3 ukážou, že funguje hned, může být už v prvním, viz `05` kap. 10); datový model se ale od začátku navrhuje pro CloudKit (R4). Před prvním buildem je nutné ověřit sondy U1–U3 (Ad Hoc pod dětským iCloudem a prostředí CloudKit, R6; R1 je uzavřeno, TestFlight dětský účet nespustí) a R2 (kvalita OCR), protože oba mohou změnit plán.
+Tři vlny podle priorit ze zadání: **vlna 1 = P0** (14 stories), **vlna 2 = P1** (7), **vlna 3 = P2** (5). Nejmenší smysluplná první verze pro instalaci Ad Hoc je **jádro učební smyčky bez iCloud syncu**: první spuštění (s volbou jazyka), import fotkou s opravou, správa sad, test (mix, oba směry), vyhodnocení, plán, souhrn, uložení a offline (US-01 až US-10, US-13, US-26; podle D18 se jazyky nemíchají, takže přepnutí aktivního jazyka patří do jádra). iCloud sync (US-11, US-12) je P0 a následuje jako druhý build (pokud sondy U1–U3 ukážou, že funguje hned, může být už v prvním, viz `05` kap. 10); datový model se ale od začátku navrhuje pro CloudKit (R4). Před prvním buildem je nutné ověřit sondy U1–U3 (Ad Hoc pod dětským iCloudem a prostředí CloudKit, R6; R1 je uzavřeno, TestFlight dětský účet nespustí) a R2 (kvalita OCR), protože oba mohou změnit plán.
 
 ## Mapa po vlnách
 
 | Vlna | Priorita | Stories |
 |---|---|---|
-| 1A | P0 jádro | US-01, US-02, US-03, US-04, US-05, US-06, US-07, US-08, US-09, US-10, US-13 |
+| 1A | P0 jádro | US-01, US-02, US-03, US-04, US-05, US-06, US-07, US-08, US-09, US-10, US-13, US-26 |
 | 1B | P0 sync | US-11, US-12 |
 | 2 | P1 | US-14, US-15, US-16, US-17, US-18, US-19, US-20 |
 | 3 | P2 | US-21, US-22, US-23, US-24, US-25 |
@@ -22,7 +22,7 @@ Vlna 1 je rozdělena na 1A a 1B jen kvůli pořadí buildů, priorita obou je P0
 
 | Story | Závisí na | Poznámka |
 |---|---|---|
-| US-01 První spuštění | — | Minimální verze stačí; úvod se rozšiřuje později. |
+| US-01 První spuštění | — | Minimální verze stačí; úvod se rozšiřuje později. Volba jazyka ukládá aktivní jazyk, který dál řídí US-26 (D18). |
 | US-04 Správa sad | — | Základ datového modelu (sada, slovo). |
 | US-10 Uložení výsledků | US-04 | Model pokusů navržen podle omezení SwiftData/CloudKit (R4). |
 | US-02 Import fotkou | US-04 | Cíl importu je sada. Riziko R2. |
@@ -47,6 +47,7 @@ Vlna 1 je rozdělena na 1A a 1B jen kvůli pořadí buildů, priorita obou je P0
 | US-23 Rodičovský pohled | US-10, US-11, US-14 | Jen architektonická podmínka od vlny 1. |
 | US-24 Gamifikace | US-09, US-14 | Nesmí porušit principy 1–3. |
 | US-25 Připomenutí | US-08 | |
+| US-26 Přepnutí aktivního jazyka | US-01, US-04, US-05, US-08 | D18. Jazyk sady (US-04) a volba při prvním spuštění (US-01); zámek přepnutí během relace (US-05); počet k procvičení u druhého jazyka z plánovače po jazycích (US-08). Aktivní jazyk pak filtruje US-02, US-05, US-08, US-09, US-14 až US-19. |
 
 ```
 US-04 ─┬─ US-02 ─ US-03 ─ US-19
@@ -55,24 +56,26 @@ US-04 ─┬─ US-02 ─ US-03 ─ US-19
        ├─ US-16 ─ US-17            └──────────────────────┘
        └─ US-18 ─ US-22
 US-10 ─ US-11 ─ US-12 ;  US-11 ─ US-20 ;  US-14 ─ US-23, US-24 ;  US-08 ─ US-25
+US-01, US-04, US-05, US-08 ─ US-26   (aktivní jazyk je filtr pro US-02, US-05, US-08, US-09, US-14 až US-19)
 ```
 
-Kritická cesta pro první smysluplnou verzi: US-04 → US-10 → US-07 → US-08 → US-05 → US-06 → US-09, paralelně US-02 → US-03.
+Kritická cesta pro první smysluplnou verzi: US-04 → US-10 → US-07 → US-08 → US-05 → US-06 → US-09, paralelně US-02 → US-03. US-26 je malá a přidává se nad plán po jazycích (US-08); model s jazykem sady (US-04) musí existovat od začátku.
 
 ## Návrh nejmenší smysluplné první verze (instalace Ad Hoc)
 
 **Cíl verze:** syn si nafotí stránku, zkontroluje slova, projde krátký test v obou směrech a dostane souhrn; příště mu aplikace nabídne slova podle plánu. Tím se ověří hlavní hypotéza: *syn se k aplikaci vrací a vybavuje si díky ní slova.*
 
 **Obsahuje (build 1):**
-- US-01 První spuštění (nejmenší verze: jedna obrazovka a nabídka „Vyfotit slovíčka").
+- US-01 První spuštění (nejmenší verze: volba jazyka (D18), jedna obrazovka a nabídka „Vyfotit slovíčka").
 - US-02 + US-03 Import fotkou s kontrolou a opravou, i z knihovny fotek.
-- US-04 Správa sad a slov (vytvořit, upravit, smazat, jazyk EN/DE).
+- US-04 Správa sad a slov (vytvořit, upravit, smazat; jazyk EN/DE povinný při vytvoření a neměnný, D18).
 - US-05 + US-06 Test s mixem výběr/psaní a oběma směry.
 - US-07 Vyhodnocení: překlepy, diakritika, členy.
 - US-08 Plánování opakování (jednoduché schéma, algoritmus podle Q1).
 - US-09 Souhrn po pokusu.
 - US-10 Uložení výsledků po každé odpovědi.
 - US-13 Offline (vlastnost, nic nevyžaduje síť).
+- US-26 Přepnutí aktivního jazyka (viditelná volba, pamatuje poslední jazyk, zámek během testu, prázdný stav jazyka bez sad; D18).
 - Datový model již s ohledem na CloudKit (R4), i když sync zatím nezapnutý.
 
 **Neobsahuje:** iCloud sync a konflikty (build 2), historii a slabá místa, slovesa, výslovnost, CSV, smazání všech dat, hotové sady, gamifikaci, rodičovský pohled, připomenutí.
@@ -96,6 +99,7 @@ Kritická cesta pro první smysluplnou verzi: US-04 → US-10 → US-07 → US-0
 - Soukromí: žádná analytika, OCR v zařízení, žádné odesílání obrázků ven (R5).
 - Principy z `01-vize.md`: bez tlaku, neúspěch nedemotivuje, krátké relace.
 - Rozšiřitelnost datového modelu pro rodičovský pohled a gamifikaci (D11, D13).
+- Jeden jazyk najednou (D18): fronta, test, souhrn, historie, slabá místa, slovesa, výslovnost i import vždy jen pro aktivní jazyk. Kontroluje se průřezově, mj. jednotkovými testy v `Domain` (výstup pro jazyk A neobsahuje data jazyka B).
 - Tvrzení o platformě jsou **domněnka**, dokud je neověříme podle zdroje.
 
 ## Otevřené otázky
@@ -104,4 +108,5 @@ Kritická cesta pro první smysluplnou verzi: US-04 → US-10 → US-07 → US-0
 - **O3 Kolik zařízení syn reálně používá** (iPhone, iPad, obojí)? Ovlivňuje naléhavost syncu.
 - **O4 Zda se má do buildu 1 přidat přehrání výslovnosti (US-18)** jako levná P1 věc. Návrh: ne, kvůli rozsahu; pozdější rozhodnutí zadavatele.
 - **O5 Zařazení US-20 (smazání dat), US-04 (správa sad), US-01, US-12, US-13 do priorit.** Zadání je výslovně nezařazuje; v dokumentech jsou označeny jako předpoklad.
-- **O6 Q1–Q15 z `02-user-stories.md`** (algoritmus, přísnost, vložení fotek otcem a další) čekají na rozhodnutí.
+- **O6 Q1–Q21 z `02-user-stories.md`** (algoritmus, přísnost, vložení fotek otcem a další) čekají na rozhodnutí.
+- **O7 US-26 a D18.** Návrh: US-26 patří do buildu 1, protože D18 platí od prvního buildu. Otázky k D18 (Q16 změna jazyka sady, Q17 celkový souhrn přes oba jazyky, Q18 uložení aktivního jazyka, Q19 až Q21) čekají na zadavatele.
