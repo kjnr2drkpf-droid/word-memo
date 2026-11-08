@@ -1011,6 +1011,23 @@ function vSettings(){
 function sheetWrap(title,left,right,body){
  return '<div class="scrim" data-scrim="1"><div class="sheet" role="dialog" aria-modal="true" aria-label="'+esc(title)+'"><div class="sheet-h gut"><div class="sl">'+(left||'')+'</div><h2>'+esc(title)+'</h2><div class="sr">'+(right||'')+'</div></div><div class="sheet-b gut" data-scroll="sheet">'+body+'</div></div></div>';
 }
+function wordSet(s){return s.set==='__new'?{name:'Nová sada „Moje slovíčka“',lang:AL()}:setOf(s.set)}
+function wordWarn(s){var set=wordSet(s),de=set&&set.lang==='de';
+ var w=de&&!s.art&&/^[A-ZÄÖÜ]/.test(s.f.trim())&&s.f.trim()&&!/^(der|die|das)\s/i.test(s.f);
+ return w?'<div class="note warn" style="margin-top:10px">'+icon('alert')+'<span>U německého podstatného jména chybí člen. Můžeš ho doplnit teď, nebo později.</span></div>':'';}
+function wordDupe(s){var d=!s.id&&s.f.trim()&&S.words.some(function(w){return w.set===s.set&&w.f.toLowerCase()===s.f.trim().toLowerCase()});
+ return d?'<div class="note warn" style="margin-top:10px">'+icon('alert')+'<span>Slovo '+esc(s.f.trim())+' už v téhle sadě máš.</span></div>':'';}
+function wordSpeak(s){var set=wordSet(s);
+ return s.f.trim()?'<div style="margin-top:12px"><button class="btn sec sm" data-act="speak" data-t="'+esc((s.art?s.art+' ':'')+s.f.trim())+'" data-l="'+(set?set.lang:'en')+'">'+icon('speaker')+'Přehrát výslovnost</button></div>':'';}
+/* aktualizuje jen doprovodné části formuláře, pole se nepřekreslují (nic se neztratí) */
+function patchWord(){var s=S.sheet,a=$('#w-warn',area),b=$('#w-dupe',area),c=$('#w-speak',area);if(!s||!a)return;a.innerHTML=wordWarn(s);b.innerHTML=wordDupe(s);c.innerHTML=wordSpeak(s)}
+function verbNotes(s){var lang=s.lang,fl=VF[lang],warns=[];
+ fl.forEach(function(f){if(f[0]!=='aux'&&!s.f[f[0]]&&s.f.inf)warns.push('Chybí '+(f[0]==='pp'?'příčestí':f[1].toLowerCase())+'. Můžeš uložit i tak, tenhle tvar se pak zkoušet nebude.')});
+ if(lang==='de'&&!s.f.aux&&s.f.inf)warns.push('Chybí pomocné sloveso (haben, sein).');
+ var same=lang==='en'&&s.f.pret&&s.f.pret===s.f.pp;
+ return warns.map(function(w){return '<div class="note warn" style="margin-top:10px">'+icon('alert')+'<span>'+w+'</span></div>'}).join('')+
+  (same?'<div class="note" style="margin-top:10px">'+icon('info')+'<span>Minulý čas a příčestí jsou stejné. To je v pořádku (např. bought).</span></div>':'');}
+function patchVerb(){var s=S.sheet,n=$('#v-notes',area);if(s&&n)n.innerHTML=verbNotes(s)}
 function sheetHTML(){
  var s=S.sheet;
  if(s.type==='sets'){
@@ -1025,34 +1042,27 @@ function sheetHTML(){
  }
  if(s.type==='word'){
   var set=s.set==='__new'?{name:'Nová sada „Moje slovíčka“',lang:AL()}:setOf(s.set),de=set&&set.lang==='de';
-  var warn=de&&!s.art&&/^[A-ZÄÖÜ]/.test(s.f.trim())&&s.f.trim()&&!/^(der|die|das)\s/i.test(s.f);
-  var dupe=!s.id&&s.f.trim()&&S.words.some(function(w){return w.set===s.set&&w.f.toLowerCase()===s.f.trim().toLowerCase()});
   var ok=s.f.trim()&&s.cz.trim();
   if(s.del)return sheetWrap('Smazat slovo?','','','<div class="confirm-card"><h2>Smazat slovo '+esc(s.f)+'?</h2><p>Smaže se i historie jeho procvičování. To nejde vrátit.</p><div class="stack"><button class="btn primary" data-act="word-keep">Nechat</button><button class="btn dangerline" data-act="word-del">Smazat</button></div></div>');
   var b='<span class="lbl" style="margin-top:4px">Cizí slovo</span><input class="field" data-bind="wf" value="'+esc(s.f)+'" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" aria-label="Cizí slovo">'+
    (de?'<span class="lbl">Člen (jen němčina)</span><div class="seg full">'+['','der','die','das'].map(function(a){return '<button type="button" class="'+(s.art===a?'on':'')+'" data-act="word-art" data-v="'+a+'">'+(a||'—')+'</button>'}).join('')+'</div>':'')+
-   (warn?'<div class="note warn" style="margin-top:10px">'+icon('alert')+'<span>U německého podstatného jména chybí člen. Můžeš ho doplnit teď, nebo později.</span></div>':'')+
+   '<div id="w-warn">'+wordWarn(s)+'</div>'+
    '<span class="lbl">Česky</span><input class="field" data-bind="wcz" value="'+esc(s.cz)+'" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="České významy"><p class="help">Víc významů odděl středníkem.</p>'+
-   (dupe?'<div class="note warn" style="margin-top:10px">'+icon('alert')+'<span>Slovo '+esc(s.f.trim())+' už v téhle sadě máš.</span></div>':'')+
-   (s.f.trim()?'<div style="margin-top:12px"><button class="btn sec sm" data-act="speak" data-t="'+esc((s.art?s.art+' ':'')+s.f.trim())+'" data-l="'+(set?set.lang:'en')+'">'+icon('speaker')+'Přehrát výslovnost</button></div>':'')+
+   '<div id="w-dupe">'+wordDupe(s)+'</div><div id="w-speak">'+wordSpeak(s)+'</div>'+
    '<span class="lbl">Jazyk</span><div>'+lgtag(set?set.lang:AL())+'</div><p class="help" style="margin-top:14px">Sada: '+esc(set?set.name:'—')+'. Slovo dědí jazyk sady.</p>'+
    (s.id?'<div style="margin-top:12px"><button class="btn dangerline" data-act="word-delask">'+icon('trash')+'Smazat slovo</button></div>':'');
   return sheetWrap(s.id?'Slovo':'Nové slovo','<button class="tbtn" data-act="sheet-close">Zrušit</button>','<button class="tbtn" id="wsave" data-act="word-save"'+(ok?'':' disabled')+'>Uložit</button>',b);
  }
  if(s.type==='verb'){
-  var lang=s.lang,fl=VF[lang],warns=[];
-  fl.forEach(function(f){if(f[0]!=='aux'&&!s.f[f[0]]&&s.f.inf)warns.push('Chybí '+(f[0]==='pp'?'příčestí':f[1].toLowerCase())+'. Můžeš uložit i tak, tenhle tvar se pak zkoušet nebude.')});
-  if(lang==='de'&&!s.f.aux&&s.f.inf)warns.push('Chybí pomocné sloveso (haben, sein).');
+  var lang=s.lang,fl=VF[lang];
   var ok2=s.f.inf&&s.cz.trim();
-  var same=lang==='en'&&s.f.pret&&s.f.pret===s.f.pp;
   var b2='<span class="lbl" style="margin-top:4px">Jazyk</span><div>'+lgtag(lang)+'</div><p class="help" style="margin-top:6px">Sloveso patří do aktivního jazyka. Jiný jazyk se zadává po přepnutí nahoře.</p>'+
    '<span class="lbl">Celá řádka z učebnice</span><input class="field" data-bind="vline" value="'+esc(s.line)+'" placeholder="'+(lang==='de'?'fahren – fährt – fuhr – ist gefahren':'go – went – gone')+'" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">'+
    '<p class="help">Tvary oddělené pomlčkou nebo čárkou. Pole se doplní samy a můžeš je opravit.</p><span class="lbl">Rozpoznáno</span><div class="vgrid">'+
    '<div class="vfld full"><span class="fl">Infinitiv</span><input class="field" data-bind="vf" data-k="inf" value="'+esc(s.f.inf||'')+'" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"></div>'+
    fl.map(function(f){return f[0]==='aux'?'<div class="vfld"><span class="fl">'+f[1]+'</span><div class="seg full"><button type="button" class="'+(s.f.aux==='haben'?'on':'')+'" data-act="vf-aux" data-v="haben">haben</button><button type="button" class="'+(s.f.aux==='sein'?'on':'')+'" data-act="vf-aux" data-v="sein">sein</button></div></div>':'<div class="vfld"><span class="fl">'+f[1]+'</span><input class="field" data-bind="vf" data-k="'+f[0]+'" value="'+esc(s.f[f[0]]||'')+'" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"></div>'}).join('')+
    '<div class="vfld full"><span class="fl">Česky</span><input class="field" data-bind="vcz" value="'+esc(s.cz)+'" autocomplete="off" autocorrect="off" spellcheck="false"></div></div>'+
-   warns.map(function(w){return '<div class="note warn" style="margin-top:10px">'+icon('alert')+'<span>'+w+'</span></div>'}).join('')+
-   (same?'<div class="note" style="margin-top:10px">'+icon('info')+'<span>Minulý čas a příčestí jsou stejné. To je v pořádku (např. bought).</span></div>':'');
+   '<div id="v-notes">'+verbNotes(s)+'</div>';
   return sheetWrap(s.id?'Upravit sloveso':'Nové sloveso','<button class="tbtn" data-act="sheet-close">Zrušit</button>','<button class="tbtn" id="vsave" data-act="verb-save"'+(ok2?'':' disabled')+'>Uložit</button>',b2);
  }
  if(s.type==='finish'){
@@ -1264,7 +1274,7 @@ function importHTML(){
    var sets=setsOf(L).map(function(s){return '<button type="button" class="check radio'+(i.setId===s.id?' on':'')+'" data-act="imp-set" data-id="'+s.id+'" role="radio" aria-checked="'+(i.setId===s.id)+'"><span class="box"></span><span class="tx">'+esc(s.name)+'</span></button>'}).join('');
    okc=!nw||i.newName.trim();
    body=langs+'<span class="lbl">2. Sada v jazyce '+NAME[L]+'</span>'+sets+'<button type="button" class="check radio'+(nw?' on':'')+'" data-act="imp-set" data-id="__new" role="radio" aria-checked="'+nw+'"><span class="box"></span><span class="tx">Nová sada</span></button>'+
-    (nw?'<div style="padding:4px 0 8px 38px"><input class="field" data-bind="impname" value="'+esc(i.newName)+'" placeholder="'+(L==='de'?'Např. Němčina — lekce 2':'Např. Angličtina — lekce 5')+'" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Název sady">'+(i.newName.trim()?'':'<p class="help">Pojmenuj sadu, ať ji najdeš.</p>')+'</div>':'');
+    (nw?'<div style="padding:4px 0 8px 38px"><input class="field" data-bind="impname" value="'+esc(i.newName)+'" placeholder="'+(L==='de'?'Např. Němčina — lekce 2':'Např. Angličtina — lekce 5')+'" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Název sady">'+'<p class="help" id="imp-help"'+(i.newName.trim()?' hidden':'')+'>Pojmenuj sadu, ať ji najdeš.</p></div>':'');
   }
   return '<div class="ovl">'+impTop('Kam to uložit?','<button class="tbtn" data-act="imp-close">Zrušit</button>','')+'<div class="ovl-body gut"><div class="col">'+body+'</div></div><div class="ovl-foot gut"><div class="col"><button class="btn primary" data-act="imp-next"'+(okc?'':' disabled')+'>Pokračovat</button></div></div></div>';
  }
@@ -1647,7 +1657,9 @@ dev.addEventListener('input',function(e){
 });
 dev.addEventListener('change',function(e){
  var el=e.target,b=el.getAttribute&&el.getAttribute('data-bind');if(!b)return;
- if(b==='wf'||b==='vline'||b==='impname'){render();return}
+ if(b==='wf'){patchWord();return}
+ if(b==='vline'){patchVerb();return}
+ if(b==='impname'){var hh=$('#imp-help',area);if(hh)hh.hidden=!!el.value.trim();return}
  if(b==='impf'||b==='impcz'){var r=S.imp.rows.filter(function(x){return x.id===el.getAttribute('data-id')})[0];if(r&&r.st==='flag'&&r.touched&&r.f.trim()&&r.cz.trim()){r.st='done';render()}}
 });
 
