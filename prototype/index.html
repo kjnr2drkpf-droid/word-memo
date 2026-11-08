@@ -819,11 +819,13 @@ function setDetail(s,back){
  var out=(back?'<button class="back" data-act="set-back">'+icon('back')+'Sady</button>':'')+
   '<div class="dh"><h2>'+esc(s.name)+'</h2><p class="sub"><span class="lang">'+CODE[s.lang]+'</span> · '+ws.length+' '+pl(ws.length,'slovo','slova','slov')+'</p></div>'+
   '<div class="stack"><button class="btn soft" data-act="sheet" data-t="add" data-set="'+s.id+'">'+icon('plus')+'Přidat slova</button>'+
-  '<button type="button" class="check'+(s.on?' on':'')+'" data-act="set-toggle" data-id="'+s.id+'" role="checkbox" aria-checked="'+s.on+'"><span class="box">'+icon('tick')+'</span><span class="tx">Zařadit do procvičování</span></button></div>';
- if(!ws.length)return out+'<div class="empty"><h2 style="font-size:20px">V téhle sadě zatím nic není.</h2></div>';
+  '<button type="button" class="check'+(s.on?' on':'')+'" data-act="set-toggle" data-id="'+s.id+'" role="checkbox" aria-checked="'+s.on+'"><span class="box">'+icon('tick')+'</span><span class="tx">Zařadit do procvičování</span></button></div>'+
+  '<p class="help" style="margin-top:6px">Jazyk sady ('+NAME[s.lang]+') se po vytvoření nemění. Slova se mezi jazyky nepřesouvají.</p>';
+ if(!ws.length)return out+'<div class="empty"><h2 style="font-size:20px">V téhle sadě zatím nic není.</h2></div>'+delSetBtn(s);
  return out+'<div class="list" style="margin-top:8px">'+ws.map(function(w){
-  return '<div class="wrow" role="button" tabindex="0" data-act="word-edit" data-id="'+w.id+'"><div class="t"><b>'+esc(fd(w))+(w.fresh?'<span class="fresh">nové</span>':'')+'</b><span>'+esc(w.cz.join(', '))+'</span></div>'+spk(fd(w),w.lang)+'</div>'}).join('')+'</div>';
+  return '<div class="wrow" role="button" tabindex="0" data-act="word-edit" data-id="'+w.id+'"><div class="t"><b>'+esc(fd(w))+(w.fresh?'<span class="fresh">nové</span>':'')+'</b><span>'+esc(w.cz.join(', '))+'</span></div>'+spk(fd(w),w.lang)+'</div>'}).join('')+'</div>'+delSetBtn(s);
 }
+function delSetBtn(s){return '<div style="margin-top:18px"><button class="btn dangerline" data-act="sheet" data-t="setdel" data-set="'+s.id+'">'+icon('trash')+'Smazat sadu</button><p class="help">Založena ve špatném jazyce? Založ novou sadu ve správném jazyce a tuhle smaž.</p></div>'}
 
 /* ---- Slovesa (S40) ---- */
 var VF={en:[['pret','Minulý čas'],['pp','Příčestí']],de:[['pres','3. os. přít.'],['pret','Präteritum'],['aux','Pomocné sloveso'],['pp','Příčestí']]};
@@ -964,6 +966,7 @@ var ICL={
  err:['Synchronizace se teď nepovedla','Nic se neztratilo, data jsou v zařízení. Zkusím to znovu později.','again','s-again'],
  full:['V iCloudu je plno','Nové změny se zatím do iCloudu nevejdou. Uvolni místo v nastavení iCloudu.','alert','s-again']
 };
+function langCounts(a){return ['en','de'].map(function(l){return NAME[l]+': '+a.filter(function(x){return x.lang===l}).length}).join(' · ')}
 function vSettings(){
  var sp=S.sp;
  if(sp==='icloud'){
@@ -995,8 +998,8 @@ function vSettings(){
  var nd=S.dups.length,no=S.over.length;
  var rows='<div class="lrow"><span class="lt"><b>Aktivní jazyk</b><small>Přepíná se nahoře na obrazovkách Procvičit, Sady, Slovesa a Pokrok.</small></span>'+lgtag(AL())+'</div>';
  rows+='<button type="button" class="lrow" data-act="sp" data-v="icloud"><span class="lt"><b>iCloud a synchronizace</b></span><span class="muted" style="font-size:15px">'+ICL[S.icloud][0].replace('…','')+'</span>'+icon('chev','chev')+'</button>';
- if(nd)rows+='<button type="button" class="lrow" data-act="sp" data-v="dups"><span class="lt"><b>Duplicity</b></span><span class="pill accent">'+nd+'</span>'+icon('chev','chev')+'</button>';
- if(no)rows+='<button type="button" class="lrow" data-act="sp" data-v="over"><span class="lt"><b>Přepsané změny</b></span><span class="pill accent">'+no+'</span>'+icon('chev','chev')+'</button>';
+ if(nd)rows+='<button type="button" class="lrow" data-act="sp" data-v="dups"><span class="lt"><b>Duplicity</b><small>'+langCounts(S.dups)+'</small></span>'+icon('chev','chev')+'</button>';
+ if(no)rows+='<button type="button" class="lrow" data-act="sp" data-v="over"><span class="lt"><b>Přepsané změny</b><small>'+langCounts(S.over)+'</small></span>'+icon('chev','chev')+'</button>';
  return head('Nastavení')+'<div class="list">'+rows+'</div>'+
   '<div class="list" style="margin-top:20px"><button type="button" class="lrow" data-act="sp" data-v="delete"><span class="lt"><b class="danger-t">Smazat všechna data</b></span>'+icon('chev','chev')+'</button></div>'+
   '<h2 class="sec">Jen pro prototyp</h2><div class="list"><button type="button" class="check'+(S.sim.noVoice?' on':'')+'" style="padding:6px 16px" data-act="simvoice" role="checkbox" aria-checked="'+S.sim.noVoice+'"><span class="box">'+icon('tick')+'</span><span class="tx">Simulovat chybějící hlas<small>Ukáže hlášku u tlačítka výslovnosti.</small></span></button>'+
@@ -1018,7 +1021,7 @@ function sheetHTML(){
  }
  if(s.type==='add'){
   return sheetWrap('Přidat slova','','<button class="tbtn" data-act="sheet-close" aria-label="Zavřít">'+icon('close')+'</button>',
-   '<div class="list" style="margin-top:6px"><button class="srcrow" data-act="imp-open" data-src="camera" data-set="'+(s.set||'')+'">'+icon('camera')+'<span>Vyfotit stránku</span></button><button class="srcrow" data-act="imp-open" data-src="photo" data-set="'+(s.set||'')+'">'+icon('photo')+'<span>Vybrat z fotek</span></button><button class="srcrow" data-act="word-new" data-set="'+(s.set||'')+'">'+icon('pencil')+'<span>Napsat ručně</span></button></div><p class="help" style="margin-top:12px">Fotka se čte přímo v zařízení. Jiný zdroj (soubor CSV) prototyp nezobrazuje. Jazyk slovíček zvolíš jako první věc po výběru zdroje.</p>');
+   '<div class="list" style="margin-top:6px"><button class="srcrow" data-act="imp-open" data-src="camera" data-set="'+(s.set||'')+'"'+(s.newset?' data-newset="1"':'')+'>'+icon('camera')+'<span>Vyfotit stránku</span></button><button class="srcrow" data-act="imp-open" data-src="photo" data-set="'+(s.set||'')+'"'+(s.newset?' data-newset="1"':'')+'>'+icon('photo')+'<span>Vybrat z fotek</span></button><button class="srcrow" data-act="word-new" data-set="'+(s.newset?'__new':(s.set||''))+'">'+icon('pencil')+'<span>Napsat ručně</span></button></div><p class="help" style="margin-top:12px">Fotka se čte přímo v zařízení. Jiný zdroj (soubor CSV) prototyp nezobrazuje. Jazyk slovíček zvolíš jako první věc po výběru zdroje.</p>');
  }
  if(s.type==='word'){
   var set=s.set==='__new'?{name:'Nová sada „Moje slovíčka“',lang:AL()}:setOf(s.set),de=set&&set.lang==='de';
@@ -1054,6 +1057,10 @@ function sheetHTML(){
  }
  if(s.type==='finish'){
   return sheetWrap('Skončit teď?','','','<p style="margin:6px 0 16px;color:var(--ink-2)">Všechny dosavadní odpovědi jsou uložené. Zbylá slova se ti nabídnou příště.</p><div class="stack"><button class="btn primary" data-act="sheet-close">Pokračovat</button><button class="btn sec" data-act="t-end">Skončit a ukázat souhrn</button></div>');
+ }
+ if(s.type==='setdel'){
+  var ds=setOf(s.set),dn=S.words.filter(function(w){return w.set===s.set}).length;
+  return '<div class="scrim" data-scrim="1" style="align-items:center;padding:20px"><div class="sheet" style="border-radius:26px;max-width:440px" role="alertdialog" aria-modal="true"><div class="confirm-card"><h2>Smazat sadu '+esc(ds?ds.name:'')+'?</h2><p>Smaže se sada i '+dn+' '+pl(dn,'její slovo','její slova','jejích slov')+' a historie jejich procvičování. Jazyk sady ('+NAME[ds?ds.lang:AL()]+') nejde změnit, takže chybnou sadu stačí smazat a založit znovu ve správném jazyce. To nejde vrátit.</p><div class="stack"><button class="btn primary" data-act="sheet-close">Nechat</button><button class="btn dangerline" data-act="set-del" data-id="'+s.set+'">Smazat sadu</button></div></div></div></div>';
  }
  if(s.type==='delall'){
   return '<div class="scrim" data-scrim="1" style="align-items:center;padding:20px"><div class="sheet" style="border-radius:26px;max-width:420px" role="alertdialog" aria-modal="true"><div class="confirm-card"><h2>Opravdu smazat všechno?</h2><p>Po smazání se aplikace vrátí na začátek.</p><div class="stack"><button class="btn primary" data-act="sheet-close">Nemazat</button><button class="btn danger" data-act="delall">Smazat všechno</button></div></div></div></div>';
@@ -1242,16 +1249,23 @@ function impRows(lang){
 }
 function impFlagged(){return S.imp.rows.filter(function(r){return r.st==='flag'})}
 function impSavable(){return S.imp.rows.filter(function(r){return (r.st==='ok'||r.st==='done')&&r.f.trim()&&r.cz.trim()})}
-function impLang(){var i=S.imp;if(i.setId==='__new')return i.newLang;var s=setOf(i.setId);return s?s.lang:'de'}
+function impLang(){return S.imp.lang}
 function impTop(title,left,right){return '<div class="ovl-top gut"><div class="sl">'+(left||'')+'</div><h2>'+title+'</h2><div class="sr">'+(right||'')+'</div></div>'}
 function importHTML(){
  var i=S.imp,st=i.step;
  if(st==='where'){
-  var sets=S.sets.map(function(s){return '<button type="button" class="check radio'+(i.setId===s.id?' on':'')+'" data-act="imp-set" data-id="'+s.id+'" role="radio" aria-checked="'+(i.setId===s.id)+'"><span class="box"></span><span class="tx">'+esc(s.name)+'<small>'+(s.lang==='de'?'Němčina':'Angličtina')+'</small></span></button>'}).join('');
-  var nw=i.setId==='__new';
-  var okc=!nw||(i.newName.trim()&&i.newLang);
-  var body='<span class="lbl" style="margin-top:4px">Sada</span>'+sets+'<button type="button" class="check radio'+(nw?' on':'')+'" data-act="imp-set" data-id="__new" role="radio" aria-checked="'+nw+'"><span class="box"></span><span class="tx">Nová sada</span></button>'+
-   (nw?'<div style="padding:4px 0 8px 38px"><input class="field" data-bind="impname" value="'+esc(i.newName)+'" placeholder="Např. Angličtina — lekce 5" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Název sady">'+(i.newName.trim()?'':'<p class="help">Pojmenuj sadu, ať ji najdeš.</p>')+'<span class="lbl">Jazyk</span><div class="seg full"><button type="button" class="'+(i.newLang==='en'?'on':'')+'" data-act="imp-lang" data-v="en">Angličtina</button><button type="button" class="'+(i.newLang==='de'?'on':'')+'" data-act="imp-lang" data-v="de">Němčina</button></div>'+(i.newLang?'':'<p class="help">Vyber jazyk, aplikace ho nehádá.</p>')+'</div>':'');
+  var L=i.lang,nw=i.setId==='__new',body,okc;
+  if(i.lock){
+   var ls=setOf(i.setId);okc=true;
+   body='<span class="lbl" style="margin-top:4px">Jazyk</span><div>'+lgtag(ls.lang)+'</div><p class="help">Jazyk sady se po vytvoření nemění.</p><span class="lbl">Sada</span><div class="list"><div class="lrow"><div class="lt"><b>'+esc(ls.name)+'</b></div></div></div>';
+  }else{
+   var langs='<span class="lbl" style="margin-top:4px">1. Jazyk slovíček</span><div class="seg full lseg" role="radiogroup" aria-label="Jazyk slovíček">'+['en','de'].map(function(l){return '<button type="button" role="radio" aria-checked="'+(l===L)+'" class="'+(l===L?'on':'')+'" data-act="imp-lang" data-v="'+l+'" data-l="'+l+'"><b class="code">'+CODE[l]+'</b><span>'+NAME[l]+'</span></button>'}).join('')+'</div>'+
+    '<p class="help">Podle jazyka se přečte fotka a zařadí sada. Jazyk sady se po vytvoření nemění.</p>'+(L!==AL()?'<div class="note warn" style="margin-top:8px">'+icon('info')+'<span>Aktivní jazyk je '+NAME[AL()]+'. Slova se uloží do sady v jazyce '+NAME[L]+' a aktivní jazyk se nezmění.</span></div>':'');
+   var sets=setsOf(L).map(function(s){return '<button type="button" class="check radio'+(i.setId===s.id?' on':'')+'" data-act="imp-set" data-id="'+s.id+'" role="radio" aria-checked="'+(i.setId===s.id)+'"><span class="box"></span><span class="tx">'+esc(s.name)+'</span></button>'}).join('');
+   okc=!nw||i.newName.trim();
+   body=langs+'<span class="lbl">2. Sada v jazyce '+NAME[L]+'</span>'+sets+'<button type="button" class="check radio'+(nw?' on':'')+'" data-act="imp-set" data-id="__new" role="radio" aria-checked="'+nw+'"><span class="box"></span><span class="tx">Nová sada</span></button>'+
+    (nw?'<div style="padding:4px 0 8px 38px"><input class="field" data-bind="impname" value="'+esc(i.newName)+'" placeholder="'+(L==='de'?'Např. Němčina — lekce 2':'Např. Angličtina — lekce 5')+'" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Název sady">'+(i.newName.trim()?'':'<p class="help">Pojmenuj sadu, ať ji najdeš.</p>')+'</div>':'');
+  }
   return '<div class="ovl">'+impTop('Kam to uložit?','<button class="tbtn" data-act="imp-close">Zrušit</button>','')+'<div class="ovl-body gut"><div class="col">'+body+'</div></div><div class="ovl-foot gut"><div class="col"><button class="btn primary" data-act="imp-next"'+(okc?'':' disabled')+'>Pokračovat</button></div></div></div>';
  }
  if(st==='cam1'){
@@ -1264,12 +1278,12 @@ function importHTML(){
   return '<div class="ovl">'+impTop(i.src==='photo'?'Vybraná fotka':'Fotoaparát','<button class="tbtn" data-act="imp-close">Zrušit</button>','')+'<div class="ovl-body gut"><div class="col"><div class="cam"><div class="frame4"></div><div class="photo" aria-label="Simulovaná fotka stránky ze sešitu"><div class="ph1">'+(lang==='de'?'Lekce 1':'Unit 4')+' · str. '+(lang==='de'?'14':'31')+'</div><div class="pr">'+pr+'</div></div>'+(i.src==='photo'?'':'<button class="shutter" data-act="imp-shot" aria-label="Vyfotit"><i></i></button>')+'<p style="font-size:13px;opacity:.7;text-align:center;margin:0">Simulace: v prototypu se žádný fotoaparát nepoužívá.</p></div></div></div>'+(i.src==='photo'?'<div class="ovl-foot gut"><div class="col"><button class="btn primary" data-act="imp-shot">Použít fotku</button></div></div>':'')+'</div>';
  }
  if(st==='read'){
-  return '<div class="ovl">'+impTop('','<button class="tbtn" data-act="imp-close">Zrušit</button>','')+'<div class="ovl-body gut"><div class="col"><div class="center"><div class="spin" role="progressbar" aria-label="Čtu stránku"></div><h2>Čtu stránku…</h2><p class="sub">Čtení běží přímo v zařízení, internet není potřeba.</p></div></div></div></div>';
+  return '<div class="ovl">'+impTop('','<button class="tbtn" data-act="imp-close">Zrušit</button>','')+'<div class="ovl-body gut"><div class="col"><div class="center"><div class="spin" role="progressbar" aria-label="Čtu stránku"></div><h2>Čtu stránku…</h2><p class="sub">Rozpoznávám text v jazyce '+NAME[i.lang]+'. Čtení běží přímo v zařízení, internet není potřeba.</p></div></div></div></div>';
  }
  if(st==='review'){
   var fl=impFlagged(),ok=i.rows.filter(function(r){return r.st==='ok'||r.st==='done'}),rem=i.rows.filter(function(r){return r.st==='rem'||r.st==='disc'});
   var de=impLang()==='de',pairs=i.rows.filter(function(r){return r.st!=='disc'}).length;
-  var set=i.setId==='__new'?{name:i.newName.trim()||'Nová sada'}:setOf(i.setId);
+  var set=i.setId==='__new'?{name:i.newName.trim()||'Nová sada',lang:i.lang}:setOf(i.setId);
   function row(r){
    var flag=r.st==='flag',done=r.st==='done';
    var s='<div class="irow '+(flag?'flag':(done?'done ok':'ok'))+'" data-row="'+r.id+'">';
@@ -1287,11 +1301,11 @@ function importHTML(){
   if(rem.length)body+='<h2 class="sec">Vyřazené ('+rem.length+')</h2><div class="list">'+rem.map(function(r){return '<div class="lrow"><div class="lt"><b>'+esc((r.art?r.art+' ':'')+r.f)+'</b><small>'+(r.st==='disc'?'Není to slovíčko? Vyřazeno. Ťukni, pokud to slovíčko je.':'Smazáno z kontroly')+'</small></div><button class="btn soft sm" data-act="imp-back" data-id="'+r.id+'">'+(r.st==='disc'?'Je to slovíčko':'Vrátit')+'</button></div>'}).join('')+'</div>';
   var k=impSavable().length;
   var foot=fl.length?'<div class="col stack"><button class="btn primary" data-act="imp-nextflag">Zkontrolovat další ('+fl.length+')</button>'+(k?'<button class="btn sec" data-act="sheet" data-t="saveconf">Uložit '+k+' '+pl(k,'hotové','hotová','hotových')+'</button>':'')+'</div>':'<div class="col"><button class="btn primary" data-act="imp-save"'+(k?'':' disabled')+'>Uložit '+k+' '+pl(k,'slovo','slova','slov')+'</button></div>';
-  return '<div class="ovl">'+impTop('Zkontroluj slova','<button class="tbtn" data-act="sheet" data-t="cancelconf">Zrušit</button>','')+'<div class="ovl-body gut" data-scroll="ib"><div class="col"><p class="sub" style="margin:-2px 0 12px">'+esc(set.name)+'</p>'+body+'</div></div><div class="ovl-foot gut">'+foot+'</div></div>';
+  return '<div class="ovl">'+impTop('Zkontroluj slova','<button class="tbtn" data-act="sheet" data-t="cancelconf">Zrušit</button>','')+'<div class="ovl-body gut" data-scroll="ib"><div class="col"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-2px 0 12px">'+lgtag(i.lang)+'<span class="sub">'+esc(set.name)+'</span></div>'+body+'</div></div><div class="ovl-foot gut">'+foot+'</div></div>';
  }
  if(st==='saved'){
   var si=i.saved;
-  return '<div class="ovl">'+impTop('Hotovo','','')+'<div class="ovl-body gut"><div class="col"><div class="center" style="align-items:flex-start;text-align:left"><div class="stat s-ok">'+icon('check')+'</div><h2>Uloženo '+si.n+' '+pl(si.n,'slovo','slova','slov')+' do sady '+esc(si.set)+'.</h2>'+(si.skipped?'<p class="sub">'+si.skipped+' '+pl(si.skipped,'označené slovo se přeskočilo','označená slova se přeskočila','označených slov se přeskočilo')+'. Přidat '+pl(si.skipped,'ho','je','je')+' půjde ručně.</p>':'')+'</div></div></div><div class="ovl-foot gut"><div class="col stack"><button class="btn primary" data-act="imp-practice">Procvičit teď</button><button class="btn sec" data-act="imp-close">Hotovo</button></div></div></div>';
+  return '<div class="ovl">'+impTop('Hotovo','','')+'<div class="ovl-body gut"><div class="col"><div class="center" style="align-items:flex-start;text-align:left"><div class="stat s-ok">'+icon('check')+'</div><div>'+lgtag(si.lang)+'</div><h2>Uloženo '+si.n+' '+pl(si.n,'slovo','slova','slov')+' do sady '+esc(si.set)+'.</h2>'+(si.skipped?'<p class="sub">'+si.skipped+' '+pl(si.skipped,'označené slovo se přeskočilo','označená slova se přeskočila','označených slov se přeskočilo')+'. Přidat '+pl(si.skipped,'ho','je','je')+' půjde ručně.</p>':'')+'</div></div></div><div class="ovl-foot gut"><div class="col stack">'+(si.lang===AL()?'<button class="btn primary" data-act="imp-practice">Procvičit teď</button><button class="btn sec" data-act="imp-close">Hotovo</button>':'<button class="btn primary" data-act="imp-practice">Přepnout na '+NAME[si.lang]+' a procvičit</button><button class="btn sec" data-act="imp-close">Hotovo, zůstat v '+NAME[AL()]+'</button>')+'</div></div></div>';
  }
  return '';
 }
@@ -1425,7 +1439,7 @@ function vtEval(){
 function openWordSheet(id,setId){
  var w=id?W(id):null;
  if(w){S.sheet={type:'word',id:w.id,set:w.set,f:w.f,art:w.art,cz:w.cz.join('; '),del:false};return}
- var mine=setsOf(),sid=(setId&&setOf(setId)&&setOf(setId).lang===AL()?setId:null)||(S.setSel&&setOf(S.setSel)&&setOf(S.setSel).lang===AL()?S.setSel:null)||(mine[0]?mine[0].id:'__new');
+ var mine=setsOf(),sid=setId==='__new'?'__new':(setId&&setOf(setId)&&setOf(setId).lang===AL()?setId:null)||(S.setSel&&setOf(S.setSel)&&setOf(S.setSel).lang===AL()?S.setSel:null)||(mine[0]?mine[0].id:'__new');
  S.sheet={type:'word',id:null,set:sid,f:'',art:'',cz:'',del:false};
 }
 function saveWord(){
@@ -1457,6 +1471,19 @@ function act(a,el,e){
   case 'noop':return;
   case 'tab':S.view=d('v');S.sp=null;S.setSel=null;S._rs=true;render();return;
   case 'sheet':S.sheet={type:d('t'),set:d('set')||''};render();return;
+  case 'set-add':S.sheet={type:'add',set:'',newset:true};render();return;
+  case 'set-del':var did=d('id');S.sets=S.sets.filter(function(x){return x.id!==did});S.words=S.words.filter(function(w){return w.set!==did});S.setSel=null;S.sheet=null;S._rs=true;toast('Sada je smazaná.');render();return;
+  case 'lang-set':
+   var nl=d('v');if(nl===S.lang||!NAME[nl])return;
+   S.lang=nl;LS.set(LKEY,nl);S.setSel=null;S.vopen=null;S.weakFilter=null;S.defn=false;S._rs=true;S._fl=nl;render();toast('Aktivní jazyk: '+NAME[nl],1800);return;
+  case 'lp-sel':S.langPick.sel=d('v');render();return;
+  case 'lp-go':
+   if(!S.langPick||!S.langPick.sel)return;
+   S.lang=S.langPick.sel;LS.set(LKEY,S.lang);S.intro=S.langPick.then==='intro'?1:0;S.langPick=null;S.view='practice';S._rs=true;render();return;
+  case 'simempty':
+   var el2=S.lang;
+   S.sets=S.sets.filter(function(x){return x.lang!==el2});S.words=S.words.filter(function(x){return x.lang!==el2});S.verbs=S.verbs.filter(function(x){return x.lang!==el2});S.attempts=S.attempts.filter(function(x){return x.lang!==el2});
+   S.dups=S.dups.filter(function(x){return x.lang!==el2});S.over=S.over.filter(function(x){return x.lang!==el2});S.sp=null;S.setSel=null;S.vopen=null;toast('Jazyk '+NAME[el2]+' je prázdný (simulace).');render();return;
   case 'sheet-close':closeSheet();return;
   case 'set-open':S.setSel=d('id');S._rs=true;render();return;
   case 'set-back':S.setSel=null;S._rs=true;render();return;
@@ -1466,23 +1493,20 @@ function act(a,el,e){
   case 'word-edit':openWordSheet(d('id'));render();return;
   case 'word-new':openWordSheet(null,d('set'));render();return;
   case 'word-art':S.sheet.art=d('v');render();return;
-  case 'word-lang':S.sheet.lang=d('v');render();return;
   case 'word-save':saveWord();return;
   case 'word-delask':S.sheet.del=true;render();return;
   case 'word-keep':S.sheet.del=false;render();return;
   case 'word-del':S.words=S.words.filter(function(w){return w.id!==S.sheet.id});S.sheet=null;toast('Slovo je smazané.');render();return;
   /* verbs */
-  case 'vlang':S.vlang=d('v');S.vopen=null;render();return;
   case 'verb-toggle':S.vopen=S.vopen===d('id')?null:d('id');render();return;
-  case 'verb-new':S.sheet={type:'verb',id:null,lang:S.vlang,line:'',f:{},cz:''};render();return;
+  case 'verb-new':S.sheet={type:'verb',id:null,lang:AL(),line:'',f:{},cz:''};render();return;
   case 'verb-edit':var v=V(d('id'));S.sheet={type:'verb',id:v.id,lang:v.lang,line:verbLine(v),f:JSON.parse(JSON.stringify(v.f)),cz:v.cz};S.sheet.f.inf=v.inf;render();return;
-  case 'vf-lang':S.sheet.lang=d('v');S.sheet.f=parseVerb(S.sheet.line,d('v'));render();return;
   case 'vf-aux':S.sheet.f.aux=d('v');render();return;
   case 'verb-save':
    var s=S.sheet;if(!s.f.inf||!s.cz.trim())return;
    var f2={};VF[s.lang].forEach(function(x){f2[x[0]]=s.f[x[0]]||''});
-   if(s.id){var vv=V(s.id);vv.inf=s.f.inf;vv.cz=s.cz.trim();vv.f=f2;vv.lang=s.lang}else S.verbs.push({id:'v'+(++S.wcnt),lang:s.lang,inf:s.f.inf,cz:s.cz.trim(),f:f2});
-   S.vlang=s.lang;S.sheet=null;toast('Sloveso je uložené.');render();return;
+   if(s.id){var vv=V(s.id);vv.inf=s.f.inf;vv.cz=s.cz.trim();vv.f=f2}else S.verbs.push({id:'v'+(++S.wcnt),lang:s.lang,inf:s.f.inf,cz:s.cz.trim(),f:f2});
+   S.sheet=null;toast('Sloveso je uložené.');render();return;
   case 'vt-start':startVT();return;
   case 'vt-check':vtEval();return;
   case 'vt-idk':S.test.fields={};vtEval();return;
@@ -1530,17 +1554,17 @@ function act(a,el,e){
   case 'dup':S.dups=S.dups.filter(function(x){return x.id!==d('id')});toast(d('v')==='merge'?'Slova jsou sloučená (simulace).':'Obě slova zůstala (simulace).');render();return;
   case 'over':S.over=S.over.filter(function(x){return x.id!==d('id')});toast('Hotovo (simulace).');render();return;
   case 'simvoice':S.sim.noVoice=!S.sim.noVoice;render();return;
-  case 'restore':var sd=seed();['sets','words','verbs','attempts','dups','over','dir','prevHit'].forEach(function(k){S[k]=sd[k]});S.intro=0;S.sheet=null;S.sp=null;S.setSel=null;toast('Ukázková data jsou zpátky.');render();return;
-  case 'delall':S.sets=[];S.words=[];S.verbs=[];S.attempts=[];S.dups=[];S.over=[];S.sheet=null;S.sp=null;S.view='practice';S.setSel=null;S.vopen=null;S.intro=1;S._rs=true;render();return;
+  case 'restore':var sd=seed();['sets','words','verbs','attempts','dups','over','dir'].forEach(function(k){S[k]=sd[k]});S.intro=0;if(!S.lang)S.langPick={sel:null,then:'main'};S.sheet=null;S.sp=null;S.setSel=null;toast('Ukázková data jsou zpátky.');render();return;
+  case 'delall':S.sets=[];S.words=[];S.verbs=[];S.attempts=[];S.dups=[];S.over=[];S.sheet=null;S.sp=null;S.view='practice';S.setSel=null;S.vopen=null;S.intro=0;S.lang=null;LS.set(LKEY,'');S.langPick={sel:null,then:'intro'};S._rs=true;render();return;
   /* intro */
   case 'intro-next':S.intro=2;render();return;
   case 'intro-skip':S.intro=0;S._rs=true;render();return;
   case 'intro-photo':S.intro=0;openImport('camera');return;
   /* import */
-  case 'imp-open':openImport(d('src')||'camera',d('set'));return;
+  case 'imp-open':openImport(d('src')||'camera',d('set'),!!d('newset'));return;
   case 'imp-close':S.imp=null;S.sheet=null;render();return;
   case 'imp-set':S.imp.setId=d('id');render();return;
-  case 'imp-lang':S.imp.newLang=d('v');render();return;
+  case 'imp-lang':S.imp.lang=d('v');var ms=setsOf(d('v'));S.imp.setId=ms.length?ms[0].id:'__new';render();return;
   case 'imp-next':S.imp.step=S.imp.src==='photo'?'cam2':'cam1';render();return;
   case 'imp-cam':S.imp.step='cam2';render();return;
   case 'imp-pick':S.imp.src='photo';S.imp.step='cam2';render();return;
@@ -1561,23 +1585,26 @@ function act(a,el,e){
   case 'imp-nextflag':
    var fr=$('.irow.flag',area);if(fr){fr.scrollIntoView({block:'center',behavior:'smooth'});var fi=$('input',fr);if(fi)try{fi.focus({preventScroll:true})}catch(x){}}return;
   case 'imp-save':saveImport();return;
-  case 'imp-practice':S.imp=null;S.sheet=null;S.view='practice';startTest(planItems());return;
+  case 'imp-practice':
+   if(S.imp&&S.imp.saved&&S.imp.saved.lang!==S.lang){S.lang=S.imp.saved.lang;LS.set(LKEY,S.lang);S.setSel=null;S.vopen=null;S.weakFilter=null}
+   S.imp=null;S.sheet=null;S.view='practice';startTest(planItems());return;
  }
 }
-function openImport(src,setId){
+function openImport(src,setId,newset){
  S.sheet=null;
- var sid=setId||(S.sets[0]?S.sets[0].id:'__new');
- if(setId&&!setOf(setId))sid='__new';
- S.imp={step:'where',src:src,setId:sid,newName:'',newLang:null,rows:[],saved:null};render();
+ var lock=!!(setId&&setOf(setId)),sid,lang=AL();
+ if(lock){sid=setId;lang=setOf(setId).lang}
+ else{var mine=setsOf(lang);sid=(newset||!mine.length)?'__new':mine[0].id}
+ S.imp={step:'where',src:src,lang:lang,lock:lock,setId:sid,newName:'',rows:[],saved:null};render();
 }
 function saveImport(){
  var i=S.imp,rows=impSavable(),skipped=impFlagged().length;
  if(!rows.length)return;
  var setId=i.setId;
- if(setId==='__new'){var ns={id:'s'+(++S.wcnt),name:i.newName.trim()||'Nová sada',short:i.newName.trim()||'Nová sada',lang:i.newLang||'de',on:true};S.sets.push(ns);setId=ns.id}
+ if(setId==='__new'){var ns={id:'s'+(++S.wcnt),name:i.newName.trim()||'Nová sada',short:i.newName.trim()||'Nová sada',lang:i.lang,on:true};S.sets.push(ns);setId=ns.id}
  var set=setOf(setId);
  rows.forEach(function(r){var f=r.f.trim();if(/^to\s/.test(f)||set.lang==='en')r.art='';S.words.push({id:'n'+(++S.wcnt),set:setId,lang:set.lang,art:set.lang==='de'?r.art:'',f:f,cz:r.cz.split(';').map(function(x){return x.trim()}).filter(Boolean),pos:(set.lang==='de'&&r.art)?'n':'x',pl:'',fresh:true})});
- i.saved={n:rows.length,set:set.name,skipped:skipped};i.step='saved';S.sheet=null;render();
+ i.saved={n:rows.length,set:set.name,lang:set.lang,skipped:skipped};i.step='saved';S.sheet=null;render();
 }
 
 /* ================= events ================= */
@@ -1615,7 +1642,7 @@ dev.addEventListener('input',function(e){
    var sv2=$('#vsave');if(sv2)sv2.disabled=!(S.sheet.f.inf&&S.sheet.cz.trim())}
  else if(b==='vf'){S.sheet.f[el.getAttribute('data-k')]=v;var sv3=$('#vsave');if(sv3)sv3.disabled=!(S.sheet.f.inf&&S.sheet.cz.trim())}
  else if(b==='vcz'){S.sheet.cz=v;var sv4=$('#vsave');if(sv4)sv4.disabled=!(S.sheet.f.inf&&S.sheet.cz.trim())}
- else if(b==='impname'){S.imp.newName=v;var nb=$('[data-act="imp-next"]',area);if(nb)nb.disabled=!(v.trim()&&S.imp.newLang)}
+ else if(b==='impname'){S.imp.newName=v;var nb=$('[data-act="imp-next"]',area);if(nb)nb.disabled=!v.trim()}
  else if(b==='impf'||b==='impcz'){var r=S.imp.rows.filter(function(x){return x.id===el.getAttribute('data-id')})[0];if(b==='impf')r.f=v;else r.cz=v;r.touched=true}
 });
 dev.addEventListener('change',function(e){
@@ -1628,8 +1655,10 @@ dev.addEventListener('change',function(e){
 function render(){
  var scr={};$$('[data-scroll]',area).forEach(function(x){scr[x.getAttribute('data-scroll')]=x.scrollTop});
  var rs=S._rs;S._rs=false;
+ dev.classList.toggle('l-en',AL()==='en');dev.classList.toggle('l-de',AL()==='de');
  var html=shellHTML();
  if(S.intro)html+=introHTML();
+ if(S.langPick)html+=langPickHTML();
  if(S.imp)html+=importHTML();
  if(S.test)html+=testHTML();
  if(S.sum)html+=sumHTML();
@@ -1639,6 +1668,7 @@ function render(){
  after();
 }
 function after(){
+ if(S._fl){var fb=$('.lsw [data-act="lang-set"][data-v="'+S._fl+'"]',area);S._fl=null;if(fb){try{fb.focus({preventScroll:true})}catch(x){}}}
  var t=S.test;
  if(t&&!S.sheet){
   if(t.phase==='ask'&&((t.kind==='words'&&t.items[t.i].mode==='typing')||t.kind==='verbs')){var a=$('#ans');if(a){try{a.focus({preventScroll:true});var L=a.value.length;a.setSelectionRange(L,L)}catch(x){}}}
@@ -1686,6 +1716,6 @@ function onResize(){
 window.addEventListener('resize',onResize);
 if(mq.addEventListener)mq.addEventListener('change',onResize);
 applyFrame();layout();lastW=dev.clientWidth;render();
-window.__app={S:S,render:render,startTest:startTest,planItems:planItems,judgeAnswer:judgeAnswer};
+window.__app={S:S,render:render,startTest:startTest,planItems:planItems,judgeAnswer:judgeAnswer,W:W,V:V,targetsOf:targetsOf};
 })();
 </script>
