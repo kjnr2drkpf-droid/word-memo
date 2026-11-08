@@ -74,7 +74,8 @@ struct LanguageHint { var foreign: Language }               // OCR dostane [ciz�
 // Domain – zápis jen přes funkce, které jazyk převezmou ze zdroje, nebo selžou
 func makeMembership(word: WordValue, set: SetValue) throws -> MembershipValue   // .languageMismatch
 func makeAttempt(item: ItemValue, session: SessionValue, answer: AnswerValue) throws -> AttemptValue
-func buildSession(language: Language, cards: [CardValue], now: Date) -> [CardValue]  // jazyk bez defaultu
+func buildSession(language: Language, sets: [SetValue], cards: [CardValue], now: Date) throws -> [CardValue]
+// jazyk bez defaultu; sada nebo karta jiného jazyka než `language` => throw .mixedLanguages (nic se tiše nevyřadí)
 
 // Domain – port pro OCR; adaptér OCRVision ho implementuje
 protocol TextRecognizer { func recognize(imageURL: URL, hint: LanguageHint) async throws -> RecognizedPage }
@@ -516,7 +517,7 @@ Nové sondy z tohoto návrhu:
 - **Fronta „k procvičení"** = karty jazyka L s `dueAt <= now`. Počty na hlavní obrazovce, odznaky a „hotovo na dnes" platí jen pro L.
 - **Plánovač** (`buildSession`, `07` kap. 3) běží na jazyk: strop 30 karet, 8 nových a práh 40 po termínu se počítají v jazyce L. Cvičení jednoho jazyka neposouvá frontu druhého.
 - **Slovesa:** vlastní fronta na jazyk (strop 25, 3 nová, `07` kap. 4).
-- **Relace:** jazyk se zafixuje při startu, `setIDs` jen z L. Přerušená relace se nabídne jen v jazyce L.
+- **Relace (D18, upřesnění):** test se skládá **výhradně ze sad aktivního jazyka**. `language` předává volající a je to aktivní jazyk. `SessionBuilder` (čistá funkce) vynucuje, že každá zvolená sada i každá vstupní karta musí mít jazyk L. Jinak vrátí chybu `mixedLanguages` (s počtem a ID cizích záznamů) a relace nevznikne. **Nic se tiše nevyřadí**, protože tichý výběr jedné části by zakryl chybu v UI nebo v dotazu. Filtr `language` v repozitáři je první obrana, kontrola v `SessionBuilder` druhá. UI dovolí vybírat jen sady aktivního jazyka. Jazyk se zafixuje při startu do `StudySession.language`. Přerušená relace se nabídne jen v jazyce L.
 - **Výběr ze 4 (`DistractorPicker`, D21):** potřebuje 3 chybné možnosti. Vstupem je karta a `language`. Kandidáti jsou jen platná slova (nesmazaná, nesloučená, bez porušení `LanguageGuard`) **téhož jazyka** jako karta, jiná než karta sama, a vybírají se v pořadí:
   1. stejná sada jako karta (sada karty, která je v relaci; u fronty přes celý jazyk ty sady, ve kterých slovo je), stejný slovní druh;
   2. stejná sada, jiný slovní druh;
@@ -537,8 +538,10 @@ Nové sondy z tohoto návrhu:
 | L3 | Přesun slova do sady stejného jazyka / jiného jazyka | nové členství + tombstone v jedné operaci / `languageMismatch` a beze změny |
 | L4 | `makeAttempt` pro položku `en` v relaci `de` | chyba, pokus nevznikne |
 | L5 | `MergePlanner` nad en „Hand", de „Hand", en „kind", de „Kind" | žádný návrh sloučení |
-| L6 | `buildSession(language: de)` nad smíšenou množinou karet (vč. karet po termínu v `en`) | jen karty `de`. Strop, nová slova a práh 40 se počítají jen z `de`. |
-| L7 | `buildSession` s `setIDs` z obou jazyků | odmítnuto |
+| L6 | `buildSession(language: de)` nad kartami `de` z repozitáře, v úložišti jsou i karty `en` po termínu | relace jen z `de`. Strop, nová slova a práh 40 se počítají jen z `de` (karty `en` do vstupu vůbec nepřijdou). |
+| L7 | `buildSession(language: de)` se sadami `de` + jednou sadou `en` | chyba `mixedLanguages` s ID sady `en`. Relace ani `StudySession` nevznikne, žádná tichá redukce na `de`. |
+| L7a | `buildSession(language: de)` se sadami jen `de`, ale ve vstupu jsou karty `en` (chyba dotazu) | chyba `mixedLanguages` s počtem cizích karet. Žádný tichý výběr jedné části. |
+| L7b | `buildSession(language: en)`, všechny sady i karty `de` (volající předal jiný než aktivní jazyk) | chyba `mixedLanguages`, relace nevznikne. Nic se nevybere ani z jedné části. |
 | L8 | `DistractorPicker`: sada `de` se 3 slovy + jiná sada `de` s dalšími slovy | 4 možnosti, všechny `de`. Nejdřív 2 ze stejné sady, 1 doplněná z jiné sady `de`, přednostně stejný slovní druh. |
 | L8a | `DistractorPicker`: jazyk `de` má celkem jen 3 platná slova (a `en` má stovky) | `choiceCount == 3`, žádná možnost z `en`. Při 2 slovech v jazyce MC nevznikne (pravidlo `07` kap. 3). |
 | L8b | `DistractorPicker` nad daty, kde druhý jazyk má shodná lemmata a překlady (en „Hand" × de „Hand"), vlastnostní test přes náhodné velikosti sad a jazyků | v žádném běhu se nedoplní možnost z druhého jazyka. `choiceCount` = min(4, počet platných slov jazyka) a klesne jen tehdy, když nestačí celý jazyk. |
