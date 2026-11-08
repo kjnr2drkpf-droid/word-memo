@@ -5,7 +5,7 @@ Autor: ux-designer, stav k 2026-11-08 (zapracováno rozhodnutí D18 až D22 ve z
 ## Závěr
 
 1. **Aktivní jazyk (D18, US-26) je jeden globální stav nad všemi obrazovkami a je vždy vidět.** Na kořenech Procvičit, Sady, Slovesa a Pokrok je pod titulkem přepínač „English | Deutsch“ (C2, bez vlajek) a titulek říká jazyk („Sady · němčina“). Pod neaktivním jazykem je jen informace „k procvičení: N“, která nemíchá fronty. Na iPadu je přepínač v horní části sidebaru; když je sidebar skrytý, je v záhlaví obsahu jako na iPhonu. V testu přepínač zmizí a zůstane štítek jazyka (C3). Nastavení je společné a jazyk nemá. Jazyk sady je po vytvoření neměnný (D19): v UI není žádná akce „Změnit jazyk sady“, chybně založenou sadu opraví nabídka „Smazat a vytvořit znovu“ (S22). Import si jazyk slovíček volí zvlášť (D22: první řádek S31, předvyplněný aktivním jazykem) a aktivní jazyk nemění. Pravidla: kap. 3.8, obrazovka S02, komponenty C2 a C3. Odchylky od zadaného návrhu a jejich důvody: kap. 3.8.1.
-2. **Aplikace má jednu smyčku a čtyři místa kolem ní.** Smyčka je Procvičit → vyhodnocení → souhrn. Okolo jsou Sady (slova, import fotkou), Slovesa (samostatný vstup, D8), Pokrok (historie a slabá místa) a Nastavení (iCloud, duplicity, smazání dat). Na iPhonu je to tab bar o 5 položkách, na iPadu sidebar se stejnými 5 cíli. Layout se řídí size class, ne typem zařízení. Všechno kromě Nastavení je filtrované na aktivní jazyk.
+2. **Aplikace má jednu smyčku a čtyři místa kolem ní.** Smyčka je Procvičit → vyhodnocení → souhrn. Okolo jsou Sady (slova, import fotkou), Slovesa (samostatný vstup, D8), Pokrok (historie a slabá místa) a Nastavení (iCloud, duplicity, smazání dat). Na iPhonu je to tab bar o 5 položkách, na iPadu sidebar se stejnými 5 cíli. Layout se řídí size class, ne typem zařízení. Všechno kromě Nastavení a jazyka při importu (S31, D22) je filtrované na aktivní jazyk.
 3. **Test je celoobrazovkový režim bez tab baru.** Nahoře je jen „Skončit“, štítek jazyka a ukazatel postupu (bez časomíry). Zadání a tlačítko výslovnosti jsou vždy nad klávesnicí. Pole a tlačítko „Zkontrolovat“ jsou ukotvené těsně nad klávesnicí, zadání se smí zmenšit nebo rolovat, nikdy ho klávesnice nepřekryje. Na SE velikosti (667 pt výšky) to vychází na dotyk, viz S13. Ve výběru z možností se chybné možnosti dopočítají z jiných sad téhož jazyka, nikdy z druhého (D21, S12).
 4. **Neúspěch nedemotivuje konkrétně takto:** v celé aplikaci není červená mimo potvrzení mazání, žádný symbol „X“, žádné body ani série. „Špatně“ je neutrální modrofialová s ikonou „znovu“, „skoro“ je jantarová, „správně“ je klidná zelená. Stav se nikdy nesděluje jen barvou (ikona + slovo + tvar). Souhrn začíná tím, co se povedlo, a srovnání s minulým pokusem ukazuje jen tehdy, když je lepší nebo stejné. Barvy jazyka (3.8) jsou od stavových barev oddělené a v testu se nepoužívají.
 5. **Kontrolní obrazovka importu (S35) je nejdůležitější obrazovka aplikace.** Je jedna pro fotku i CSV. Podezřelé řádky jsou nahoře a rozbalené s výřezem z fotky, ostatní jsou kompaktní. Každé pole je přímo editovatelné jedním ťuknutím. Uloží se jen to, co je bez značky nebo co syn opravil či potvrdil. Jazyk slovíček se volí jako první řádek průvodce (S31, předvyplněný aktivním jazykem, D22), po zahájení skenu je zamčený a je vidět až do konce (S34, S35, S36).
@@ -37,7 +37,7 @@ Autor: ux-designer, stav k 2026-11-08 (zapracováno rozhodnutí D18 až D22 ve z
 
 | # | Úkol | Story | Vstup | Kroky (obrazovky) | Konec |
 |---|---|---|---|---|---|
-| T1 | Otevřít aplikaci poprvé, zvolit jazyk a hned vědět, co dělat | US-01, US-26 | Spuštění z čisté instalace | S01 krok 1 (volba jazyka) → krok 2 → „Vyfotit slovíčka“ | S31 (kam uložit; jazyk je zvolený v S01 a v S31 jen zobrazený) |
+| T1 | Otevřít aplikaci poprvé, zvolit jazyk a hned vědět, co dělat | US-01, US-26 | Spuštění z čisté instalace | S01 krok 1 (volba jazyka) → krok 2 → „Vyfotit slovíčka“ | S31 (kam uložit; segment „Jazyk slovíček“ je předvyplněný jazykem zvoleným v S01) |
 | T2 | Nafotit stránku ze sešitu a zkontrolovat, co aplikace přečetla | US-02, US-03 | Sady → „+“ nebo první spuštění | S30 → S31 (volba jazyka slovíček + sada tohoto jazyka) → S32 (jen poprvé) → systémový skener → S34 → S35 → S36 | Slova uložená v sadě; nabídka „Procvičit teď“ (u jiného než aktivního jazyka „Přepnout na … a procvičit“) |
 | T2b | Totéž z knihovny fotek (otec vkládá fotku) | US-02 | Sady → „+“ → „Vybrat z fotek“ | S30 → S31 → výběr fotky → S34 → S35 → S36 | Jako T2 |
 | T3 | Přidat nebo opravit jedno slovo ručně | US-04 | S21 → „+“ nebo řádek slova | S23 | Slovo uložené |
@@ -482,7 +482,7 @@ Nahoře v sidebaru je jen přepínač C2 (ne šestý cíl). Titulek obsahu řík
 
 | Stav | Chování a text |
 |---|---|
-| První spuštění / prázdná knihovna (v obou jazycích nic) | Místo karty: titulek „Pro {němčinu} tu zatím nemáš žádná slovíčka.“ Text: „Vyfoť stránku ze sešitu a za chvíli můžeš procvičovat.“ Tlačítko „Vyfotit slovíčka“ (→ S31 v aktivním jazyce). Sekundárně „Přidat sadu“ (→ S30) a „Přidat ručně“ (→ S23 přes S31). Bez „Přepnout na …“: druhý jazyk také nic nemá. |
+| První spuštění / prázdná knihovna (v obou jazycích nic) | Místo karty: titulek „Pro {němčinu} tu zatím nemáš žádná slovíčka.“ Text: „Vyfoť stránku ze sešitu a za chvíli můžeš procvičovat.“ Tlačítko „Vyfotit slovíčka“ (→ S31 s jazykem předvyplněným aktivním). Sekundárně „Přidat sadu“ (→ S30) a „Přidat ručně“ (→ S23 přes S31). Bez „Přepnout na …“: druhý jazyk také nic nemá. |
 | Aktivní jazyk bez sad, druhý jazyk sady má | Titulek: „Pro {němčinu} tu zatím nemáš žádná slovíčka.“ Text: „Přidej první sadu, nebo se přepni na {angličtinu}.“ Tlačítka: „Vyfotit slovíčka“ (primární), „Přidat sadu“, „Přepnout na {angličtinu}“ (textové). Bez tlačítka „Začít“, bez chybové hlášky (US-26). V C2 u druhého jazyka „k procvičení: N“, pokud tam něco čeká. |
 | Slova jsou, ale není co opakovat | Titulek: „V {němčině} je na dnes hotovo.“ Text: „Žádné slovo teď nečeká na opakování. Další přijdou na řadu později.“ Tlačítko „Přidat nová slova“ (→ S30). Když v druhém jazyce něco čeká, pod tím jeden řádek „V {angličtině} je k procvičení: {n}.“ a textové tlačítko „Přepnout na {angličtinu}“ (jen nabídka, ne tlak; pokud ji learning-scientist posoudí jako tlak, odpadne, viz 3.5). **Mezera:** US-08 nedefinuje „volné procvičování navíc“ (kap. 6, G1); do té doby není tlačítko „Procvičit i tak“. |
 | Žádná sada v procvičování | Karta: „Není vybraná žádná sada v {němčině}.“ Tlačítko „Vybrat sady“ (→ S11). „Začít“ nedostupné. |
@@ -818,7 +818,7 @@ Sheet o jazyce nic neříká: po souhrnu je cesta k přepnutí jazyka až na S10
 
 ### 4.3 Import slovíček
 
-Je to jeden průvodce pro fotku, knihovnu fotek a CSV. Mikrotexty a stavy odpovídají `09-obsah-a-import.md`, kap. 2 a 4. Obrázek se zpracuje v zařízení; po uložení se smaže (předpoklad Q8, výchozí chování v 09). **Cílový jazyk importu je vždy aktivní jazyk (D22)**, je prvním řádkem průvodce (S31) a je vidět na každé další obrazovce (S34, S35, S36). Průvodce nenabízí sady druhého jazyka ani volbu jazyka; jiný jazyk znamená přepnout aktivní jazyk před importem. Text, který vypadá jako druhý jazyk, se neuloží potichu (US-02, US-03).
+Je to jeden průvodce pro fotku, knihovnu fotek a CSV. Mikrotexty a stavy odpovídají `09-obsah-a-import.md`, kap. 2 a 4. Obrázek se zpracuje v zařízení; po uložení se smaže (předpoklad Q8, výchozí chování v 09). **Jazyk slovíček se při importu vždy volí (D22)**: první řádek průvodce (S31) je segment English | Deutsch předvyplněný aktivním jazykem, nabízejí se sady zvoleného jazyka a nová sada vznikne v něm. Po zahájení skenu je jazyk pevný a je vidět jako štítek na každé další obrazovce (S34, S35, S36). Import aktivní jazyk zařízení nemění; po uložení do jiného jazyka S36 nabídne „Přepnout na … a procvičit“. Text, který vypadá jako druhý jazyk, se neuloží potichu (US-02, US-03).
 
 #### S30 Přidat slova (volba zdroje) — US-02, US-19, US-04
 
@@ -1247,7 +1247,7 @@ V anglické sadě je popisek „Anglické slovo“ a řádek „Člen“ se nezo
 - „Uložit“ je dostupné, když je vyplněné cizí slovo a aspoň jeden český význam.
 - Varování, ne blokace: německé slovo bez členu, začínající velkým písmenem: „U německého podstatného jména chybí člen. Můžeš ho doplnit teď, nebo později.“ (jen němčina)
 - Při přidávání nového slova: „Uložit“ a „Uložit a přidat další“.
-- Přidání ručně z S30 bez sady v aktivním jazyce: nejdřív S31 (nová sada), pak S23.
+- Přidání ručně z S30 bez sady ve zvoleném jazyce: nejdřív S31 (volba jazyka, nová sada), pak S23.
 - Výběr „Sada“ nabízí jen sady téhož jazyka; slovo nejde přesunout do sady druhého jazyka (D19).
 - Vypnutá autokorekce, lišta znaků (kap. 3.4).
 - Pole množné číslo, příklad, výslovnostní přepis, poznámka z 09 **nejsou navržena** (G10: bez story).
