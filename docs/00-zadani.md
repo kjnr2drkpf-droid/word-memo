@@ -29,7 +29,7 @@ Syn (7. třída ZŠ, češtinou mluvící) se učí angličtinu a němčinu. Šp
 | D19 | **Jazyk sady je po vytvoření neměnný (zadavatel, 2026-11-08).** Chybně založenou sadu uživatel opraví novou sadou ve správném jazyce a starou smaže. Slovo nejde přesunout do sady jiného jazyka. |
 | D20 | **Žádný celkový souhrn přes oba jazyky (zadavatel, 2026-11-08).** Statistiky, souhrny, trend a pravidelnost se zobrazují jen po jazycích. Platí i pro případný rodičovský pohled (US-23). |
 | D21 | **Možnosti ve výběru (zadavatel, 2026-11-08).** Má-li sada méně než 3 použitelné chybné možnosti, **doplní se z jiných sad téhož jazyka**. Nikdy z druhého jazyka. Počet možností klesne jen tehdy, když celý jazyk nemá dost slov (to je okrajový případ, pravidlo navrhne `learning-scientist`).
-| D22 | **Import nabízí jen sady aktivního jazyka (zadavatel, 2026-11-08).** Sady druhého jazyka se v toku importu nenabízejí. Jazyk se mění jen přepnutím aktivního jazyka. |
+| D22 | **Jazyk se volí při importu (zadavatel, 2026-11-08, opraveno).** Při importu (fotka i CSV) uživatel vždy **vybere, pro který jazyk slovíčka přidává**, jako první krok; předvyplněno je aktivním jazykem, ale jde zvolit i druhý. Nabízejí se sady zvoleného jazyka a nová sada vznikne ve zvoleném jazyce. Jazyk je po celý import pevný, vidět na kontrolní obrazovce a OCR dostane jazykový kontext zvoleného jazyka. Import **nemění aktivní jazyk** zařízení; po uložení se může nabídnout „Přepnout na … a procvičit“. Do jednoho importu nejde míchat dva jazyky. (Dřívější znění D22 „import nabízí jen sady aktivního jazyka“ bylo mylný výklad a neplatí.) |
 
 ## Priority (návrh k odsouhlasení)
 - **P0:** import fotkou s kontrolou, test s plánováním opakování, uložení výsledků, iCloud sync, souhrn po pokusu.
